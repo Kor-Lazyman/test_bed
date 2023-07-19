@@ -1,6 +1,6 @@
 import simpy
 import random
-
+import visualization
 # Items:
 # ID: Index of the element in the dictionary
 # TYPE: Product, Raw Material, WIP;
@@ -277,6 +277,14 @@ def main():
                 print(
                     f"{env.now}: [{I[inven.item_id]['NAME']}]  {inven.store.items.__len__()}")
         env.run(until=i+1)
+        # calculate_inventory_cost()
+
+    # 재고 상태 와 비용 출력
+    for i in I.keys():
+        inventory_visualization = visualization.visualization(
+            inventoryList[i], I[i]['NAME'])
+        inventory_visualization.inventory_level_graph()
+        inventory_visualization.inventory_cost_graph()
         # calculate_inventory_cost()
 
     '''
