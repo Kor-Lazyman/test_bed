@@ -7,7 +7,7 @@ class visualization:
     def __init__(self, inventory, item_name):
         self.inventory = inventory
         self.item_name = item_name
- 
+
     def inventory_level_graph(self):
         sns.set(style="darkgrid")
         plt.figure(figsize=(10, 6))
@@ -39,6 +39,7 @@ class visualization:
         plt.xlabel('Episodes', size=20)
         plt.ylabel('# Total Rewards', size=20)
         plt.show()
+
 
 '''
 import matplotlib.pyplot as plt
@@ -102,4 +103,4 @@ class visualization:
         plt.xlabel('Episodes', size=20)
         plt.ylabel('# Total Rewards', size=20)
         plt.show()
-'''                
+'''
