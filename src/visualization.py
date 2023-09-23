@@ -30,14 +30,43 @@ class visualization:
         plt.grid(True)
         plt.show()
 
-    def plot_learning_history(history):
+    def plot_hist_total_reward(history):
         fig = plt.figure(1, figsize=(14, 5))
         ax = fig.add_subplot(1, 1, 1)
         plt.plot(history, lw=4,
                  marker='o', markersize=10)
         ax.tick_params(axis='both', which='major', labelsize=15)
         plt.xlabel('Episodes', size=20)
-        plt.ylabel('# Total Rewards', size=20)
+        plt.ylabel('Total Rewards', size=20)
+        plt.show()
+
+    def plot_loss(history):
+        fig = plt.figure(2, figsize=(14, 5))
+        ax = fig.add_subplot(1, 1, 1)
+        plt.plot(history, lw=4,
+                 marker='o', markersize=10)
+        ax.tick_params(axis='both', which='major', labelsize=15)
+        plt.xlabel('Episodes', size=20)
+        plt.ylabel('Loss', size=20)
+        plt.show()
+
+    def plot_hist_and_loss(reward_history, loss_history):
+        # Create 1 row, 2 columns of subplots
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+        # Plot total reward history
+        ax1.plot(reward_history, lw=4, marker='o', markersize=10)
+        ax1.tick_params(axis='both', which='major', labelsize=15)
+        ax1.set_xlabel('Episodes', size=20)
+        ax1.set_ylabel('Total Rewards', size=20)
+
+        # Plot loss history
+        ax2.plot(loss_history, lw=4, marker='o', markersize=10)
+        ax2.tick_params(axis='both', which='major', labelsize=15)
+        ax2.set_xlabel('Episodes', size=20)
+        ax2.set_ylabel('Loss', size=20)
+
+        plt.tight_layout()  # Adjust the layout to prevent overlap
         plt.show()
 
 

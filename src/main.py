@@ -1,122 +1,129 @@
-import environment as env
-import numpy as np
-import random
-from visualization import *
+from InventoryMgtEnv import GymInterface
 from config import *
-from DQN import *
+import numpy as np
+import optuna
+import optuna.visualization as vis
+from stable_baselines3.common.evaluation import evaluate_policy
+import time
+if RL_ALGORITHM == "DQN":
+    from stable_baselines3 import DQN
+elif RL_ALGORITHM == "DDPG":
+    from stable_baselines3 import DDPG
+elif RL_ALGORITHM == "PPO":
+    from stable_baselines3 import PPO
+
+# Create environment
+env = GymInterface()
 
 
-def main():
-    # 코드에 들어가는 옵션값
-    total_cost_per_day = []
-
-    # Initialize the simulation environment
-    daily_events = []
-    total_reward = 0  # 리워드 초기화
-    simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events = env.create_env(
-        I, P, daily_events)
-
-    # Initialize the DQN agent
-    state = np.array([inven.current_level for inven in inventoryList]
-                     )  # Get the inventory levels
-    state_size = len(inventoryList)  # Number of inventories
-    agent = DQNAgent(state_size, action_space, discount_factor,
-                     epsilon_greedy, epsilon_min, epsilon_decay,
-                     learning_rate, max_memory_size, target_update_frequency)
-    episode_done = False
-    total_rewards, losses = [], []
-    env.simpy_event_processes(agent, simpy_env, inventoryList, procurementList,
-                              productionList, sales, customer, providerList, daily_events, I)
-
-    # Print the list of items and processes
-    print("\nItem list")
-    for i in I.keys():
-        print(f"ITEM {i}: {I[i]['NAME']}")
-    print("\nProcess list")
-    for i in P.keys():
-        print(f"Output of PROCESS {i}: {P[i]['OUTPUT']['NAME']}")
-    print("Number of Inventories: ", len(inventoryList))
-    print("Number of Providers: ", len(providerList))
-
-    total_cost = 0
-    for episode in range(EPISODES):
-
-        for i in range(SIM_TIME*24):  # i: hourly time step
-            simpy_env.run(until=i+1)  # Run the simulation until the next hour
-
-            if (i+1) % 24 == 0:  # Daily time step
-                # Print the simulation log every 24 hours (1 day)
-                if PRINT_SIM_EVENTS:
-                    print(f"\nDay {(i+1) // 24}:")
-                    for log in daily_events:
-                        print(log)
-                daily_events.clear()
-
-                # Calculate the cost models
-                daily_total_cost = 0
-                for inven in inventoryList:
-                    daily_total_cost += inven.daily_inven_cost
-                    inven.daily_inven_cost = 0
-                for production in productionList:
-                    daily_total_cost += production.daily_production_cost
-                    production.daily_production_cost = 0
-                for procurement in procurementList:
-                    daily_total_cost += procurement.daily_procurement_cost
-                    procurement.daily_procurement_cost = 0
-                daily_total_cost += sales.daily_selling_cost
-                sales.daily_selling_cost = 0
-                print("[Daily Total Cost] ", daily_total_cost)
-                total_cost += daily_total_cost
-        print("\n[Total Cost] ", total_cost)
-
-        # Initialize the simulation environment
-        total_reward = 0
-        simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events = env.create_env(
-            I, P, daily_events)
-
-        '''
-        if PRINT_DQN:
-            print(
-                "_________________________________________________________done")
-        '''
-        total_rewards.append(total_reward)
-        print(f'Episode: {episode}/{EPISODES}, Total Reward: {total_reward}, Eps: {agent.epsilon:.2f}, Loss: {np.mean(losses):.5f}, Memory: {len(agent.memory)}')
-
-    print(total_rewards)
-    visualization.plot_learning_history(total_rewards)
-    '''
-    # Visualize the data trackers of the inventory level and cost over time
-    for i in I.keys():
-        inventory_visualization = visualization.visualization(
-            inventoryList[i], I[i]['NAME'])
-        inventory_visualization.inventory_level_graph()
-        inventory_visualization.inventory_cost_graph()
-        # calculate_inventory_cost()
-    '''
-    '''
-    if SPECIFIC_HOLDING_COST:
-        print(EventHoldingCost)
-    
-    #visualization
-    if VISUAL :
-        cost_list=[]#inventory_cost by id   id -> day 순으로 리스트 생성  전체 id 별로 저장되어 있는 list
-        level_list=[]#inventory_level by id
-        item_name_list=[]
-        total_cost_per_day = env.cal_cost(inventoryList, productionList, procurementList,sales)
-        total_cost_list = total_cost_per_day
-        for i in I.keys():
-            temp1=[]
-            temp2=[]
-            inventory_visualization = visualization.visualization(
-                inventoryList[i])
-            temp1,temp2=inventory_visualization.return_list()
-            level_list.append(temp1)
-            cost_list.append(temp2)
-            item_name_list.append(I[i]['NAME'])
-        inventory_visualization = visualization.visualization(None) # 필요하지 않으므로 None
-        inventory_visualization.plot_inventory_graphs(level_list, cost_list,total_cost_list,item_name_list)
-    '''
+def evaluate_model(model, env, num_episodes):
+    all_rewards = []
+    for _ in range(num_episodes):
+        obs = env.reset()
+        episode_reward = 0
+        done = False
+        while not done:
+            action, _ = model.predict(obs)
+            obs, reward, done, _ = env.step(action)
+            episode_reward += reward
+        all_rewards.append(episode_reward)
+    mean_reward = np.mean(all_rewards)
+    std_reward = np.std(all_rewards)
+    return mean_reward, std_reward
 
 
-if __name__ == "__main__":
-    main()
+def tuning_hyperparam(trial):
+    # Initialize the environment
+    env.reset()
+    # Define search space for hyperparameters
+    learning_rate = trial.suggest_loguniform('learning_rate', 1e-5, 1)
+    gamma = trial.suggest_float('gamma', 0.9, 0.9999, log=True)
+    batch_size = trial.suggest_categorical(
+        'batch_size', [16, 32, 64, 128, 256])
+    # Define the RL model
+    if RL_ALGORITHM == "DQN":
+        model = DQN("MlpPolicy", env, learning_rate=learning_rate,
+                    gamma=gamma, batch_size=batch_size, verbose=0)
+    elif RL_ALGORITHM == "DDPG":
+        model = DDPG("MlpPolicy", env, learning_rate=learning_rate,
+                     gamma=gamma, batch_size=batch_size, verbose=0)
+    elif RL_ALGORITHM == "PPO":
+        model = PPO("MlpPolicy", env, learning_rate=learning_rate,
+                    gamma=gamma, batch_size=batch_size, verbose=0)
+    # Train the model
+    model.learn(total_timesteps=SIM_TIME*N_EPISODES)
+    # Evaluate the model
+    eval_env = GymInterface()
+    mean_reward, _ = evaluate_policy(
+        model, eval_env, n_eval_episodes=N_EVAL_EPISODES)
+
+    return -mean_reward  # Minimize the negative of mean reward
+
+
+start_time = time.time()
+
+if OPTIMIZE_HYPERPARAMETERS:
+    study = optuna.create_study()
+    study.optimize(tuning_hyperparam, n_trials=N_TRIALS)
+
+    # Print the result
+    best_params = study.best_params
+    print("Best hyperparameters:", study.best_params)
+    # Visualize hyperparameter optimization process
+    vis.plot_optimization_history(study).show()
+    vis.plot_parallel_coordinate(study).show()
+    vis.plot_slice(study).show()
+    vis.plot_contour(study, params=['learning_rate', 'gamma']).show()
+
+else:
+    if RL_ALGORITHM == "DQN":
+        # model = DQN("MlpPolicy", env, verbose=0)
+        model = DQN("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
+                    batch_size=BEST_PARAMS['batch_size'], verbose=0, tensorboard_log=TENSORFLOW_LOGS)
+    elif RL_ALGORITHM == "DDPG":
+        model = DDPG("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
+                     batch_size=BEST_PARAMS['batch_size'], verbose=0, tensorboard_log=TENSORFLOW_LOGS)
+    elif RL_ALGORITHM == "PPO":
+        model = PPO("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
+                    batch_size=BEST_PARAMS['batch_size'], verbose=0, tensorboard_log=TENSORFLOW_LOGS)
+
+    model.learn(total_timesteps=SIM_TIME*N_EPISODES)  # Time steps = days
+    env.render()
+
+    # 학습 후 모델 평가
+    mean_reward, std_reward = evaluate_model(model, env, N_EVAL_EPISODES)
+    print(
+        f"Mean reward over {N_EVAL_EPISODES} episodes: {mean_reward:.2f} +/- {std_reward:.2f}")
+
+    # Optimal policy
+    if RL_ALGORITHM == "DQN":
+        optimal_actions_matrix = np.zeros(
+            (INVEN_LEVEL_MAX + 1, INVEN_LEVEL_MAX + 1), dtype=int)
+        for i in range(INVEN_LEVEL_MAX + 1):
+            for j in range(INVEN_LEVEL_MAX + 1):
+                if STATE_DEMAND:
+                    state = np.array([i, j, I[0]['DEMAND_QUANTITY']])
+                    action, _ = model.predict(state)
+                    optimal_actions_matrix[i, j] = action
+                else:
+                    state = np.array([i, j])
+                    action, _ = model.predict(state)
+                    optimal_actions_matrix[i, j] = action
+
+        # Print the optimal actions matrix
+        print("Optimal Actions Matrix:")
+        # print("Demand quantity: ", I[0]['DEMAND_QUANTITY'])
+        print(optimal_actions_matrix)
+
+end_time = time.time()
+print(f"Computation time: {(end_time - start_time)/3600:.2f} hours")
+
+'''
+#모델 저장 및 로드 (선택적)
+model.save("dqn_inventory")
+loaded_model = DQN.load("dqn_inventory")
+'''
+
+# TensorBoard 실행:
+# tensorboard --logdir="C:/tensorboard_logs/"
+# http://localhost:6006/

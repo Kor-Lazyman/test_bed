@@ -4,22 +4,16 @@ from config import *
 import random
 import visualization
 
-EventHoldingCost = []  # save the event holding cost
-for i in range(SIM_TIME):
-    num = []
-    for j in range(len(I)):
-        num.append([])
-    EventHoldingCost.append(num)
-
 
 class Inventory:
-    def __init__(self, env, item_id, holding_cost, shortage_cost, initial_level):
+    def __init__(self, env, item_id, holding_cost):
         self.env = env
         self.item_id = item_id  # 0: product; others: WIP or raw material
-        self.current_level = initial_level  # capacity=infinity
+        self.current_level = INIT_LEVEL  # capacity=infinity
         self.unit_holding_cost = holding_cost/24  # $/unit*hour
         self.holding_cost_last_updated = 0.0
         self.daily_inven_cost = 0
+        self.capacity_limit = INVEN_LEVEL_MAX
         # self.unit_shortage_cost = shortage_cost
         # self.level_over_time = []  # Data tracking for inventory level
         # self.inventory_cost_over_time = []  # Data tracking for inventory cost
@@ -36,20 +30,28 @@ class Inventory:
     def update_inven_level(self, quantity_of_change, daily_events):
         self._cal_holding_cost(daily_events)
         self.current_level += quantity_of_change
+        if self.current_level > self.capacity_limit:
+            daily_events.append(
+                f"{self.env.now}: Due to the upper limit of the inventory, {I[self.item_id]['NAME']} is wasted: {self.current_level - self.capacity_limit}")
+            self.current_level = self.capacity_limit
+        if self.current_level < 0:
+            daily_events.append(
+                f"{self.env.now}: Shortage of {I[self.item_id]['NAME']}: {self.capacity_limit - self.current_level}")
+            self.current_level = 0
         daily_events.append(
             f"{self.env.now}: Inventory level of {I[self.item_id]['NAME']}: {self.current_level}")
 
-    def cal_inventory_cost(self, daily_events):
-        if self.current_level > 0:
-            self.inventory_cost_over_time.append(
-                self.holding_cost * self.current_level)
-        elif self.current_level < 0:
-            self.inventory_cost_over_time.append(
-                self.shortage_cost * abs(self.current_level))
-        else:
-            self.inventory_cost_over_time.append(0)
-        daily_events.append(
-            f"[Inventory Cost of {I[self.item_id]['NAME']}]  {self.inventory_cost_over_time[-1]}")
+    # def cal_inventory_cost(self, daily_events):
+    #     if self.current_level > 0:
+    #         self.inventory_cost_over_time.append(
+    #             self.holding_cost * self.current_level)
+    #     elif self.current_level < 0:
+    #         self.inventory_cost_over_time.append(
+    #             self.unit_shortage_cost * abs(self.current_level))
+    #     else:
+    #         self.inventory_cost_over_time.append(0)
+    #     daily_events.append(
+    #         f"[Inventory Cost of {I[self.item_id]['NAME']}]  {self.inventory_cost_over_time[-1]}")
 
 
 class Provider:
@@ -58,10 +60,10 @@ class Provider:
         self.name = name
         self.item_id = item_id
 
-    def deliver(self, demand_size, inventory, daily_events):
+    def deliver_to_manufacturer(self, demand_size, inventory, daily_events):
         # Lead time
-        yield self.env.timeout(I[self.item_id]["SUP_LEAD_TIME"] * 24)
-        inventory.current_level += demand_size
+        # yield self.env.timeout(I[self.item_id]["SUP_LEAD_TIME"] * 24)
+        inventory.update_inven_level(demand_size, daily_events)
         daily_events.append(
             f"{self.env.now}: {self.name} has delivered {demand_size} units of {I[self.item_id]['NAME']}")
 
@@ -82,19 +84,23 @@ class Procurement:
         daily_events.append(
             f"{self.env.now}: Daily procurement cost of {I[self.item_id]['NAME']} has been updated: {self.daily_procurement_cost}")
 
-    def order(self, provider, inventory, agent, daily_events):
+    def order_material(self, provider, inventory, daily_events):
         while True:
             # Place an order to a provider
             yield self.env.timeout(I[self.item_id]["MANU_ORDER_CYCLE"] * 24)
             # THIS WILL BE AN ACTION OF THE AGENT
-            # order_size = I[self.item_id]["LOT_SIZE_ORDER"]
+            order_size = I[self.item_id]["LOT_SIZE_ORDER"]
             # order_size = agent.choose_action_tmp(inventory)
-            order_size = random.choice(I[self.item_id]["LOT_SIZE_ORDER"])
-            daily_events.append(
-                f"{self.env.now}: Placed an order for {order_size} units of {I[self.item_id]['NAME']}")
-            self.env.process(provider.deliver(
-                order_size, inventory, daily_events))
-            self._cal_procurement_cost(order_size, daily_events)
+            if order_size > 0:
+                daily_events.append(
+                    f"{self.env.now}: Placed an order for {order_size} units of {I[self.item_id]['NAME']}")
+                if I[self.item_id]["SUP_LEAD_TIME"] == 0:
+                    provider.deliver_to_manufacturer(
+                        order_size, inventory, daily_events)
+                else:
+                    self.env.process(provider.deliver_to_manufacturer(
+                        order_size, inventory, daily_events))
+                self._cal_procurement_cost(order_size, daily_events)
 
     def cal_daily_procurement_cost(self, daily_events):
         daily_events.append(
@@ -130,12 +136,24 @@ class Production:
             for inven, input_qnty in zip(self.input_inventories, self.qnty_for_input_item):
                 if inven.current_level < input_qnty:  # SHORTAGE
                     shortage_check = True
+            # Check the current state if the output inventory is full
+            inven_upper_limit_check = False
+            if self.output_inventory.current_level >= self.output_inventory.capacity_limit:
+                inven_upper_limit_check = True
+
             if shortage_check:
-                self.daily_production_cost += self.unit_process_stop_cost
+                # self.daily_production_cost += self.unit_process_stop_cost
                 daily_events.append(
                     f"{self.env.now}: Stop {self.name} due to a shortage of input materials or WIPs")
+                # daily_events.append(f"{self.env.now}: Process stop cost : {self.unit_process_stop_cost}")
+                # Check again next day
+                yield self.env.timeout(24 - (self.env.now % 24))
+                # continue
+            elif inven_upper_limit_check:
+                # self.daily_production_cost += self.unit_process_stop_cost
                 daily_events.append(
-                    f"{self.env.now}: Process stop cost : {self.unit_process_stop_cost}")
+                    f"{self.env.now}: Stop {self.name} due to the upper limit of the inventory. The output inventory is full")
+                # daily_events.append(f"{self.env.now}: Process stop cost : {self.unit_process_stop_cost}")
                 # Check again next day
                 yield self.env.timeout(24 - (self.env.now % 24))
                 # continue
@@ -163,35 +181,45 @@ class Production:
 
 
 class Sales:
-    def __init__(self, env, item_id, delivery_cost, setup_cost, due_date):
+    def __init__(self, env, item_id, delivery_cost, setup_cost, backorder, due_date):
         self.env = env
         self.item_id = item_id
         self.unit_delivery_cost = delivery_cost
         self.unit_setup_cost = setup_cost
+        self.unit_backorder_cost = backorder
         self.due_date = due_date
         # self.selling_cost_over_time = []  # Data tracking for selling cost
         self.daily_selling_cost = 0
-        # self.loss_cost = 0
+        self.daily_penalty_cost = 0
 
     def _cal_selling_cost(self, demand_size, daily_events):
-        self.daily_selling_cost += self.unit_delivery_cost * demand_size + self.setup_cost
+        self.daily_selling_cost += self.unit_delivery_cost * \
+            demand_size + self.unit_setup_cost
         daily_events.append(
             f"{self.env.now}: Daily selling cost of {I[self.item_id]['NAME']} has been updated: {self.daily_selling_cost}")
 
-    def delivery(self, item_id, demand_size, product_inventory, daily_events):
+    def _cal_penalty_cost(self, num_shortages, daily_events):
+        self.daily_penalty_cost += self.unit_backorder_cost * num_shortages
+        daily_events.append(
+            f"{self.env.now}: Daily penalty cost of {I[self.item_id]['NAME']} has been updated: {self.daily_penalty_cost}")
+
+    def deliver_to_cust(self, demand_size, product_inventory, daily_events):
         # Lead time
-        yield self.env.timeout(self.due_date * 24)
+        # yield self.env.timeout(self.due_date * 24)
         # BACKORDER: Check if products are available
         if product_inventory.current_level < demand_size:
-            num_shortages = abs(product_inventory.level - demand_size)
-            if product_inventory.current_level > 0:
+            num_shortages = abs(product_inventory.current_level - demand_size)
+            if product_inventory.current_level > 0:  # Delivering the remaining products to the customer
                 daily_events.append(
                     f"{self.env.now}: {product_inventory.current_level} units of the product have been delivered to the customer")
                 # yield self.env.timeout(DELIVERY_TIME)
-                product_inventory.current_level -= demand_size
-                self._cal_selling_cost()
-            self.loss_cost = I[item_id]["BACKORDER_COST"] * num_shortages
-            daily_events.append(f"[Cost of Loss] {self.loss_cost}")
+                product_inventory.update_inven_level(
+                    -product_inventory.current_level, daily_events)
+                self._cal_selling_cost(
+                    product_inventory.current_level, daily_events)
+            self._cal_penalty_cost(num_shortages, daily_events)
+            daily_events.append(
+                f"[Daily penalty cost] {self.daily_penalty_cost}")
             daily_events.append(
                 f"{self.env.now}: Unable to deliver {num_shortages} units to the customer due to product shortage")
             # Check again after 24 hours (1 day)
@@ -216,43 +244,33 @@ class Customer:
         self.item_id = item_id
         self.order_history = []
 
-    def order(self, sales, product_inventory, daily_events):
+    def order_product(self, sales, product_inventory, daily_events):
         while True:
             yield self.env.timeout(I[self.item_id]["CUST_ORDER_CYCLE"] * 24)
             # THIS WILL BE A RANDOM VARIABLE
             order_size = I[self.item_id]["DEMAND_QUANTITY"]
+            # order_size = random.randint(DEMAND_QTY_MIN, DEMAND_QTY_MAX)
             self.order_history.append(order_size)
             daily_events.append(
                 f"{self.env.now}: The customer has placed an order for {order_size} units of {I[self.item_id]['NAME']}")
-            self.env.process(sales.delivery(
-                self.item_id, order_size, product_inventory, daily_events))
-    ''' 
-    def delivery(self, product_inventory):
-        while True:
-            # SHORTAGE: Check products are available
-            if len(product_inventory.store.items) < 1:
-                print(
-                    f"{self.env.now}: Unable to deliver to the customer due to product shortage")
-                # Check again after 24 hours (1 day)
-                yield self.env.timeout(24)
-            # Delivering products to the customer
-            else:
-                demand = I[product_inventory.item_id]["DEMAND_QUANTITY"]
-                for _ in range(demand):
-                    yield product_inventory.store.get()
-                print(
-                    f"{self.env.now}: {demand} units of the product have been delivered to the customer")
-    '''
+            if order_size > 0:
+                if I[self.item_id]["DUE_DATE"] == 0:
+                    sales.deliver_to_cust(
+                        order_size, product_inventory, daily_events)
+                else:
+                    self.env.process(sales.deliver_to_cust(
+                        order_size, product_inventory, daily_events))
 
 
 def create_env(I, P, daily_events):
     # Create a SimPy environment
     simpy_env = simpy.Environment()
+
     # Create an inventory for each item
     inventoryList = []
     for i in I.keys():
         inventoryList.append(
-            Inventory(simpy_env, i, I[i]["HOLD_COST"], I[i]["SHORTAGE_COST"], I[i]["INIT_LEVEL"]))
+            Inventory(simpy_env, i, I[i]["HOLD_COST"]))
     # Create stakeholders (Customer, Providers)
     customer = Customer(simpy_env, "CUSTOMER", I[0]["ID"])
     providerList = []
@@ -265,7 +283,7 @@ def create_env(I, P, daily_events):
                 simpy_env, I[i]["ID"], I[i]["PURCHASE_COST"], I[i]["SETUP_COST_RAW"]))
     # Create managers for manufacturing process, procurement process, and delivery process
     sales = Sales(simpy_env, customer.item_id,
-                  I[0]["DELIVERY_COST"], I[0]["SETUP_COST_PRO"], I[0]["DUE_DATE"])
+                  I[0]["DELIVERY_COST"], I[0]["SETUP_COST_PRO"], I[0]["BACKORDER_COST"], I[0]["DUE_DATE"])
     productionList = []
     for i in P.keys():
         output_inventory = inventoryList[P[i]["OUTPUT"]["ID"]]
@@ -278,42 +296,60 @@ def create_env(I, P, daily_events):
     return simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events
 
 
-def simpy_event_processes(agent, simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events, I):
+def simpy_event_processes(simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events, I):
     # Event processes for SimPy simulation
-    simpy_env.process(customer.order(
+    simpy_env.process(customer.order_product(
         sales, inventoryList[I[0]["ID"]], daily_events))  # Customer
     for production in productionList:  # Processes
         simpy_env.process(production.process(daily_events))
     for i in range(len(providerList)):  # Procurements
-        simpy_env.process(procurementList[i].order(
-            providerList[i], inventoryList[providerList[i].item_id], agent, daily_events))
+        simpy_env.process(procurementList[i].order_material(
+            providerList[i], inventoryList[providerList[i].item_id], daily_events))
 
 
-def cal_cost(inventoryList, procurementList, productionList, sales, total_cost_per_day, daily_events):
-    # Calculate the cost models
+# The total cost is accumulated every hour.
+def cal_daily_cost_ACC(inventoryList, procurementList, productionList, sales):
+    daily_total_cost = 0
     for inven in inventoryList:
-        inven.cal_inventory_cost(daily_events)
+        daily_total_cost += inven.daily_inven_cost
+        inven.daily_inven_cost = 0
     for production in productionList:
-        production.cal_daily_production_cost()
-    for procurement in procurementList:
-        procurement.cal_daily_procurement_cost()
-    sales.cal_daily_selling_cost()
-    # Calculate the total cost for the current day and append to the list
-    total_cost = 0
-    for inven in inventoryList:
-        total_cost += sum(inven.inventory_cost_over_time)
-    for production in productionList:
-        total_cost += production.daily_production_cost
-    for procurement in procurementList:
-        total_cost += procurement.daily_procurement_cost
-    total_cost += sales.daily_selling_cost
-    total_cost_per_day.append(total_cost)
-
-    # 하루단위로 보상을 계속 받아서 업데이트 해주기 위해서 리셋을 진행하는 코드
-    for inven in inventoryList:
-        inven.inventory_cost_over_time = []
-    for production in productionList:
+        daily_total_cost += production.daily_production_cost
         production.daily_production_cost = 0
     for procurement in procurementList:
+        daily_total_cost += procurement.daily_procurement_cost
         procurement.daily_procurement_cost = 0
+    daily_total_cost += sales.daily_selling_cost
     sales.daily_selling_cost = 0
+    daily_total_cost += sales.daily_penalty_cost
+    sales.daily_penalty_cost = 0
+
+    return daily_total_cost
+
+# The total cost is calculated based on the inventory level for every 24 hours.
+
+
+# def cal_daily_cost_DESC(s1, s2, agent_action):
+#     daily_total_cost = 0
+#     HoldingCost = s1 * I[0]['HOLD_COST'] + s2 * I[1]['HOLD_COST']
+#     ProductionCost = P[0]['PROCESS_COST']
+#     ProcurementCost = I[1]['PURCHASE_COST'] * agent_action
+#     SellingCost = 0
+#     # SellingCost += I[0]['DELIVERY_COST'] * I[0]['DEMAND_QUANTITY'] + I[0]['SETUP_COST_PRO']
+#     if s1 < I[0]['DEMAND_QUANTITY']:
+#         PenaltyCost = I[0]['BACKORDER_COST'] * (I[0]['DEMAND_QUANTITY'] - s1)
+#     else:
+#         PenaltyCost = 0
+#     daily_total_cost = HoldingCost+ProductionCost + \
+#         ProcurementCost+SellingCost+PenaltyCost
+#     return daily_total_cost
+
+
+def cap_current_state(inventoryList):
+    # State space: inventory level
+    state = np.array([inven.current_level for inven in inventoryList])
+    # # State space: inventory level + demand quantity
+    if STATE_DEMAND:
+        state = np.append(state, I[0]['DEMAND_QUANTITY'])
+
+    return state
