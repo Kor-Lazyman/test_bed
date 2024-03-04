@@ -13,23 +13,23 @@ class Inventory:
         self.in_transition_inventory = 0
         self.total_inventory = self.on_hand_inventory + self.in_transition_inventory
         self.capacity_limit = INVEN_LEVEL_MAX
-        self.unit_holding_cost = holding_cost/24  # $/unit*hour
-        self.holding_cost_last_updated = 0.0
-        self.daily_inven_cost = 0
+        # self.unit_holding_cost = holding_cost/24  # $/unit*hour
+        # self.holding_cost_last_updated = 0.0
+        # self.daily_inven_cost = 0
         # self.unit_shortage_cost = shortage_cost
         # self.level_over_time = []  # Data tracking for inventory level
         # self.inventory_cost_over_time = []  # Data tracking for inventory cost
         # self.total_inven_cost = []
 
-    def _cal_holding_cost(self, daily_events):
-        holding_cost = self.on_hand_inventory * self.unit_holding_cost * \
-            (self.env.now - self.holding_cost_last_updated)
-        self.holding_cost_last_updated = self.env.now
-        daily_events.append(
-            f"{self.env.now}: {I[self.item_id]['NAME']}\'s On_Hand_Inventory level                 : {self.on_hand_inventory} units")
-        daily_events.append(
-            f"{self.env.now}: {I[self.item_id]['NAME']}\'s Daily holding cost updated              : {holding_cost}")
-        self.daily_inven_cost += holding_cost
+    # def _cal_holding_cost(self, daily_events):
+    #     holding_cost = self.on_hand_inventory * self.unit_holding_cost * \
+    #         (self.env.now - self.holding_cost_last_updated)
+    #     self.holding_cost_last_updated = self.env.now
+    #     daily_events.append(
+    #         f"{self.env.now}: {I[self.item_id]['NAME']}\'s On_Hand_Inventory level                 : {self.on_hand_inventory} units")
+    #     daily_events.append(
+    #         f"{self.env.now}: {I[self.item_id]['NAME']}\'s Daily holding cost updated              : {holding_cost}")
+    #     self.daily_inven_cost += holding_cost
 
     def update_demand_quantity(self, demand_qty):
         DEMAND_HISTORY.append(demand_qty)
@@ -48,7 +48,7 @@ class Inventory:
                 daily_events.append(
                     f"{self.env.now}: Shortage of {I[self.item_id]['NAME']}: {self.capacity_limit - self.on_hand_inventory}")
                 self.on_hand_inventory = 0
-            self._cal_holding_cost(daily_events)
+            # self._cal_holding_cost(daily_events)
         elif inven_type == "IN_TRANSIT":  # update in-transition inventory
             self.on_hand_inventory += quantity_of_change
 
@@ -90,15 +90,15 @@ class Procurement:
     def __init__(self, env, item_id, purchase_cost, setup_cost):
         self.env = env
         self.item_id = item_id
-        self.unit_purchase_cost = purchase_cost
-        self.unit_setup_cost = setup_cost
-        self.daily_procurement_cost = 0
+        # self.unit_purchase_cost = purchase_cost
+        # self.unit_setup_cost = setup_cost
+        # self.daily_procurement_cost = 0
         # self.purchase_cost_over_time = []  # Data tracking for purchase cost
         # self.setup_cost_over_time = []  # Data tracking for setup cost
 
-    def _cal_procurement_cost(self, order_size, daily_events):
-        self.daily_procurement_cost += self.unit_purchase_cost * \
-            order_size + self.unit_setup_cost
+    # def _cal_procurement_cost(self, order_size, daily_events):
+    #     self.daily_procurement_cost += self.unit_purchase_cost * \
+    #         order_size + self.unit_setup_cost
 
     def receive_materials(self, material_qty, material_inventory, daily_events):
         daily_events.append(
@@ -156,16 +156,16 @@ class Production:
         self.input_inventories = input_inventories
         self.qnty_for_input_item = qnty_for_input_item
         self.output_inventory = output_inventory
-        self.unit_processing_cost = processing_cost
+        # self.unit_processing_cost = processing_cost
         # self.processing_cost_over_time = []  # Data tracking for processing cost
-        self.unit_process_stop_cost = process_stop_cost
-        self.daily_production_cost = 0
+        # self.unit_process_stop_cost = process_stop_cost
+        # self.daily_production_cost = 0
 
-    def _cal_processing_cost(self, processing_time, daily_events):
-        processing_cost = self.unit_processing_cost * processing_time
-        self.daily_production_cost += processing_cost
-        daily_events.append(
-            f"{self.env.now}: {self.name}\'s Daily production cost updated         : {self.daily_production_cost}")
+    # def _cal_processing_cost(self, processing_time, daily_events):
+    #     processing_cost = self.unit_processing_cost * processing_time
+    #     self.daily_production_cost += processing_cost
+    #     daily_events.append(
+    #         f"{self.env.now}: {self.name}\'s Daily production cost updated         : {self.daily_production_cost}")
 
     def process_items(self, daily_events):
         while True:
@@ -218,31 +218,31 @@ class Production:
                 self.output_inventory.update_inven_level(
                     1, "ON_HAND", daily_events)
                 # Calculate the processing cost
-                self._cal_processing_cost(processing_time, daily_events)
+                # self._cal_processing_cost(processing_time, daily_events)
 
 
 class Sales:
     def __init__(self, env, item_id, delivery_cost, setup_cost, backorder, due_date):
         self.env = env
         self.item_id = item_id
-        self.unit_delivery_cost = delivery_cost
-        self.unit_setup_cost = setup_cost
-        self.unit_backorder_cost = backorder
         self.due_date = due_date
+        # self.unit_delivery_cost = delivery_cost
+        # self.unit_setup_cost = setup_cost
+        # self.unit_backorder_cost = backorder
         # self.selling_cost_over_time = []  # Data tracking for selling cost
-        self.daily_selling_cost = 0
-        self.daily_penalty_cost = 0
+        # self.daily_selling_cost = 0
+        # self.daily_penalty_cost = 0
 
-    def _cal_selling_cost(self, demand_size, daily_events):
-        self.daily_selling_cost += self.unit_delivery_cost * \
-            demand_size + self.unit_setup_cost
-        daily_events.append(
-            f"{self.env.now}: {I[self.item_id]['NAME']}\'s daily selling cost                      : {self.daily_selling_cost}")
+    # def _cal_selling_cost(self, demand_size, daily_events):
+    #     self.daily_selling_cost += self.unit_delivery_cost * \
+    #         demand_size + self.unit_setup_cost
+    #     daily_events.append(
+    #         f"{self.env.now}: {I[self.item_id]['NAME']}\'s daily selling cost                      : {self.daily_selling_cost}")
 
-    def _cal_penalty_cost(self, num_shortages, daily_events):
-        self.daily_penalty_cost += self.unit_backorder_cost * num_shortages
-        daily_events.append(
-            f"{self.env.now}: {I[self.item_id]['NAME']}\'s daily penalty cost                      : {self.daily_penalty_cost}")
+    # def _cal_penalty_cost(self, num_shortages, daily_events):
+    #     self.daily_penalty_cost += self.unit_backorder_cost * num_shortages
+    #     daily_events.append(
+    #         f"{self.env.now}: {I[self.item_id]['NAME']}\'s daily penalty cost                      : {self.daily_penalty_cost}")
 
     def _deliver_to_cust(self, demand_size, product_inventory, daily_events):
         yield self.env.timeout(self.due_date * 24)
@@ -343,27 +343,25 @@ def simpy_event_processes(simpy_env, inventoryList, procurementList, productionL
 
 
 # The total cost is accumulated every hour.
-def cal_daily_cost(inventoryList, procurementList, productionList, sales):
-    daily_total_cost = 0
-    for inven in inventoryList:
-        daily_total_cost += inven.daily_inven_cost
-        inven.daily_inven_cost = 0
-    for production in productionList:
-        daily_total_cost += production.daily_production_cost
-        production.daily_production_cost = 0
-    for procurement in procurementList:
-        daily_total_cost += procurement.daily_procurement_cost
-        procurement.daily_procurement_cost = 0
-    daily_total_cost += sales.daily_selling_cost
-    sales.daily_selling_cost = 0
-    daily_total_cost += sales.daily_penalty_cost
-    sales.daily_penalty_cost = 0
+# def cal_daily_cost(inventoryList, procurementList, productionList, sales):
+#     daily_total_cost = 0
+#     for inven in inventoryList:
+#         daily_total_cost += inven.daily_inven_cost
+#         inven.daily_inven_cost = 0
+#     for production in productionList:
+#         daily_total_cost += production.daily_production_cost
+#         production.daily_production_cost = 0
+#     for procurement in procurementList:
+#         daily_total_cost += procurement.daily_procurement_cost
+#         procurement.daily_procurement_cost = 0
+#     daily_total_cost += sales.daily_selling_cost
+#     sales.daily_selling_cost = 0
+#     daily_total_cost += sales.daily_penalty_cost
+#     sales.daily_penalty_cost = 0
 
-    return daily_total_cost
+#     return daily_total_cost
 
 # The total cost is calculated based on the inventory level for every 24 hours.
-
-
 # def cal_daily_cost_DESC(s1, s2, agent_action):
 #     daily_total_cost = 0
 #     HoldingCost = s1 * I[0]['HOLD_COST'] + s2 * I[1]['HOLD_COST']
