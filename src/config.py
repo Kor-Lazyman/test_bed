@@ -4,7 +4,7 @@ import random
 # TYPE: Product, Material, WIP;
 # NAME: Item's name or model;
 # CUST_ORDER_CYCLE: Customer ordering cycle [days]
-# MANU_ORDER_CYCLE: Manufacturer ordering cycle to providers [days]
+# MANU_ORDER_CYCLE: Manufacturer ordering cycle to suppliers [days]
 # DEMAND_QUANTITY: Demand quantity for the final product [units] -> THIS IS UPDATED EVERY 24 HOURS (Default: 0)
 # DELIVERY_TIME_TO_CUST: Delivery time to the customer [days]
 # DELIVERY_TIME_FROM_SUP: Delivery time from a supplier [days]

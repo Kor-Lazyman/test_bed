@@ -2,10 +2,10 @@ from config import *
 import environment as env
 
 # Create environment
-simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events = env.create_env(
+simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events = env.create_env(
     I, P, DAILY_EVENTS)
 env.simpy_event_processes(simpy_env, inventoryList, procurementList,
-                          productionList, sales, customer, providerList, daily_events, I)
+                          productionList, sales, customer, supplierList, daily_events, I)
 # total_reward = 0
 
 if PRINT_SIM_EVENTS:

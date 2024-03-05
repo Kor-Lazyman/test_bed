@@ -66,7 +66,7 @@ class Inventory:
     #         f"[Inventory Cost of {I[self.item_id]['NAME']}]  {self.inventory_cost_over_time[-1]}")
 
 
-class Provider:
+class Supplier:
     def __init__(self, env, name, item_id):
         self.env = env
         self.name = name
@@ -112,7 +112,7 @@ class Procurement:
         daily_events.append(
             f"{self.env.now}: {I[self.item_id]['NAME']} has delivered                             : {material_qty} units ")  # Record when Material provide
 
-    def order_material(self, provider, inventory, daily_events):
+    def order_material(self, supplier, inventory, daily_events):
         time = I[self.item_id]["MANU_ORDER_CYCLE"] * \
             24  # Control timeout function
         while True:
@@ -131,7 +131,7 @@ class Procurement:
                 inventory.update_inven_level(
                     order_size, "IN_TRANSIT", daily_events)
 
-                self.env.process(provider.deliver_to_manufacturer(
+                self.env.process(supplier.deliver_to_manufacturer(
                     self, order_size, inventory, daily_events))
 
                 # self._cal_procurement_cost(order_size, daily_events)
@@ -303,14 +303,14 @@ def create_env(I, P, daily_events):
     for i in I.keys():
         inventoryList.append(
             Inventory(simpy_env, i, I[i]["HOLD_COST"]))
-    # Create stakeholders (Customer, Providers)
+    # Create stakeholders (Customer, Suppliers)
     customer = Customer(simpy_env, "CUSTOMER", I[0]["ID"])
-    providerList = []
+    supplierList = []
     procurementList = []
     for i in I.keys():
-        # Create a provider and the corresponding procurement if the type of the item is Material
+        # Create a supplier and the corresponding procurement if the type of the item is Material
         if I[i]["TYPE"] == 'Material':
-            providerList.append(Provider(simpy_env, "PROVIDER_"+str(i), i))
+            supplierList.append(Supplier(simpy_env, "SUPPLIER_"+str(i), i))
             procurementList.append(Procurement(
                 simpy_env, I[i]["ID"], I[i]["PURCHASE_COST"], I[i]["SETUP_COST_MAT"]))
     # Create managers for manufacturing process, procurement process, and delivery process
@@ -325,18 +325,18 @@ def create_env(I, P, daily_events):
         productionList.append(Production(simpy_env, "PROCESS_"+str(i), P[i]["ID"],
                                          P[i]["PRODUCTION_RATE"], P[i]["OUTPUT"], input_inventories, P[i]["QNTY_FOR_INPUT_ITEM"], output_inventory, P[i]["PROCESS_COST"], P[i]["PROCESS_STOP_COST"]))
 
-    return simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events
+    return simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events
 
 
-def simpy_event_processes(simpy_env, inventoryList, procurementList, productionList, sales, customer, providerList, daily_events, I):
+def simpy_event_processes(simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events, I):
     # Event processes for SimPy simulation
     # Production
     for production in productionList:
         simpy_env.process(production.process_items(daily_events))
     # Procurement
-    for i in range(len(providerList)):
+    for i in range(len(supplierList)):
         simpy_env.process(procurementList[i].order_material(
-            providerList[i], inventoryList[providerList[i].item_id], daily_events))
+            supplierList[i], inventoryList[supplierList[i].item_id], daily_events))
     # Customer
     simpy_env.process(customer.order_product(
         sales, inventoryList[I[0]["ID"]], daily_events))
