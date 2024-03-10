@@ -98,7 +98,7 @@ INVEN_LEVEL_MAX = 100  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 
 # Simulation
-SIM_TIME = 10  # 200 [days] per episode
+SIM_TIME = 30  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
@@ -114,6 +114,7 @@ PRINT_SIM_EVENTS = True
 # PRINT_LOG_DAILY_REPORT = True
 
 DAILY_EVENTS = []
+DAILY_REPORTS=[]
 # Cost model
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
