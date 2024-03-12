@@ -64,7 +64,7 @@ class Inventory:
                 self.on_hand_inventory = 0
             # self._cal_holding_cost(daily_events)
         elif inven_type == "IN_TRANSIT":  # update in-transition inventory
-            self.on_hand_inventory += quantity_of_change
+            self.in_transition_inventory += quantity_of_change
 
         self.total_inventory = self.on_hand_inventory+self.in_transition_inventory
     
@@ -176,7 +176,7 @@ class Procurement:
                     f"{self.env.now}: {I[self.item_id]['NAME']}\'s In_transition_inventory                  : {inventory.in_transition_inventory} units ")
                 # Record inventory
                 daily_events.append(
-                    f"{self.env.now}: {I[self.item_id]['NAME']}\'s Real_Inventory                          : {inventory.total_inventory} units  ")
+                    f"{self.env.now}: {I[self.item_id]['NAME']}\'s Total_Inventory                          : {inventory.total_inventory} units  ")
             # daily_events.append(
             #     f"{self.env.now}: {I[self.item_id]['NAME']}\'s daily procurement cost                  : {self.daily_procurement_cost}")  # Change timeout function to cycle 24 hours
             yield self.env.timeout(I[self.item_id]["MANU_ORDER_CYCLE"] * \
