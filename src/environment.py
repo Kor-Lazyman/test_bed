@@ -13,8 +13,8 @@ class Inventory:
         self.in_transition_inventory = 0
         self.total_inventory = self.on_hand_inventory + self.in_transition_inventory
         self.capacity_limit = INVEN_LEVEL_MAX
-        self.daily_inven_report=[f"Day {self.env.now//24}",I[self.item_id]['NAME'],self.total_inventory,0,0,0] #inventory report
-   
+        self.daily_inven_report=[f"Day {self.env.now//24}",I[self.item_id]['NAME'],I[self.item_id]['TYPE'],self.total_inventory,0,0,0] #inventory report
+        
         # self.unit_holding_cost = holding_cost/24  # $/unit*hour
         # self.holding_cost_last_updated = 0.0
         # self.daily_inven_cost = 0
@@ -68,13 +68,13 @@ class Inventory:
 
     def _update_report(self,quantity_of_change):
         if quantity_of_change>0:
-            self.daily_inven_report[3]+=quantity_of_change
+            self.daily_inven_report[4]+=quantity_of_change
 
         elif quantity_of_change==0:
             pass
 
         else:
-            self.daily_inven_report[4]-=quantity_of_change
+            self.daily_inven_report[5]-=quantity_of_change
 
     # def cal_inventory_cost(self, daily_events):
     #     if self.current_level > 0:
@@ -376,7 +376,7 @@ def record_report(inventoryList):
     for inven in inventoryList:
         inven.daily_inven_report[-1]=inven.total_inventory
         day_report_list.append(inven.daily_inven_report)
-        inven.daily_inven_report=[f"Day {inven.env.now//24}",I[inven.item_id]['NAME'],inven.total_inventory,0,0,0] #inventory report
+        inven.daily_inven_report=[f"Day {inven.env.now//24}",I[inven.item_id]['NAME'],I[inven.item_id]['TYPE'],inven.total_inventory,0,0,0] #inventory report
     DAILY_REPORTS.append(day_report_list)
 # The total cost is accumulated every hour.
 # def cal_daily_cost(inventoryList, procurementList, productionList, sales):

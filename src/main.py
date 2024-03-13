@@ -1,6 +1,7 @@
 from config import *
 import environment as env
 import pandas as pd
+import Visualization
 # Create environment
 simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events,daily_reports = env.create_env(
     I, P, DAILY_EVENTS,DAILY_REPORTS)
@@ -32,12 +33,13 @@ for x in range(SIM_TIME):
     # total_reward += reward
 
 export_Daily_Report=[]
-for report in DAILY_REPORTS:
-    for y in range(len(report)):
-        export_Daily_Report.append(report[y])
+for x in range(len(inventoryList)):
+    for report in DAILY_REPORTS:
+        export_Daily_Report.append(report[x])
 
+Visualization.visualization(export_Daily_Report)
 daily_reports=pd.DataFrame(export_Daily_Report)
-daily_reports.columns=["Day","Name","Start","Income","Outcome","End"]
+daily_reports.columns=["Day","Name","Type","Start","Income","Outcome","End"]
 daily_reports.to_csv("./Daily_Report.csv")
 
 # print(total_reward)
