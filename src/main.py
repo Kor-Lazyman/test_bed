@@ -20,14 +20,24 @@ for x in range(SIM_TIME):
     # daily_total_cost = env.cal_daily_cost(inventoryList, procurementList, productionList, sales)
     if PRINT_SIM_EVENTS:
         # Print the simulation log every 24 hours (1 day)
-       
         for log in daily_events:
             print(log)
         # print("[Daily Total Cost] ", daily_total_cost)
     daily_events.clear()
+    env.record_report(inventoryList)
+    if PRINT_SIM_REPORT:
+        for id in range(len(inventoryList)):
+            print(DAILY_REPORTS[x][id])
     # reward = -daily_total_cost
     # total_reward += reward
-daily_reports=pd.DataFrame(daily_reports)
+
+export_Daily_Report=[]
+for report in DAILY_REPORTS:
+    for y in range(len(report)):
+        export_Daily_Report.append(report[y])
+
+daily_reports=pd.DataFrame(export_Daily_Report)
 daily_reports.columns=["Day","Name","Start","Income","Outcome","End"]
 daily_reports.to_csv("./Daily_Report.csv")
+
 # print(total_reward)

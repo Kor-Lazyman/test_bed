@@ -49,9 +49,6 @@ class Inventory:
         else:
             self._update_report(quantity_of_change)
 
-        if quantity_of_change<0:
-            daily_events.append(f"Outcome: {quantity_of_change}")
-
         if inven_type == "ON_HAND":  # update on-hand inventory
             self.on_hand_inventory += quantity_of_change
             if self.on_hand_inventory > self.capacity_limit:
@@ -78,14 +75,6 @@ class Inventory:
 
         else:
             self.daily_inven_report[4]-=quantity_of_change
-    def record_daily_report(self,daily_reports):
-        while True:
-            yield self.env.timeout(24)
-            self.daily_inven_report[-1]+=self.daily_inven_report[2]+self.daily_inven_report[3]-self.daily_inven_report[4]
-            daily_reports.append(self.daily_inven_report)
-            self.daily_inven_report=[f"Day {self.env.now//24}", I[self.item_id]['NAME'],self.total_inventory,0,0,0]
-        
-               
 
     # def cal_inventory_cost(self, daily_events):
     #     if self.current_level > 0:
@@ -378,13 +367,17 @@ def simpy_event_processes(simpy_env, inventoryList, procurementList, productionL
         simpy_env.process(procurementList[i].order_material(
             supplierList[i], inventoryList[supplierList[i].item_id], daily_events))
         
-    for inventory in inventoryList:
-        simpy_env.process(inventory.record_daily_report(daily_reports))
     # Customer
     simpy_env.process(customer.order_product(
         sales, inventoryList[I[0]["ID"]], daily_events))
 
-
+def record_report(inventoryList):
+    day_report_list=[]
+    for inven in inventoryList:
+        inven.daily_inven_report[-1]=inven.total_inventory
+        day_report_list.append(inven.daily_inven_report)
+        inven.daily_inven_report=[f"Day {inven.env.now//24}",I[inven.item_id]['NAME'],inven.total_inventory,0,0,0] #inventory report
+    DAILY_REPORTS.append(day_report_list)
 # The total cost is accumulated every hour.
 # def cal_daily_cost(inventoryList, procurementList, productionList, sales):
 #     daily_total_cost = 0
