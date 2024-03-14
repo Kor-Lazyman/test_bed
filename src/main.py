@@ -36,8 +36,8 @@ export_Daily_Report=[]
 for x in range(len(inventoryList)):
     for report in DAILY_REPORTS:
         export_Daily_Report.append(report[x])
-
-Visualization.visualization(export_Daily_Report)
+if VISUALIAZTION!=False:
+    Visualization.visualization(export_Daily_Report)
 daily_reports=pd.DataFrame(export_Daily_Report)
 daily_reports.columns=["Day","Name","Type","Start","Income","Outcome","End"]
 daily_reports.to_csv("./Daily_Report.csv")

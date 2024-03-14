@@ -29,6 +29,7 @@ import random
 
 
 # Scenario 1
+"""
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
          "DEMAND_QUANTITY": 0,
@@ -47,31 +48,32 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
 
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [
     1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 2}}
+"""
 
-'''
+
 # Scenario 2
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
-         "CUST_ORDER_CYCLE": 1,
+         "CUST_ORDER_CYCLE": 7,
          "DEMAND_QUANTITY": 0,
          "HOLD_COST": 1,
          "SETUP_COST_PRO": 1,
          "DELIVERY_COST": 1,
-         "DUE_DATE": 0,
+         "DUE_DATE": 5,
          "BACKORDER_COST": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1.1",
-         "MANU_ORDER_CYCLE": 1,
+         "MANU_ORDER_CYCLE": 2,
          "SUP_LEAD_TIME": 0,
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
          "SETUP_COST_MAT": 1},
      2: {"ID": 2, "TYPE": "Material", "NAME": "MATERIAL 2.1",
-         "MANU_ORDER_CYCLE": 1,
+         "MANU_ORDER_CYCLE": 3,
          "SUP_LEAD_TIME": 0,
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
          "SETUP_COST_MAT": 1},
      3: {"ID": 3, "TYPE": "Material", "NAME": "MATERIAL 2.2",
-         "MANU_ORDER_CYCLE": 1,
+         "MANU_ORDER_CYCLE": 4,
          "SUP_LEAD_TIME": 0,
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -88,7 +90,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "OUTPUT": I[0],
          "PROCESS_COST": 2,
          "PROCESS_STOP_COST": 3}}
-'''
+
 
 
 # State space
@@ -120,5 +122,5 @@ DAILY_REPORTS=[]
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-
+VISUALIAZTION='ALL'
 DEMAND_HISTORY = []

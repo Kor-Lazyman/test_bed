@@ -280,12 +280,13 @@ class Sales:
                     f"{self.env.now}: PRODUCT have been delivered to the customer       : {product_inventory.on_hand_inventory} units ")
                 # yield self.env.timeout(DELIVERY_TIME)
                 product_inventory.update_inven_level(
-                    -product_inventory.on_hand_inventory, daily_events)
+                    -product_inventory.on_hand_inventory,'ON_HAND',daily_events)
                 #self._cal_selling_cost(
                     #product_inventory.on_hand_inventory, daily_events)
             #self._cal_penalty_cost(num_shortages, daily_events)
-            daily_events.append(
-                f"[Daily penalty cost] {self.daily_penalty_cost}")
+            
+            #daily_events.append(
+            #   f"[Daily penalty cost] {self.daily_penalty_cost}")
             daily_events.append(
                 f"{self.env.now}: Unable to deliver {num_shortages} units to the customer due to product shortage")
             # Check again after 24 hours (1 day)
