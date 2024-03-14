@@ -111,7 +111,7 @@ DEMAND_QTY_MAX = 5
 # Print logs
 PRINT_SIM_EVENTS = True
 # PRINT_LOG_TIMESTEP = True
-PRINT_LOG_DAILY_REPORT = True
+PRINT_LOG_DAILY_REPORT = False
 DAILY_EVENTS = []
 # Cost model
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
