@@ -25,7 +25,7 @@ for x in range(SIM_TIME):
             print(log)
         # print("[Daily Total Cost] ", daily_total_cost)
     daily_events.clear()
-    env.record_report(inventoryList)
+    env.update_daily_report(inventoryList)
     if PRINT_SIM_REPORT:
         for id in range(len(inventoryList)):
             print(DAILY_REPORTS[x][id])

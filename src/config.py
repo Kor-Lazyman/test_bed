@@ -122,5 +122,5 @@ DAILY_REPORTS=[]
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION='ALL'
+VISUALIAZTION=[1,1,1] #PRINT RAW_MATERIAL, WIP, PRODUCT
 DEMAND_HISTORY = []
