@@ -1,12 +1,13 @@
 from config import *
+from log import *
 import environment as env
 import pandas as pd
 import Visualization
 # Create environment
-simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events,daily_reports = env.create_env(
-    I, P, DAILY_EVENTS,DAILY_REPORTS)
+simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events, daily_reports = env.create_env(
+    I, P, DAILY_EVENTS, DAILY_REPORTS)
 env.simpy_event_processes(simpy_env, inventoryList, procurementList,
-                          productionList, sales, customer, supplierList, daily_events,daily_reports, I)
+                          productionList, sales, customer, supplierList, daily_events, daily_reports, I)
 # total_reward = 0
 
 if PRINT_SIM_EVENTS:
@@ -32,14 +33,15 @@ for x in range(SIM_TIME):
     # reward = -daily_total_cost
     # total_reward += reward
 
-export_Daily_Report=[]
+export_Daily_Report = []
 for x in range(len(inventoryList)):
     for report in DAILY_REPORTS:
         export_Daily_Report.append(report[x])
-if VISUALIAZTION!=False:
+if VISUALIAZTION != False:
     Visualization.visualization(export_Daily_Report)
-daily_reports=pd.DataFrame(export_Daily_Report)
-daily_reports.columns=["Day","Name","Type","Start","Income","Outcome","End"]
+daily_reports = pd.DataFrame(export_Daily_Report)
+daily_reports.columns = ["Day", "Name", "Type",
+                         "Start", "Income", "Outcome", "End"]
 daily_reports.to_csv("./Daily_Report.csv")
 
 # print(total_reward)

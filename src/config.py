@@ -1,4 +1,3 @@
-import random
 #### Items #####################################################################
 # ID: Index of the element in the dictionary
 # TYPE: Product, Material, WIP;
@@ -92,7 +91,6 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "PROCESS_STOP_COST": 3}}
 
 
-
 # State space
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
@@ -100,7 +98,7 @@ INVEN_LEVEL_MAX = 100  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 
 # Simulation
-SIM_TIME = 30  # 200 [days] per episode
+SIM_TIME = 200  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
@@ -109,18 +107,18 @@ DEMAND_QTY_MAX = 5
 # DUE_DATE_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DUE_DATE_MAX
 # DUE_DATE_MAX = 3
 
+# Ordering rules
+ORDER_QTY = 15
+REORDER_LEVEL = 10
 
 # Print logs
-PRINT_SIM_EVENTS = True
-PRINT_SIM_REPORT=True
+PRINT_SIM_EVENTS = False
+PRINT_SIM_REPORT = False
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
 
-DAILY_EVENTS = []
-DAILY_REPORTS=[]
 # Cost model
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION=[1,1,1] #PRINT RAW_MATERIAL, WIP, PRODUCT
-DEMAND_HISTORY = []
+VISUALIAZTION = [1, 1, 1]  # PRINT RAW_MATERIAL, WIP, PRODUCT
