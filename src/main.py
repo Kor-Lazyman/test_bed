@@ -1,49 +1,49 @@
 from config import *
+from log import *
 import environment as env
-
+import pandas as pd
+import Visualization
 # Create environment
-simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events = env.create_env(
-    I, P, DAILY_EVENTS)
+simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events, daily_reports = env.create_env(
+    I, P, DAILY_EVENTS, DAILY_REPORTS)
 env.simpy_event_processes(simpy_env, inventoryList, procurementList,
-                          productionList, sales, customer, supplierList, daily_events, I)
+                          productionList, sales, customer, supplierList, daily_events, daily_reports, I)
 # total_reward = 0
 
 if PRINT_SIM_EVENTS:
     print(f"============= Initial Inventory Status =============")
-    ############## PLEASE CODE HERE ##########\
+    ############## PLEASE CODE HERE ##########
     for inventory in inventoryList:
         print(f"Day 0 - {I[inventory.item_id]['NAME']} Inventory: {inventory.on_hand_inventory} units")
-
+        
     print(f"============= SimPy Simulation Begins =============")
 
 for x in range(SIM_TIME):
-    for inventory in inventoryList:
-        inventory.reset_daily_records()
-
-    simpy_env.run(until=simpy_env.now + 24)  # SimPy 환경을 24시간(하루) 동안 실행
-
-    # 여기에 최종 인벤토리 상태를 업데이트하는 코드를 추가
-    for inventory in inventoryList:
-        inventory.daily_final = inventory.on_hand_inventory  # 하루가 끝날 때 최종 상태 업데이트
-
-    if PRINT_LOG_DAILY_REPORT:  # 일일 인벤토리 보고서 출력
-        print(f"\nDay {(simpy_env.now + 1) // 24} Inventory Report:")
-        print("NAME : START_INVEN / INCOMING / OUTGOING / END_INVEN")
-        for inventory in inventoryList:
-            name = I[inventory.item_id]['NAME']
-            start_inven = inventory.daily_final - inventory.daily_in + inventory.daily_out  # 시작 재고 계산
-            incoming = inventory.daily_in
-            outgoing = inventory.daily_out
-            end_inven = inventory.daily_final
-            print(f"{name} : {start_inven} / {incoming} / {outgoing} / {end_inven}")
-
+    daily_events.append(f"\nDay {(simpy_env.now) // 24} Report:")
+    simpy_env.run(until=simpy_env.now+24)
+    # daily_total_cost = env.cal_daily_cost(inventoryList, procurementList, productionList, sales)
     if PRINT_SIM_EVENTS:
-        print(f"\nDay {(simpy_env.now + 1) // 24} - Report")
-        for inventory in inventoryList:
-            print(f"Day {(simpy_env.now + 1) // 24} - {I[inventory.item_id]['NAME']} Inventory: In: {inventory.daily_in}, Out: {inventory.daily_out}, Final: {inventory.daily_final} units")
+        # Print the simulation log every 24 hours (1 day)
         for log in daily_events:
             print(log)
-        daily_events.clear()
+        # print("[Daily Total Cost] ", daily_total_cost)
+    daily_events.clear()
+    env.update_daily_report(inventoryList)
+    if PRINT_SIM_REPORT:
+        for id in range(len(inventoryList)):
+            print(DAILY_REPORTS[x][id])
     # reward = -daily_total_cost
     # total_reward += reward
+
+export_Daily_Report = []
+for x in range(len(inventoryList)):
+    for report in DAILY_REPORTS:
+        export_Daily_Report.append(report[x])
+if VISUALIAZTION != False:
+    Visualization.visualization(export_Daily_Report)
+daily_reports = pd.DataFrame(export_Daily_Report)
+daily_reports.columns = ["Day", "Name", "Type",
+                         "Start", "Income", "Outcome", "End"]
+daily_reports.to_csv("./Daily_Report.csv")
+
 # print(total_reward)
