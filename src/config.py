@@ -28,7 +28,7 @@
 
 
 # Scenario 1
-"""
+
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
          "DEMAND_QUANTITY": 0,
@@ -47,9 +47,9 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
 
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [
     1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 2}}
+
+
 """
-
-
 # Scenario 2
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
@@ -89,7 +89,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "OUTPUT": I[0],
          "PROCESS_COST": 2,
          "PROCESS_STOP_COST": 3}}
-
+"""
 
 # State space
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
@@ -98,7 +98,7 @@ INVEN_LEVEL_MAX = 100  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 
 # Simulation
-SIM_TIME = 200  # 200 [days] per episode
+SIM_TIME = 10  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
@@ -112,8 +112,8 @@ ORDER_QTY = 15
 REORDER_LEVEL = 10
 
 # Print logs
-PRINT_SIM_EVENTS = False
-PRINT_SIM_REPORT = False
+PRINT_SIM_EVENTS = True
+PRINT_SIM_REPORT = True
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
 
