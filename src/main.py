@@ -14,8 +14,9 @@ if PRINT_SIM_EVENTS:
     print(f"============= Initial Inventory Status =============")
     ############## PLEASE CODE HERE ##########
     for inventory in inventoryList:
-        print(f"Day 0 - {I[inventory.item_id]['NAME']} Inventory: {inventory.on_hand_inventory} units")
-        
+        print(
+            f"Day 0 - {I[inventory.item_id]['NAME']} Inventory: {inventory.on_hand_inventory} units")
+
     print(f"============= SimPy Simulation Begins =============")
 
 for x in range(SIM_TIME):
