@@ -10,12 +10,10 @@ env.simpy_event_processes(simpy_env, inventoryList, procurementList,
                           productionList, sales, customer, supplierList, daily_events, daily_reports, I)
 # total_reward = 0
 
+
 if PRINT_SIM_EVENTS:
     print(f"============= Initial Inventory Status =============")
     ############## PLEASE CODE HERE ##########
-    for inventory in inventoryList:
-        print(
-            f"Day 0 - {I[inventory.item_id]['NAME']} Inventory: {inventory.on_hand_inventory} units")
 
     print(f"============= SimPy Simulation Begins =============")
 
@@ -29,10 +27,18 @@ for x in range(SIM_TIME):
             print(log)
         # print("[Daily Total Cost] ", daily_total_cost)
     daily_events.clear()
+    
     env.update_daily_report(inventoryList)
     if PRINT_SIM_REPORT:
         for id in range(len(inventoryList)):
             print(DAILY_REPORTS[x][id])
+    
+    env.Cost.update_cost_log(simpy_env,inventoryList)
+    if PRINT_SIM_COST:
+        for key in DAILY_COST_REPORT.keys():
+            print(f"{key}: {DAILY_COST_REPORT[key]}")
+        print(sum(COST_LOG))
+    env.Cost.clear_cost()
     # reward = -daily_total_cost
     # total_reward += reward
 

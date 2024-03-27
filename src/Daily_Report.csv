@@ -1,0 +1,31 @@
+,Day,Name,Type,Start,Income,Outcome,End
+0,Day 0,PRODUCT,Product,10,0,0,10
+1,Day 1,PRODUCT,Product,10,0,0,10
+2,Day 2,PRODUCT,Product,10,0,0,10
+3,Day 3,PRODUCT,Product,10,0,0,10
+4,Day 4,PRODUCT,Product,10,0,0,10
+5,Day 5,PRODUCT,Product,10,0,0,10
+6,Day 6,PRODUCT,Product,10,0,0,10
+7,Day 7,PRODUCT,Product,10,0,5,5
+8,Day 8,PRODUCT,Product,5,0,0,5
+9,Day 9,PRODUCT,Product,5,0,0,5
+10,Day 10,PRODUCT,Product,5,0,0,5
+11,Day 11,PRODUCT,Product,5,0,0,5
+12,Day 12,PRODUCT,Product,5,0,0,5
+13,Day 13,PRODUCT,Product,5,0,0,5
+14,Day 14,PRODUCT,Product,5,0,5,0
+15,Day 0,MATERIAL 1,Material,10,15,2,23
+16,Day 1,MATERIAL 1,Material,23,15,2,36
+17,Day 2,MATERIAL 1,Material,36,15,2,49
+18,Day 3,MATERIAL 1,Material,49,15,2,62
+19,Day 4,MATERIAL 1,Material,62,0,2,60
+20,Day 5,MATERIAL 1,Material,60,0,2,58
+21,Day 6,MATERIAL 1,Material,58,0,2,56
+22,Day 7,MATERIAL 1,Material,56,0,2,54
+23,Day 8,MATERIAL 1,Material,54,0,2,52
+24,Day 9,MATERIAL 1,Material,52,0,2,50
+25,Day 10,MATERIAL 1,Material,50,0,2,48
+26,Day 11,MATERIAL 1,Material,48,0,2,46
+27,Day 12,MATERIAL 1,Material,46,0,2,44
+28,Day 13,MATERIAL 1,Material,44,0,2,42
+29,Day 14,MATERIAL 1,Material,42,0,2,40
