@@ -26,7 +26,7 @@ import random
 # OUTPUT: Output WIP or Product
 # PROCESS_COST: Processing cost of the process [$/day]
 # PROCESS_STOP_COST: Penalty cost for stopping the process [$/unit]
-
+'''
 # Scenario 1
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 1,
@@ -86,9 +86,9 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "OUTPUT": I[0],
          "PROCESS_COST": 2,
          "PROCESS_STOP_COST": 3}}
-'''
+
 # RL algorithms
-RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
+# RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 # Scenario 1-1
 # DQN
@@ -103,8 +103,8 @@ ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 #                'gamma':  0.99835157223117, 'batch_size': 64}
 # Scenario 1-2-2
 # PPO
-BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
-               'gamma':  0.9292540359, 'batch_size': 256}
+# BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
+#                'gamma':  0.9292540359, 'batch_size': 256}
 
 # Scenario 2-1-1
 # PPO
@@ -121,11 +121,11 @@ BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 20  # Capacity limit of the inventory [units]
-STATE_DEMAND = True  # True: Demand quantity is included in the state space
+STATE_DEMAND = False  # True: Demand quantity is included in the state space
 
 # Simulation
-N_EPISODES = 20000  # 3000
-SIM_TIME = 200  # 200 [days] per episode
+N_EPISODES = 1  # 3000
+SIM_TIME = 10000  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 # Stochastic demand
 DEMAND_QTY_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DEMAND_QTY_MAX
