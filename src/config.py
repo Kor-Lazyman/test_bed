@@ -40,7 +40,6 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "SHORTAGE_COST_PRO": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1",
          "MANU_ORDER_CYCLE": 1,
-         "LOT_SIZE_ORDER":0,
          "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -56,30 +55,27 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INP
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
          "DEMAND_QUANTITY": 0,
-         "HOLD_COST": 10,
+         "HOLD_COST": 1,
          "SETUP_COST_PRO": 1,
          "DELIVERY_COST": 1,
          "DUE_DATE": 5,
          "SHORTAGE_COST_PRO": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1.1",
-         "MANU_ORDER_CYCLE": 1,
-         "LOT_SIZE_ORDER":0,
+         "MANU_ORDER_CYCLE": 2,
          "SUP_LEAD_TIME": 0,
-         "HOLD_COST": 10,
+         "HOLD_COST": 1,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      2: {"ID": 2, "TYPE": "Material", "NAME": "MATERIAL 2.1",
-         "MANU_ORDER_CYCLE": 1,
-         "LOT_SIZE_ORDER":0,
+         "MANU_ORDER_CYCLE": 3,
          "SUP_LEAD_TIME": 0,
-         "HOLD_COST": 10,
+         "HOLD_COST": 1,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      3: {"ID": 3, "TYPE": "Material", "NAME": "MATERIAL 2.2",
-         "MANU_ORDER_CYCLE": 1,
-         "LOT_SIZE_ORDER":0,
+         "MANU_ORDER_CYCLE": 4,
          "SUP_LEAD_TIME": 0,
-         "HOLD_COST": 10,
+         "HOLD_COST": 1,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      4: {"ID": 4, "TYPE": "WIP",          "NAME": "WIP 1",
@@ -97,7 +93,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
 
 
 # State space
-RL_ALGORITHM = "DDPG"  #  "DQN", "DDPG", "PPO"
+RL_ALGORITHM = "PPO"  #  "DQN", "DDPG", "PPO"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
@@ -110,7 +106,7 @@ INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
 DEMAND_QTY_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DEMAND_QTY_MAX
-DEMAND_QTY_MAX = 10
+DEMAND_QTY_MAX = 5
 # DUE_DATE_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DUE_DATE_MAX
 # DUE_DATE_MAX = 3
 
@@ -119,7 +115,7 @@ ORDER_QTY = 15
 REORDER_LEVEL = 10
 
 # Simulation
-N_EPISODES = 20000  # 3000
+N_EPISODES = 1000  # 3000
 SIM_TIME = 100  # 200 [days] per episode
 
 BEST_PARAMS = {'learning_rate': 0.00012381151768747168,

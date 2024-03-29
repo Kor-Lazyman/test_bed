@@ -7,9 +7,11 @@ import environment as env
 import matplotlib.pyplot as plt
 import optuna.visualization as vis
 from log import *
+from torch.utils.tensorboard import SummaryWriter
 
 class GymInterface(gym.Env):
     def __init__(self):
+        self.writer = SummaryWriter(log_dir="C:/tensorboard_logs/")
         super(GymInterface, self).__init__()
         # Action space, observation space
         if RL_ALGORITHM == "DQN":
@@ -84,13 +86,13 @@ class GymInterface(gym.Env):
             for _ in range(len(I)):
                 if I[_]["TYPE"] == "Material":
                     # I[_]["LOT_SIZE_ORDER"] = int(round(action[i]))
-                    I[_]["LOT_SIZE_ORDER"] = round(action[i])
+                    I[_]["LOT_SIZE_ORDER"] = action[i]
                     i += 1
         elif RL_ALGORITHM == "PPO":
             i = 0
             for _ in range(len(I)):
                 if I[_]["TYPE"] == "Material":
-                    I[_]["LOT_SIZE_ORDER"] = round(action[i])
+                    I[_]["LOT_SIZE_ORDER"] = action[i]
                     i += 1
 
         # Capture the current state of the environment
@@ -103,6 +105,7 @@ class GymInterface(gym.Env):
         next_state = env.cap_current_state(self.inventoryList)
         # Calculate the total cost of the day
         env.Cost.update_cost_log(self.inventoryList)
+        env.Cost.clear_cost()
         daily_total_cost = COST_LOG[-1]
         reward=-daily_total_cost
         '''
@@ -133,6 +136,7 @@ class GymInterface(gym.Env):
         # 현재 시뮬레이션(에피소드)이 종료되었는지에 대한 조건
         done = self.simpy_env.now >= SIM_TIME * 24  # 예: SIM_TIME일 이후에 종료
         if done == True:
+            self.writer.add_scalar("reward", self.total_reward, global_step=self.num_episode)
             print("Total reward: ", self.total_reward)
             self.total_reward_over_episode.append(self.total_reward)
             self.total_reward = 0
