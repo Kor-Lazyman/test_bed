@@ -124,19 +124,6 @@ class DQNAgent:
     def remember(self, transition):
         self.memory.append(transition)
 
-    def get_policy(self, state):
-        """
-        주어진 상태에 대한 정책(policy)를 반환합니다.
-        :param state: 상태
-        :return: 각 행동에 대한 Q-value
-        """
-        with torch.no_grad():
-            state_tensor = torch.FloatTensor(state).to(device)
-            q_values = self.q_target(state_tensor)
-            return q_values.cpu().numpy()
-
-
-'''
     def take_action(self, action_space, action, inventoryList, total_cost_per_day, I):
         seq = -1
         for items in range(len(I)):
@@ -163,7 +150,7 @@ class DQNAgent:
         reward = -total_cost_per_day[-1]
 
         return next_state, reward
-'''
+
 
 # Set device (CPU or GPU)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

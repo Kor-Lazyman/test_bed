@@ -76,17 +76,20 @@ if OPTIMIZE_HYPERPARAMETERS:
     vis.plot_contour(study, params=['learning_rate', 'gamma']).show()
 
 else:
+    print("Check")
     if RL_ALGORITHM == "DQN":
         # model = DQN("MlpPolicy", env, verbose=0)
         model = DQN("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
-                    batch_size=BEST_PARAMS['batch_size'], verbose=0, tensorboard_log=TENSORFLOW_LOGS)
+                    batch_size=BEST_PARAMS['batch_size'], verbose=0)
     elif RL_ALGORITHM == "DDPG":
         model = DDPG("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
-                     batch_size=BEST_PARAMS['batch_size'], verbose=0, tensorboard_log=TENSORFLOW_LOGS)
+                     batch_size=BEST_PARAMS['batch_size'], verbose=0)
     elif RL_ALGORITHM == "PPO":
+        print("Check1")
         model = PPO("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
-                    batch_size=BEST_PARAMS['batch_size'], verbose=0, tensorboard_log=TENSORFLOW_LOGS)
-
+                    batch_size=BEST_PARAMS['batch_size'], verbose=0)
+        print(env.observation_space)
+        print("Check2")
     model.learn(total_timesteps=SIM_TIME*N_EPISODES)  # Time steps = days
     env.render()
 
