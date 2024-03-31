@@ -89,7 +89,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "OUTPUT": I[0],
          "PROCESS_COST": 2,
          "PROCESS_STOP_COST": 3}}
-'''
+
 # RL algorithms
 RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
@@ -121,7 +121,7 @@ BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
 #                'gamma': 0.98118769052857, 'batch_size': 256}
 
 # State space
-RL_ALGORITHM = "PPO"  #  "DQN", "DDPG", "PPO"
+RL_ALGORITHM = "PPO"  # "DQN", "DDPG", "PPO"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
