@@ -1,4 +1,3 @@
-import random
 #### Items #####################################################################
 # ID: Index of the element in the dictionary
 # TYPE: Product, Material, WIP;
@@ -26,6 +25,7 @@ import random
 # OUTPUT: Output WIP or Product
 # PROCESS_COST: Processing cost of the process [$/day]
 # PROCESS_STOP_COST: Penalty cost for stopping the process [$/unit]
+
 
 # Scenario 1
 '''
@@ -93,32 +93,6 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
 # RL algorithms
 RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
-# Scenario 1-1
-# DQN
-# BEST_PARAMS = {'learning_rate': 0.000039592987586748284,
-#                'gamma': 0.946622398997048, 'batch_size': 256}
-# PPO
-# BEST_PARAMS = {'learning_rate': 0.004925696229801578,
-#                'gamma': 0.9884195154449192, 'batch_size': 128}
-# Scenario 1-2-1
-# DQN
-# BEST_PARAMS = {'learning_rate': 0.0001998587865387424,
-#                'gamma':  0.99835157223117, 'batch_size': 64}
-# Scenario 1-2-2
-# PPO
-BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
-               'gamma':  0.9292540359, 'batch_size': 256}
-
-# Scenario 2-1-1
-# PPO
-# BEST_PARAMS = {'learning_rate': 0.000010551004230145447,'gamma': 0.9203615255548315, 'batch_size': 64}
-# DDPG
-# BEST_PARAMS = {'learning_rate':  0.000010064052848745629,
-#                'gamma': 0.9265086581150084, 'batch_size': 32}
-# Scenario 2-2-1
-# PPO
-# BEST_PARAMS = {'learning_rate': 0.0007062032033742153,
-#                'gamma': 0.98118769052857, 'batch_size': 256}
 
 # State space
 RL_ALGORITHM = "PPO"  # "DQN", "DDPG", "PPO"
@@ -129,7 +103,7 @@ INVEN_LEVEL_MAX = 20  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 
 # Simulation
-N_EPISODES = 20000  # 3000
+N_EPISODES = 10000  # 3000
 SIM_TIME = 200  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 
@@ -142,10 +116,6 @@ DEMAND_QTY_MAX = 5
 # Ordering rules
 ORDER_QTY = 15
 REORDER_LEVEL = 10
-
-# Simulation
-N_EPISODES = 1000  # 3000
-SIM_TIME = 100  # 200 [days] per episode
 
 BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
                'gamma':  0.9292540359, 'batch_size': 256}
