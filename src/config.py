@@ -23,7 +23,7 @@
 # INPUT_TYPE_LIST: List of types of input materials or WIPs
 # QNTY_FOR_INPUT_ITEM: Quantity of input materials or WIPs [units]
 # OUTPUT: Output WIP or Product
-# PROCESS_COST: Processing cost of the process [$/day]
+# PROCESS_COST: Processing cost of the process [$/processtime]
 # PROCESS_STOP_COST: Penalty cost for stopping the process [$/unit]
 
 
@@ -54,31 +54,32 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INP
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
          "DEMAND_QUANTITY": 0,
-         "HOLD_COST": 1,
-         "SETUP_COST_PRO": 1,
+         "HOLD_COST": 3,
+         "SETUP_COST_PRO": 5,
          "DELIVERY_COST": 1,
          "DUE_DATE": 5,
-         "SHORTAGE_COST_PRO": 50},
+         "SHORTAGE_COST_PRO": 2},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1.1",
          "MANU_ORDER_CYCLE": 2,
          "SUP_LEAD_TIME": 0,
-         "HOLD_COST": 1,
+         "HOLD_COST": 3,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      2: {"ID": 2, "TYPE": "Material", "NAME": "MATERIAL 2.1",
          "MANU_ORDER_CYCLE": 3,
          "SUP_LEAD_TIME": 0,
-         "HOLD_COST": 1,
+         "HOLD_COST": 3,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      3: {"ID": 3, "TYPE": "Material", "NAME": "MATERIAL 2.2",
          "MANU_ORDER_CYCLE": 4,
          "SUP_LEAD_TIME": 0,
-         "HOLD_COST": 1,
+         "HOLD_COST": 3,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      4: {"ID": 4, "TYPE": "WIP",          "NAME": "WIP 1",
          "HOLD_COST": 1, }}
+
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [1],
          "OUTPUT": I[4],
@@ -99,17 +100,17 @@ RL_ALGORITHM = "PPO"  # "DQN", "DDPG", "PPO"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
-INVEN_LEVEL_MAX = 20  # Capacity limit of the inventory [units]
+INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 
 # Simulation
-N_EPISODES = 10000  # 3000
-SIM_TIME = 200  # 200 [days] per episode
+N_EPISODES = 1000  # 3000
+SIM_TIME = 100  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
-DEMAND_QTY_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DEMAND_QTY_MAX
-DEMAND_QTY_MAX = 5
+DEMAND_QTY_MIN = 5  # if this is not 0, the length of state space of demand quantity is not identical to DEMAND_QTY_MAX
+DEMAND_QTY_MAX = 10
 # DUE_DATE_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DUE_DATE_MAX
 # DUE_DATE_MAX = 3
 
@@ -118,7 +119,7 @@ ORDER_QTY = 15
 REORDER_LEVEL = 10
 
 BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
-               'gamma':  0.9292540359, 'batch_size': 256}
+               'gamma':  0.01, 'batch_size': 256}
 
 # Hyperparameter optimization
 OPTIMIZE_HYPERPARAMETERS = False
@@ -127,7 +128,12 @@ N_EVAL_EPISODES = 100  # 100
 
 # Print logs
 PRINT_SIM_EVENTS = True
-TENSORFLOW_LOGS = "C:/tensorboard_logs/"
+
+#Tensorboard
+import os
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+TENSORFLOW_LOGS = os.path.join(parent_dir,"tensorboard_log")
 
 # Cost model
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
