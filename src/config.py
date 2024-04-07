@@ -1,3 +1,5 @@
+import random  # For random number generation
+
 #### Items #####################################################################
 # ID: Index of the element in the dictionary
 # TYPE: Product, Material, WIP;
@@ -108,10 +110,16 @@ SIM_TIME = 200  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
-DEMAND_QTY_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DEMAND_QTY_MAX
-DEMAND_QTY_MAX = 5
-# DUE_DATE_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DUE_DATE_MAX
-# DUE_DATE_MAX = 3
+
+
+def DEMAND_QTY_FUNC():
+    return random.randint(5, 5)
+
+
+def SUP_LEAD_TIME_FUNC():
+    # SUP_LEAD_TIME must be an integer and less than CUST_ORDER_CYCLE(7)
+    return random.randint(3, 3)
+
 
 # Ordering rules
 ORDER_QTY = 15
