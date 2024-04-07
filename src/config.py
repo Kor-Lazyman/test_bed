@@ -1,3 +1,5 @@
+import random  # For random number generation
+
 #### Items #####################################################################
 # ID: Index of the element in the dictionary
 # TYPE: Product, Material, WIP;
@@ -94,18 +96,24 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
 # State space
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
-INVEN_LEVEL_MAX = 100  # Capacity limit of the inventory [units]
+INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 
 # Simulation
-SIM_TIME = 15  # 200 [days] per episode
+SIM_TIME = 100  # 200 [days] per episode
 INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
-DEMAND_QTY_MIN = 5  # if this is not 0, the length of state space of demand quantity is not identical to DEMAND_QTY_MAX
-DEMAND_QTY_MAX = 5
-# DUE_DATE_MIN = 0  # if this is not 0, the length of state space of demand quantity is not identical to DUE_DATE_MAX
-# DUE_DATE_MAX = 3
+
+
+def DEMAND_QTY_FUNC():
+    return random.randint(5, 5)
+
+
+def SUP_LEAD_TIME_FUNC():
+    # SUP_LEAD_TIME must be an integer and less than CUST_ORDER_CYCLE(7)
+    return random.randint(1, 1)
+
 
 # Ordering rules
 ORDER_QTY = 15
@@ -114,7 +122,7 @@ REORDER_LEVEL = 10
 # Print logs
 PRINT_SIM_EVENTS = True
 PRINT_SIM_REPORT = True
-PRINT_SIM_COST=True
+PRINT_SIM_COST = True
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
 
