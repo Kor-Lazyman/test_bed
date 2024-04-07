@@ -1,17 +1,17 @@
 import gym
 from gym import spaces
-import simpy
 import numpy as np
 from config import *
 import environment as env
 import matplotlib.pyplot as plt
 import optuna.visualization as vis
 from log import *
+import random
 from torch.utils.tensorboard import SummaryWriter
 
 class GymInterface(gym.Env):
     def __init__(self):
-        self.writer = SummaryWriter(log_dir="C:/tensorboard_logs/")
+        self.writer = SummaryWriter(log_dir=TENSORFLOW_LOGS)
         super(GymInterface, self).__init__()
         # Action space, observation space
         if RL_ALGORITHM == "DQN":
@@ -23,7 +23,7 @@ class GymInterface(gym.Env):
             for _ in range(len(I)):
                 os.append(INVEN_LEVEL_MAX+1)
             if STATE_DEMAND:
-                os.append(DEMAND_QTY_MAX - DEMAND_QTY_MIN + 1)
+                 os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
         elif RL_ALGORITHM == "DDPG":
             # self.action_space = spaces.Box(low=0, high=len(ACTION_SPACE), shape=(1,), dtype=np.float32)
@@ -38,7 +38,7 @@ class GymInterface(gym.Env):
             # self.observation_space = spaces.Box(low=0, high=INVEN_LEVEL_MAX, shape=(len(I),), dtype=np.float32)
             os = [INVEN_LEVEL_MAX+1 for _ in range(len(I))]
             if STATE_DEMAND:
-                os.append(DEMAND_QTY_MAX - DEMAND_QTY_MIN + 1)
+                os.append(DEMAND_QTY_MAX + 1)
             self.observation_space = spaces.MultiDiscrete(os)
         elif RL_ALGORITHM == "PPO":
             # Define action space
@@ -50,8 +50,9 @@ class GymInterface(gym.Env):
             # Define observation space:
             os = [INVEN_LEVEL_MAX+1 for _ in range(len(I))]
             if STATE_DEMAND:
-                os.append(DEMAND_QTY_MAX - DEMAND_QTY_MIN + 1)
+                os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
+            print(os)
         #print(self.observation_space)
         # Simpy environment
         # self.simpy_env = simpy.Environment()
@@ -137,6 +138,12 @@ class GymInterface(gym.Env):
         done = self.simpy_env.now >= SIM_TIME * 24  # 예: SIM_TIME일 이후에 종료
         if done == True:
             self.writer.add_scalar("reward", self.total_reward, global_step=self.num_episode)
+            self.writer.add_scalar("State_p", next_state[0], global_step=self.num_episode)
+            self.writer.add_scalar("State_wip", next_state[-1], global_step=self.num_episode)
+            self.writer.add_scalar("State_r1", next_state[1], global_step=self.num_episode)
+            self.writer.add_scalar("State_r2", next_state[2], global_step=self.num_episode)
+            self.writer.add_scalar("State_r3", next_state[3], global_step=self.num_episode)
+    
             print("Total reward: ", self.total_reward)
             self.total_reward_over_episode.append(self.total_reward)
             self.total_reward = 0
