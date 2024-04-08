@@ -11,7 +11,8 @@ class Inventory:
         # Initialize inventory object
         self.env = env
         self.item_id = item_id  # 0: product; others: WIP or material
-        self.on_hand_inventory = INIT_LEVEL  # Initial inventory level
+        # Initial inventory level
+        self.on_hand_inventory = I[self.item_id]['INIT_LEVEL']
         # Inventory in transition (e.g., being delivered)
         self.in_transition_inventory = 0
         self.capacity_limit = INVEN_LEVEL_MAX  # Maximum capacity of the inventory
@@ -136,7 +137,7 @@ class Procurement:
                 f"==============={I[self.item_id]['NAME']}\'s Inventory ===============")
 
             # Set the order size based on LOT_SIZE_ORDER and reorder level
-            #I[self.item_id]["LOT_SIZE_ORDER"] = ORDER_QTY
+            # I[self.item_id]["LOT_SIZE_ORDER"] = ORDER_QTY
             order_size = I[self.item_id]["LOT_SIZE_ORDER"]
             if order_size > 0 and inventory.on_hand_inventory < REORDER_LEVEL:
                 daily_events.append(

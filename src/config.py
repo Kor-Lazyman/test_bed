@@ -7,13 +7,14 @@ import random  # For random number generation
 # NAME: Item's name or model;
 # CUST_ORDER_CYCLE: Customer ordering cycle [days]
 # MANU_ORDER_CYCLE: Manufacturer ordering cycle to suppliers [days]
+# INIT_LEVEL: Initial inventory level [units]
 # DEMAND_QUANTITY: Demand quantity for the final product [units] -> THIS IS UPDATED EVERY 24 HOURS (Default: 0)
 # DELIVERY_TIME_TO_CUST: Delivery time to the customer [days]
 # DELIVERY_TIME_FROM_SUP: Delivery time from a supplier [days]
 # SUP_LEAD_TIME: The total processing time for a supplier to process and deliver the manufacturer's order [days]
 # REMOVE## LOT_SIZE_ORDER: Lot-size for the order of materials (Q) [units] -> THIS IS AN AGENT ACTION THAT IS UPDATED EVERY 24 HOURS
 # HOLD_COST: Holding cost of the items [$/unit*day]
-# PURCHASE_COST: Holding cost of the materials [$/unit]
+# PURCHASE_COST: Purchase cost of the materials [$/unit]
 # SETUP_COST_PRO: Setup cost for the delivery of the products to the customer [$/delivery]
 # ORDER_COST_TO_SUP: Ordering cost for the materials to a supplier [$/order]
 # DELIVERY_COST: Delivery cost of the products [$/unit]
@@ -31,9 +32,10 @@ import random  # For random number generation
 
 
 # Scenario 1
-'''
+
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
+         "INIT_LEVEL": 0,
          "DEMAND_QUANTITY": 0,
          "HOLD_COST": 1,
          "SETUP_COST_PRO": 1,
@@ -42,6 +44,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "SHORTAGE_COST_PRO": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1",
          "MANU_ORDER_CYCLE": 1,
+         "INIT_LEVEL": 2,
          "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -56,6 +59,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INP
 # Scenario 2
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
+         "INIT_LEVEL": 10,
          "DEMAND_QUANTITY": 0,
          "HOLD_COST": 3,
          "SETUP_COST_PRO": 5,
@@ -64,24 +68,28 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "SHORTAGE_COST_PRO": 2},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1.1",
          "MANU_ORDER_CYCLE": 2,
+         "INIT_LEVEL": 10,
          "SUP_LEAD_TIME": 0,
          "HOLD_COST": 3,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      2: {"ID": 2, "TYPE": "Material", "NAME": "MATERIAL 2.1",
          "MANU_ORDER_CYCLE": 3,
+         "INIT_LEVEL": 10,
          "SUP_LEAD_TIME": 0,
          "HOLD_COST": 3,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      3: {"ID": 3, "TYPE": "Material", "NAME": "MATERIAL 2.2",
          "MANU_ORDER_CYCLE": 4,
+         "INIT_LEVEL": 10,
          "SUP_LEAD_TIME": 0,
          "HOLD_COST": 3,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1},
      4: {"ID": 4, "TYPE": "WIP",          "NAME": "WIP 1",
-         "HOLD_COST": 1, }}
+         "INIT_LEVEL": 10,
+         "HOLD_COST": 1}}
 
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [1],
@@ -93,7 +101,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "OUTPUT": I[0],
          "PROCESS_COST": 2,
          "PROCESS_STOP_COST": 3}}
-
+'''
 # RL algorithms
 RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
@@ -109,7 +117,6 @@ STATE_DEMAND = True  # True: Demand quantity is included in the state space
 # Simulation
 N_EPISODES = 1000  # 3000
 SIM_TIME = 100  # 200 [days] per episode
-INIT_LEVEL = 10  # Initial inventory level [units]
 
 # Uncertainty factors
 
@@ -124,8 +131,8 @@ def SUP_LEAD_TIME_FUNC():
 
 
 # Ordering rules
-ORDER_QTY = 15
-REORDER_LEVEL = 10
+ORDER_QTY = 2
+REORDER_LEVEL = 0
 
 BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
                'gamma':  0.01, 'batch_size': 256}
