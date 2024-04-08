@@ -10,7 +10,8 @@ class Inventory:
         # Initialize inventory object
         self.env = env
         self.item_id = item_id  # 0: product; others: WIP or material
-        self.on_hand_inventory = INIT_LEVEL  # Initial inventory level
+        # Initial inventory level
+        self.on_hand_inventory = I[self.item_id]['INIT_LEVEL']
         # Inventory in transition (e.g., being delivered)
         self.in_transition_inventory = 0
         self.capacity_limit = INVEN_LEVEL_MAX  # Maximum capacity of the inventory
@@ -137,7 +138,8 @@ class Procurement:
             # Set the order size based on LOT_SIZE_ORDER and reorder level
             I[self.item_id]["LOT_SIZE_ORDER"] = ORDER_QTY
             order_size = I[self.item_id]["LOT_SIZE_ORDER"]
-            if order_size > 0 and inventory.on_hand_inventory < REORDER_LEVEL:
+            # if order_size > 0 and inventory.on_hand_inventory < REORDER_LEVEL:
+            if order_size > 0:
                 daily_events.append(
                     f"{change_time(self.env.now)}: The Procurement ordered {I[self.item_id]['NAME']}: {I[self.item_id]['LOT_SIZE_ORDER']}  units  ")
                 self.order_qty = order_size
@@ -214,13 +216,11 @@ class Production:
                 yield self.env.timeout(self.processing_time)
                 daily_events.append(
                     "===============Result Phase================")
-                if self.output['NAME'] == "PRODUCT":
-                    daily_events.append(
-                        f"{change_time(self.env.now)}: {self.output['NAME']} has been produced                                 : 1 units")
-                else:
-                    daily_events.append(
-                        f"{change_time(self.env.now)}: {self.output['NAME']} has been produced                                   : 1 units")
+                daily_events.append(
+                    f"{self.env.now}: {self.output['NAME']} has been produced                         : 1 units")
                 # Update the inventory level for the output item
+                self.output_inventory.update_inven_level(
+                    1, "ON_HAND", daily_events)
 
 
 class Sales:
