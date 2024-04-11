@@ -52,7 +52,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "LOT_SIZE_ORDER": 0}}
 
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [
-    1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 2}}
+    1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 0}}
 
 
 '''
@@ -107,32 +107,31 @@ RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 
 # State space
-RL_ALGORITHM = "PPO"  # "DQN", "DDPG", "PPO"
-ACTION_SPACE = [0, 1, 2, 3, 4, 5]
-# if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
+
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
-
+DEMAND_QTY_MIN=14
+DEMAND_QTY_MAX=14
 # Simulation
 N_EPISODES = 1000  # 3000
-SIM_TIME = 100  # 200 [days] per episode
+SIM_TIME = 105  # 200 [days] per episode
 
 # Uncertainty factors
 
 
 def DEMAND_QTY_FUNC():
-    return random.randint(5, 5)
+    return random.randint(DEMAND_QTY_MIN, DEMAND_QTY_MAX)
 
 
 def SUP_LEAD_TIME_FUNC():
     # SUP_LEAD_TIME must be an integer and less than CUST_ORDER_CYCLE(7)
-    return random.randint(3, 3)
+    return random.randint(1, 1)
 
 
 # Ordering rules
 ORDER_QTY = 2
-REORDER_LEVEL = 0
+#REORDER_LEVEL = 0
 
 BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
                'gamma':  0.01, 'batch_size': 256}
@@ -154,3 +153,4 @@ TENSORFLOW_LOGS = os.path.join(parent_dir, "tensorboard_log")
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
+VISUALIAZTION=[1,1,1]
