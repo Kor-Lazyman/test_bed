@@ -31,7 +31,8 @@ def evaluate_model(model, env, num_episodes):
             XAI[-1].append(action)
             ORDER_HISTORY.append(action[0])
         all_rewards.append(episode_reward)
-        visual(env,i)
+        if VISUALIAZTION.count(1)>0:
+            visual(env,i)
         
         test_order_mean.append(sum(ORDER_HISTORY)/len(ORDER_HISTORY))
     print("Order_Average:",test_order_mean)

@@ -153,4 +153,4 @@ TENSORFLOW_LOGS = os.path.join(parent_dir, "tensorboard_log")
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION=[1,1,1]
+VISUALIAZTION=[0,0,0]#Mat,Wip,Product
