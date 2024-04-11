@@ -9,3 +9,4 @@ DAILY_COST_REPORT={
     'Order cost':0,
     'Shortage cost':0
 }
+ORDER_HISTORY=[]

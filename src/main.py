@@ -4,26 +4,59 @@ import numpy as np
 import HyperparamTuning as ht
 import time
 from stable_baselines3 import DQN, DDPG, PPO
-
+import visualization 
+from log import *
+import environment as Env
+import pandas as pd
 # Create environment
 env = GymInterface()
 
-
-
 def evaluate_model(model, env, num_episodes):
     all_rewards = []
-    for _ in range(num_episodes):
+    XAI=[]
+    test_order_mean=[]
+    for i in range(num_episodes):
+        ORDER_HISTORY.clear()
+        
+        DAILY_REPORTS.clear()
         obs = env.reset()
         episode_reward = 0
         done = False
+        
         while not done:
             action, _ = model.predict(obs)
             obs, reward, done, _ = env.step(action)
             episode_reward += reward
+            XAI.append([_ for _ in list(Env.cap_current_state(env.inventoryList))])
+            XAI[-1].append(action)
+            ORDER_HISTORY.append(action[0])
         all_rewards.append(episode_reward)
+        if VISUALIAZTION.count(1)>0:
+            visual(env,i)
+        
+        test_order_mean.append(sum(ORDER_HISTORY)/len(ORDER_HISTORY))
+    print("Order_Average:",test_order_mean)
+    
+    df=pd.DataFrame(XAI)
+    print(df)
+    df.to_csv("./XAI_DATA.csv")
+    
+
     mean_reward = np.mean(all_rewards)
     std_reward = np.std(all_rewards)
+    
     return mean_reward, std_reward
+
+def visual(env,i):
+    print(len(DAILY_REPORTS))
+    export_Daily_Report = []
+    for x in range(len(env.inventoryList)):
+        for report in DAILY_REPORTS:
+            export_Daily_Report.append(report[x])
+
+    visualization.visualization(export_Daily_Report,i)
+
+
 
 
 def build_model():
