@@ -36,16 +36,16 @@ def evaluate_model(model, env, num_episodes):
             XAI[-1].append(action)  # Append action to XAI data
             ORDER_HISTORY.append(action[0])  # Log order history
         all_rewards.append(episode_reward)  # Store total reward for episode
-        if VISUALIAZTION.count(1) > 0:  # Check if visualization is enabled
-            visual(env, i)  # Visualize the environment
+        report(env, i)  # Visualize the environment
 
         # Calculate mean order for the episode
         test_order_mean.append(sum(ORDER_HISTORY) / len(ORDER_HISTORY))
     print("Order_Average:", test_order_mean)
+    if XAI_TRAIN_EXPORT:   
+        df=pd.DataFrame(XAI) #Create a DataFrame from XAI data
+        df.to_csv(f"{XAI_TRAIN}/XAI_DATA.csv")#Save XAI data to CSV file
 
-    df = pd.DataFrame(XAI)  # Create a DataFrame from XAI data
-    print(df)
-    df.to_csv("./XAI_DATA.csv")  # Save XAI data to CSV file
+
 
     # Calculate mean reward across all episodes
     mean_reward = np.mean(all_rewards)
@@ -56,14 +56,20 @@ def evaluate_model(model, env, num_episodes):
 # Function to visualize the environment
 
 
-def visual(env, i):
-    print(len(DAILY_REPORTS))  # Print the number of daily reports
+def report(env,i):
+    print(len(DAILY_REPORTS))
     export_Daily_Report = []
     for x in range(len(env.inventoryList)):
         for report in DAILY_REPORTS:
             export_Daily_Report.append(report[x])
-
-    visualization.visualization(export_Daily_Report, i)  # Visualize the report
+    if VISUALIAZTION.count(1)>0:
+        visualization.visualization(export_Daily_Report,i)
+    
+    if DAILY_REPORT_EXPORT:
+        daily_reports = pd.DataFrame(export_Daily_Report)
+        daily_reports.columns = ["Day", "Name", "Type",
+                         "Start", "Income", "Outcome", "End"]
+        daily_reports.to_csv(os.path.join(REPORT_LOGS,f'Test_{i}.csv'))
 
 # Function to build the model based on the specified reinforcement learning algorithm
 
@@ -81,6 +87,17 @@ def build_model():
                     batch_size=BEST_PARAMS['batch_size'], verbose=0)
         print(env.observation_space)
     return model
+
+'''
+def export_report():
+    for x in range(len(inventoryList)):
+        for report in DAILY_REPORTS:
+            export_Daily_Report.append(report[x])
+    daily_reports = pd.DataFrame(export_Daily_Report)
+    daily_reports.columns = ["Day", "Name", "Type",
+                         "Start", "Income", "Outcome", "End"]
+    daily_reports.to_csv("./Daily_Report.csv")
+'''
 
 
 # Start timing the computation

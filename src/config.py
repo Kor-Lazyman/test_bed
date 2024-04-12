@@ -127,8 +127,15 @@ def DEMAND_QTY_FUNC():
 def SUP_LEAD_TIME_FUNC():
     # SUP_LEAD_TIME must be an integer and less than CUST_ORDER_CYCLE(7)
     return random.randint(1, 1)
-
-
+#Define Folder Path 
+def DEFINE_FOLDER(folder_name):
+    if os.path.exists(folder_name):
+        file_list = os.listdir(folder_name)
+        folder_name=os.path.join(folder_name, f"Train_{len(file_list)+1}")
+    else:
+        folder_name=os.path.join(folder_name, "Train_1")
+    
+    return folder_name
 # Ordering rules
 # ORDER_QTY = 2
 # REORDER_LEVEL = 0
@@ -146,10 +153,32 @@ N_EVAL_EPISODES = 10  # 100
 # Print logs
 PRINT_SIM_EVENTS = False
 
-# TensorBoard logs are saved in the specified directory:
+#Export files
+DAILY_REPORT_EXPORT=True
+XAI_TRAIN_EXPORT=True
+
+# Define parent dir's path
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
-TENSORFLOW_LOGS = os.path.join(parent_dir, "tensorboard_log")
+# Define each dir's parent dir's path
+tensorboard_folder=os.path.join(parent_dir, "tensorboard_log")
+result_csv_folder=os.path.join(parent_dir,"result_CSV")
+XAI_folder=os.path.join(result_csv_folder,"XAI_Train")
+daily_report_folder=os.path.join(result_csv_folder,"daily_report")
+#Define dir's path
+TENSORFLOW_LOGS=DEFINE_FOLDER(tensorboard_folder)
+XAI_TRAIN=DEFINE_FOLDER(XAI_folder)
+REPORT_LOGS=DEFINE_FOLDER(daily_report_folder)
+# Makedir
+if os.path.exists(XAI_TRAIN):
+    pass
+else:
+    os.makedirs(XAI_TRAIN)
+
+if os.path.exists(REPORT_LOGS):
+    pass
+else:
+    os.makedirs(REPORT_LOGS)
 # tensorboard --logdir="~\tensorboard_log"
 # http://localhost:6006/
 

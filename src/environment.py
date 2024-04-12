@@ -340,10 +340,7 @@ class Cost:
 
         # Update daily total cost
         for key in DAILY_COST_REPORT.keys():
-            if key == 'Shortage cost':
-                pass
-            else:
-                COST_LOG[-1] += DAILY_COST_REPORT[key]
+            COST_LOG[-1] += DAILY_COST_REPORT[key]
 
         return COST_LOG[-1]
 
