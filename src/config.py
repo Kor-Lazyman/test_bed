@@ -111,11 +111,11 @@ ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
-DEMAND_QTY_MIN=14
-DEMAND_QTY_MAX=14
+DEMAND_QTY_MIN = 14
+DEMAND_QTY_MAX = 14
 # Simulation
-N_EPISODES = 1000  # 3000
-SIM_TIME = 105  # 200 [days] per episode
+N_EPISODES = 3000  # 3000
+SIM_TIME = 200  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -130,8 +130,8 @@ def SUP_LEAD_TIME_FUNC():
 
 
 # Ordering rules
-ORDER_QTY = 2
-#REORDER_LEVEL = 0
+# ORDER_QTY = 2
+# REORDER_LEVEL = 0
 
 BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
                'gamma':  0.01, 'batch_size': 256}
@@ -139,18 +139,23 @@ BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
 # Hyperparameter optimization
 OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 50  # 50
-N_EVAL_EPISODES = 100  # 100
+
+# Evaluation
+N_EVAL_EPISODES = 10  # 100
 
 # Print logs
-PRINT_SIM_EVENTS = True
+PRINT_SIM_EVENTS = False
 
-# Tensorboard
+# TensorBoard logs are saved in the specified directory:
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
 TENSORFLOW_LOGS = os.path.join(parent_dir, "tensorboard_log")
+# tensorboard --logdir="~\tensorboard_log"
+# http://localhost:6006/
+
 
 # Cost model
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION=[0,0,0]#Mat,Wip,Product
+VISUALIAZTION = [0, 0, 0]  # Material / Wip / Product

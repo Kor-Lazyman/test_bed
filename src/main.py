@@ -1,62 +1,71 @@
 from InventoryMgtEnv import GymInterface
 from config import *
 import numpy as np
-import HyperparamTuning as ht
+import HyperparamTuning as ht  # Module for hyperparameter tuning
 import time
 from stable_baselines3 import DQN, DDPG, PPO
-import visualization 
+import visualization
 from log import *
 import environment as Env
 import pandas as pd
+
 # Create environment
 env = GymInterface()
 
+# Function to evaluate the trained model
+
+
 def evaluate_model(model, env, num_episodes):
-    all_rewards = []
-    XAI=[]
-    test_order_mean=[]
+    all_rewards = []  # List to store total rewards for each episode
+    XAI = []  # List for storing data for explainable AI purposes
+    test_order_mean = []  # List to store average orders per episode
     for i in range(num_episodes):
-        ORDER_HISTORY.clear()
-        
-        DAILY_REPORTS.clear()
-        obs = env.reset()
-        episode_reward = 0
-        done = False
-        
+        ORDER_HISTORY.clear()  # Clear order history at the start of each episode
+        DAILY_REPORTS.clear()  # Clear daily reports at the start of each episode
+        obs = env.reset()  # Reset the environment to get initial observation
+        episode_reward = 0  # Initialize reward for the episode
+        done = False  # Flag to check if episode is finished
+
         while not done:
-            action, _ = model.predict(obs)
+            action, _ = model.predict(obs)  # Get action from model
+            # Execute action in environment
             obs, reward, done, _ = env.step(action)
-            episode_reward += reward
-            XAI.append([_ for _ in list(Env.cap_current_state(env.inventoryList))])
-            XAI[-1].append(action)
-            ORDER_HISTORY.append(action[0])
-        all_rewards.append(episode_reward)
-        if VISUALIAZTION.count(1)>0:
-            visual(env,i)
-        
-        test_order_mean.append(sum(ORDER_HISTORY)/len(ORDER_HISTORY))
-    print("Order_Average:",test_order_mean)
-    
-    df=pd.DataFrame(XAI)
+            episode_reward += reward  # Accumulate rewards
+            XAI.append(
+                [_ for _ in list(Env.cap_current_state(env.inventoryList))])
+            XAI[-1].append(action)  # Append action to XAI data
+            ORDER_HISTORY.append(action[0])  # Log order history
+        all_rewards.append(episode_reward)  # Store total reward for episode
+        if VISUALIAZTION.count(1) > 0:  # Check if visualization is enabled
+            visual(env, i)  # Visualize the environment
+
+        # Calculate mean order for the episode
+        test_order_mean.append(sum(ORDER_HISTORY) / len(ORDER_HISTORY))
+    print("Order_Average:", test_order_mean)
+
+    df = pd.DataFrame(XAI)  # Create a DataFrame from XAI data
     print(df)
-    df.to_csv("./XAI_DATA.csv")
-    
+    df.to_csv("./XAI_DATA.csv")  # Save XAI data to CSV file
 
+    # Calculate mean reward across all episodes
     mean_reward = np.mean(all_rewards)
-    std_reward = np.std(all_rewards)
-    
-    return mean_reward, std_reward
+    std_reward = np.std(all_rewards)  # Calculate standard deviation of rewards
 
-def visual(env,i):
-    print(len(DAILY_REPORTS))
+    return mean_reward, std_reward  # Return mean and std of rewards
+
+# Function to visualize the environment
+
+
+def visual(env, i):
+    print(len(DAILY_REPORTS))  # Print the number of daily reports
     export_Daily_Report = []
     for x in range(len(env.inventoryList)):
         for report in DAILY_REPORTS:
             export_Daily_Report.append(report[x])
 
-    visualization.visualization(export_Daily_Report,i)
+    visualization.visualization(export_Daily_Report, i)  # Visualize the report
 
-
+# Function to build the model based on the specified reinforcement learning algorithm
 
 
 def build_model():
@@ -74,49 +83,26 @@ def build_model():
     return model
 
 
+# Start timing the computation
 start_time = time.time()
 
+# Run hyperparameter optimization if enabled
 if OPTIMIZE_HYPERPARAMETERS:
     ht.run_optuna(env)
 
+# Build the model
 model = build_model()
-model.learn(total_timesteps=SIM_TIME*N_EPISODES)  # Time steps = days
+# Train the model
+model.learn(total_timesteps=SIM_TIME * N_EPISODES)
+# Optionally render the environment
 env.render()
 
-# 학습 후 모델 평가
+# Evaluate the trained model
 mean_reward, std_reward = evaluate_model(model, env, N_EVAL_EPISODES)
 print(
     f"Mean reward over {N_EVAL_EPISODES} episodes: {mean_reward:.2f} +/- {std_reward:.2f}")
 
-# # Optimal policy
-# if RL_ALGORITHM == "DQN":
-#     optimal_actions_matrix = np.zeros(
-#         (INVEN_LEVEL_MAX + 1, INVEN_LEVEL_MAX + 1), dtype=int)
-#     for i in range(INVEN_LEVEL_MAX + 1):
-#         for j in range(INVEN_LEVEL_MAX + 1):
-#             if STATE_DEMAND:
-#                 state = np.array([i, j, I[0]['DEMAND_QUANTITY']])
-#                 action, _ = model.predict(state)
-#                 optimal_actions_matrix[i, j] = action
-#             else:
-#                 state = np.array([i, j])
-#                 action, _ = model.predict(state)
-#                 optimal_actions_matrix[i, j] = action
 
-#     # Print the optimal actions matrix
-#     print("Optimal Actions Matrix:")
-#     # print("Demand quantity: ", I[0]['DEMAND_QUANTITY'])
-#     print(optimal_actions_matrix)
-
+# Calculate computation time and print it
 end_time = time.time()
 print(f"Computation time: {(end_time - start_time)/3600:.2f} hours")
-
-'''
-#모델 저장 및 로드 (선택적)
-model.save("dqn_inventory")
-loaded_model = DQN.load("dqn_inventory")
-'''
-
-# TensorBoard 실행:
-# tensorboard --logdir="C:/tensorboard_logs/"
-# http://localhost:6006/

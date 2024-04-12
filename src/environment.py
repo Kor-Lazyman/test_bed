@@ -265,7 +265,8 @@ class Sales:
                 -demand_size, 'ON_HAND', daily_events)
             daily_events.append(
                 f"{present_daytime(self.env.now)}: Unable to deliver {self.num_shortages} units to the customer due to product shortage")
-        Cost.cal_cost(self,"Delivery_cost")
+        Cost.cal_cost(self, "Delivery_cost")
+
     def receive_demands(self, demand_qty, product_inventory, daily_events):
         """
         Receive demands from customers and initiate the delivery process.
@@ -339,7 +340,7 @@ class Cost:
 
         # Update daily total cost
         for key in DAILY_COST_REPORT.keys():
-            if key=='Shortage cost':
+            if key == 'Shortage cost':
                 pass
             else:
                 COST_LOG[-1] += DAILY_COST_REPORT[key]
@@ -420,9 +421,11 @@ def cap_current_state(inventoryList):
     if STATE_DEMAND:
         # Include demand quantity in the state if required
         state = np.append(state, I[0]['DEMAND_QUANTITY'])
-        #Cal Expected_shortage and append
-        expected_shortage=(I[0]['DEMAND_QUANTITY']-inventoryList[0].on_hand_inventory)
-        state=np.append(state, expected_shortage if expected_shortage>=0 else 0)
+        # Cal Expected_shortage and append
+        expected_shortage = (I[0]['DEMAND_QUANTITY'] -
+                             inventoryList[0].on_hand_inventory)
+        state = np.append(
+            state, expected_shortage if expected_shortage >= 0 else 0)
     return state
 
 

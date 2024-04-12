@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 from config import *
 
-def visualization(export_Daily_Report,i):
+
+def visualization(export_Daily_Report, i):
     Visual_Dict = {
         'Material': [],
         'WIP': [],
@@ -15,8 +16,9 @@ def visualization(export_Daily_Report,i):
         for x in range(SIM_TIME):
             temp.append(export_Daily_Report[id * SIM_TIME + x][6])
         Visual_Dict[export_Daily_Report[id * SIM_TIME + x][2]].append(temp)
-        Visual_Dict['Keys'][export_Daily_Report[id * SIM_TIME + x][2]].append(export_Daily_Report[id * SIM_TIME + x][1])
-    
+        Visual_Dict['Keys'][export_Daily_Report[id * SIM_TIME + x]
+                            [2]].append(export_Daily_Report[id * SIM_TIME + x][1])
+
     visual = VISUALIAZTION.count(1)
     print(visual)
     count_type = 0
@@ -31,6 +33,6 @@ def visualization(export_Daily_Report,i):
                 plt.legend()
                 cont += 1
         count_type += 1
-    
+
     plt.savefig(f'그래프{i}.png')
     plt.clf()

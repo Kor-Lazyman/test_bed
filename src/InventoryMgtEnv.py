@@ -9,9 +9,10 @@ from log import *
 import random
 from torch.utils.tensorboard import SummaryWriter
 
+
 class GymInterface(gym.Env):
     def __init__(self):
-        self.shortages=0
+        self.shortages = 0
         self.writer = SummaryWriter(log_dir=TENSORFLOW_LOGS)
         super(GymInterface, self).__init__()
         # Action space, observation space
@@ -24,8 +25,8 @@ class GymInterface(gym.Env):
             for _ in range(len(I)):
                 os.append(INVEN_LEVEL_MAX+1)
             if STATE_DEMAND:
-                 os.append(DEMAND_QTY_MAX+1)
-                 os.append(DEMAND_QTY_MAX+1)
+                os.append(DEMAND_QTY_MAX+1)
+                os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
         elif RL_ALGORITHM == "DDPG":
             # self.action_space = spaces.Box(low=0, high=len(ACTION_SPACE), shape=(1,), dtype=np.float32)
@@ -57,18 +58,15 @@ class GymInterface(gym.Env):
                 os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
             print(os)
-        #print(self.observation_space)
+        # print(self.observation_space)
         # Simpy environment
         # self.simpy_env = simpy.Environment()
-        #self.simpy_env, self.inventoryList, self.procurementList, self.productionList, self.sales, self.customer, self.providerList, self.daily_events = env.create_env(
+        # self.simpy_env, self.inventoryList, self.procurementList, self.productionList, self.sales, self.customer, self.providerList, self.daily_events = env.create_env(
         #    I, P, DAILY_EVENTS)
-        #print(self.simpy_env, self.inventoryList, self.procurementList, self.productionList, self.sales, self.customer, self.providerList, self.daily_events)
+        # print(self.simpy_env, self.inventoryList, self.procurementList, self.productionList, self.sales, self.customer, self.providerList, self.daily_events)
         self.total_reward_over_episode = []
         self.total_reward = 0
         self.num_episode = 1
-        # self.all_rewards = []  # 모든 에피소드의 누적 보상을 저장
-        # self.all_inventory_levels = []  # 모든 에피소드의 재고 수준을 저장
-        # self.all_order_quantities = []  # 모든 에피소드의 주문량을 저장
 
     def reset(self):
         # Initialize the simulation environment
@@ -77,7 +75,7 @@ class GymInterface(gym.Env):
             I, P, DAILY_EVENTS)
         env.simpy_event_processes(self.simpy_env, self.inventoryList, self.procurementList,
                                   self.productionList, self.sales, self.customer, self.providerList, self.daily_events, I)
-        self.shortages=0
+        self.shortages = 0
         return env.cap_current_state(self.inventoryList)
 
     def step(self, action):
@@ -111,10 +109,11 @@ class GymInterface(gym.Env):
         # Calculate the total cost of the day
         env.Cost.update_cost_log(self.inventoryList)
         env.Cost.clear_cost()
-        reward=-COST_LOG[-1]-next_state[-1]*I[0]["SHORTAGE_COST_PRO"]
-        self.total_reward+=reward
-        self.shortages+=self.sales.num_shortages
-        self.sales.num_shortages=0
+        # reward = -COST_LOG[-1]-next_state[-1]*I[0]["SHORTAGE_COST_PRO"]
+        reward = -COST_LOG[-1]
+        self.total_reward += reward
+        self.shortages += self.sales.num_shortages
+        self.sales.num_shortages = 0
         '''
         s = []
         for _ in range(len(self.inventoryList)):
@@ -138,18 +137,20 @@ class GymInterface(gym.Env):
             print("[Daily Total Cost] ", -reward)
             print("[STATE for the next round] ", next_state)
         self.daily_events.clear()
-        
-        # 현재 시뮬레이션(에피소드)이 종료되었는지에 대한 조건
+
+        # Check if the simulation is done
         done = self.simpy_env.now >= SIM_TIME * 24  # 예: SIM_TIME일 이후에 종료
         if done == True:
-            self.writer.add_scalar("reward", self.total_reward, global_step=self.num_episode)
-            self.writer.add_scalar("shortage", self.shortages, global_step=self.num_episode)
-    
+            self.writer.add_scalar(
+                "reward", self.total_reward, global_step=self.num_episode)
+            self.writer.add_scalar(
+                "shortage", self.shortages, global_step=self.num_episode)
+
             print("Total reward: ", self.total_reward)
             self.total_reward_over_episode.append(self.total_reward)
             self.total_reward = 0
             self.num_episode += 1
-        
+
         info = {}  # 추가 정보 (필요에 따라 사용)
 
         # self.all_order_quantities.append(action)
