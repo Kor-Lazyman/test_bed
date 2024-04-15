@@ -14,6 +14,7 @@ class GymInterface(gym.Env):
     def __init__(self):
         self.shortages = 0
         self.writer = SummaryWriter(log_dir=TENSORFLOW_LOGS)
+        os=[]
         super(GymInterface, self).__init__()
         # Action space, observation space
         if RL_ALGORITHM == "DQN":
@@ -25,7 +26,7 @@ class GymInterface(gym.Env):
             for _ in range(len(I)):
                 os.append(INVEN_LEVEL_MAX+1)
             if STATE_DEMAND:
-                os.append(DEMAND_QTY_MAX+1)
+                os.append(DEMAND_QTY_MAX+1+DELTA_MIN)
                 os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
         elif RL_ALGORITHM == "DDPG":
@@ -43,7 +44,7 @@ class GymInterface(gym.Env):
             if STATE_DEMAND:
                 os.append(DEMAND_QTY_MAX + 1)
                 os.append(DEMAND_QTY_MAX+1)
-            self.observation_space = spaces.MultiDiscrete(os)
+            self.observation_space = spaces.Discrete(os)
         elif RL_ALGORITHM == "PPO":
             # Define action space
             actionSpace = []
@@ -52,10 +53,11 @@ class GymInterface(gym.Env):
                     actionSpace.append(len(ACTION_SPACE))
             self.action_space = spaces.MultiDiscrete(actionSpace)
             # Define observation space:
-            os = [INVEN_LEVEL_MAX+1 for _ in range(len(I))]
+            for i in range(len(I)):
+                os.append(INVEN_LEVEL_MAX+1)
+                os.append(INVEN_LEVEL_MAX+1+DELTA_MIN)
             if STATE_DEMAND:
-                os.append(DEMAND_QTY_MAX+1)
-                os.append(DEMAND_QTY_MAX+1)
+                os.append(DEMAND_QTY_MAX + 1+EXPECTED_PRODUCT_MAX)
             self.observation_space = spaces.MultiDiscrete(os)
             print(os)
         # print(self.observation_space)
@@ -76,7 +78,7 @@ class GymInterface(gym.Env):
         env.simpy_event_processes(self.simpy_env, self.inventoryList, self.procurementList,
                                   self.productionList, self.sales, self.customer, self.providerList, self.daily_events, I)
         self.shortages = 0
-        return env.cap_current_state(self.inventoryList)
+        return self.cap_current_state()
 
     def step(self, action):
         # Update the action of the agent
@@ -105,7 +107,7 @@ class GymInterface(gym.Env):
         env.update_daily_report(self.inventoryList)
         self.simpy_env.run(until=self.simpy_env.now + 24)
         # Capture the next state of the environment
-        next_state = env.cap_current_state(self.inventoryList)
+        next_state = self.cap_current_state()
         # Calculate the total cost of the day
         env.Cost.update_cost_log(self.inventoryList)
         env.Cost.clear_cost()
@@ -158,22 +160,20 @@ class GymInterface(gym.Env):
         # self.all_inventory_levels.append((next_state[0], next_state[1]))
         return next_state, reward, done, info
 
-    # def visualize(self):
-    #     fig, axs = plt.subplots(3, 1, figsize=(10, 8))
-    #     # 재고 수준 그래프
-    #     for idx, inventory_levels in enumerate(zip(*self.all_inventory_levels)):
-    #         axs[0].plot(inventory_levels, label=f"Item {idx}")
-    #     axs[0].legend()
-    #     axs[0].set(ylabel='Inventory Level')
-    #     # 주문량 그래프
-    #     axs[1].plot(self.all_order_quantities, 'tab:orange')
-    #     axs[1].set(ylabel='Order Quantity')
-    #     # 누적 보상 그래프
-    #     axs[2].plot(self.all_rewards, 'tab:red')
-    #     axs[2].set(xlabel='Day', ylabel='Reward')
+    def cap_current_state(self):
+        state=[]
+        for inven in self.inventoryList:
 
-    #     plt.tight_layout()
-    #     plt.show()
+            # Function to capture the current state of the inventory
+            state.append(inven.daily_inven_report[4]-inven.daily_inven_report[5]+DELTA_MIN)
+            state.append(inven.daily_inven_report[6])
+            #Reset Report
+            inven.daily_inven_report = [f"Day {inven.env.now//24}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
+                                    inven.on_hand_inventory, 0, 0, 0]  # inventory report
+        if STATE_DEMAND:
+                state.append(I[0]['DEMAND_QUANTITY']-self.inventoryList[0].on_hand_inventory+EXPECTED_PRODUCT_MAX)
+
+        return state
 
     def render(self, mode='human'):
         pass

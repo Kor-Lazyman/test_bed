@@ -113,9 +113,15 @@ INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 DEMAND_QTY_MIN = 14
 DEMAND_QTY_MAX = 14
+#Find minimum Delta
+DELTA_MIN=0 
+for Product in P:
+    DELTA_MIN= max(Product["PRODUCTION_RATE"]*max(Product['QNTY_FOR_INPUT_ITEM']),DEMAND_QTY_MAX)
+#maximum production
+EXPECTED_PRODUCT_MAX=I[0]['CUST_ORDER_CYCLE']*P[0]['PRODUCTION_RATE']
 # Simulation
-N_EPISODES = 3000  # 3000
-SIM_TIME = 200  # 200 [days] per episode
+N_EPISODES = 10  # 3000
+SIM_TIME = 10  # 200 [days] per episode
 
 # Uncertainty factors
 
