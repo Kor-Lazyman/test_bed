@@ -113,9 +113,15 @@ INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 DEMAND_QTY_MIN = 14
 DEMAND_QTY_MAX = 14
+#Find minimum Delta
+DELTA_MIN=0 
+for key in P:
+    DELTA_MIN= max(P[key]["PRODUCTION_RATE"]*max(P[key]['QNTY_FOR_INPUT_ITEM']),DEMAND_QTY_MAX)
+#maximum production
+EXPECTED_PRODUCT_MAX=I[0]['CUST_ORDER_CYCLE']*P[0]['PRODUCTION_RATE']
 # Simulation
 N_EPISODES = 3000  # 3000
-SIM_TIME = 200  # 200 [days] per episode
+SIM_TIME = 100  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -165,10 +171,12 @@ tensorboard_folder=os.path.join(parent_dir, "tensorboard_log")
 result_csv_folder=os.path.join(parent_dir,"result_CSV")
 XAI_folder=os.path.join(result_csv_folder,"XAI_Train")
 daily_report_folder=os.path.join(result_csv_folder,"daily_report")
+graph_folder=os.path.join(result_csv_folder,"Graph")
 #Define dir's path
 TENSORFLOW_LOGS=DEFINE_FOLDER(tensorboard_folder)
 XAI_TRAIN=DEFINE_FOLDER(XAI_folder)
 REPORT_LOGS=DEFINE_FOLDER(daily_report_folder)
+GRAPH_FOLDER=DEFINE_FOLDER(graph_folder)
 # Makedir
 if os.path.exists(XAI_TRAIN):
     pass
@@ -179,6 +187,10 @@ if os.path.exists(REPORT_LOGS):
     pass
 else:
     os.makedirs(REPORT_LOGS)
+if os.path.exists(GRAPH_FOLDER):
+    pass
+else:
+    os.makedirs(GRAPH_FOLDER)
 # tensorboard --logdir="~\tensorboard_log"
 # http://localhost:6006/
 
@@ -187,4 +199,4 @@ else:
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION = [0, 0, 0]  # Material / Wip / Product
+VISUALIAZTION = [1, 0, 1]  # Material / Wip / Product

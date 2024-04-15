@@ -33,6 +33,7 @@ def visualization(export_Daily_Report, i):
                 plt.legend()
                 cont += 1
         count_type += 1
-
-    plt.savefig(f'그래프{i}.png')
+    path=os.path.join(GRAPH_FOLDER,f'그래프{i}.png')
+    print(path)
+    plt.savefig(path)
     plt.clf()

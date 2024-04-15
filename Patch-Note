@@ -1,0 +1,8 @@
+## config
+  * +117~121: Variable for correction
+## environment cap_current_statedelete
+  * -409 Init Removed
+## Inventory
+  * +56~60: Add value correction (Delta, Product correction)
+  * +81,110: cap_current_state: Changed calling method (changed to built-in function)
+  * +163~179: Add cap_current_state

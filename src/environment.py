@@ -404,14 +404,12 @@ def update_daily_report(inventoryList):
     # Update daily reports for inventory
     day_report_list = []
     for inven in inventoryList:
-        inven.daily_inven_report[-1] = inven.on_hand_inventory + \
-            inven.in_transition_inventory
+        inven.daily_inven_report[-1] = inven.on_hand_inventory
         day_report_list.append(inven.daily_inven_report)
-        inven.daily_inven_report = [f"Day {inven.env.now//24}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
-                                    inven.on_hand_inventory+inven.in_transition_inventory, 0, 0, 0]  # inventory report
+        
     DAILY_REPORTS.append(day_report_list)
 
-
+'''
 def cap_current_state(inventoryList):
     # Function to capture the current state of the inventory
     state = np.array([inven.on_hand_inventory for inven in inventoryList])
@@ -425,7 +423,7 @@ def cap_current_state(inventoryList):
             state, expected_shortage if expected_shortage >= 0 else 0)
     return state
 
-
+'''
 def present_daytime(env_now):
     fill_length = len(str(SIM_TIME * 24))
     return str(int(env_now)).zfill(fill_length)

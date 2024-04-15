@@ -32,7 +32,7 @@ def evaluate_model(model, env, num_episodes):
             obs, reward, done, _ = env.step(action)
             episode_reward += reward  # Accumulate rewards
             XAI.append(
-                [_ for _ in list(Env.cap_current_state(env.inventoryList))])
+                [_ for _ in list(env.cap_current_state())])
             XAI[-1].append(action)  # Append action to XAI data
             ORDER_HISTORY.append(action[0])  # Log order history
         all_rewards.append(episode_reward)  # Store total reward for episode
