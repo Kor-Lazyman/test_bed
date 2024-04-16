@@ -172,7 +172,7 @@ class Production:
         self.qnty_for_input_item = qnty_for_input_item
         self.output_inventory = output_inventory
         self.processing_time = 24 / self.production_rate
-        self.unit_processing_cost = processing_cost/self.processing_time
+        self.unit_processing_cost = processing_cost
 
     def process_items(self, daily_events):
         """
@@ -312,8 +312,7 @@ class Cost:
                 instance.env.now - instance.holding_cost_last_updated)
         elif cost_type == "Process cost":
             # Calculate processing cost
-            DAILY_COST_REPORT[cost_type] += instance.unit_processing_cost * \
-                instance.processing_time
+            DAILY_COST_REPORT[cost_type] += instance.unit_processing_cost
         elif cost_type == "Delivery cost":
             # Calculate delivery cost
             DAILY_COST_REPORT[cost_type] += instance.unit_delivery_cost * \
