@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-from config import *
+from config_SimPy import *
+
 
 def visualization(export_Daily_Report):
     Visual_Dict = {
@@ -9,13 +10,14 @@ def visualization(export_Daily_Report):
         'Keys': {'Material': [], 'WIP': [], 'Product': []}
     }
     Key = ['Material', 'WIP', 'Product']
-    
+
     for id in I.keys():
         temp = []
         for x in range(SIM_TIME):
             temp.append(export_Daily_Report[id * SIM_TIME + x][6])
         Visual_Dict[export_Daily_Report[id * SIM_TIME + x][2]].append(temp)
-        Visual_Dict['Keys'][export_Daily_Report[id * SIM_TIME + x][2]].append(export_Daily_Report[id * SIM_TIME + x][1])
+        Visual_Dict['Keys'][export_Daily_Report[id * SIM_TIME + x]
+                            [2]].append(export_Daily_Report[id * SIM_TIME + x][1])
 
     visual = VISUALIAZTION.count(1)
     print(visual)
@@ -31,5 +33,5 @@ def visualization(export_Daily_Report):
                 plt.legend()
                 cont += 1
         count_type += 1
-    
+
     plt.show()

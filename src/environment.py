@@ -1,6 +1,6 @@
 import simpy
 import numpy as np
-from config import *  # Assuming this imports necessary configurations
+from config_SimPy import *  # Assuming this imports necessary configurations
 from log import *  # Assuming this imports necessary logging functionalities
 
 
@@ -265,7 +265,7 @@ class Sales:
                 -demand_size, 'ON_HAND', daily_events)
             daily_events.append(
                 f"{present_daytime(self.env.now)}: Unable to deliver {self.num_shortages} units to the customer due to product shortage")
-        Cost.cal_cost(self,"Delivery cost")
+        Cost.cal_cost(self, "Delivery cost")
 
     def receive_demands(self, demand_qty, product_inventory, daily_events):
         """

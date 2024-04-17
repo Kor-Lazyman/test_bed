@@ -1,4 +1,4 @@
-from config import *
+from config_SimPy import *
 from log import *
 import environment as env
 import pandas as pd

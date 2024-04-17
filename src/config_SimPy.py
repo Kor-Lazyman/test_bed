@@ -106,16 +106,17 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
-STATE_DEMAND = True  # True: Demand quantity is included in the state space
+DEMAND_QTY_MIN = 14
+DEMAND_QTY_MAX = 14
 
 # Simulation
-SIM_TIME = 22  # 200 [days] per episode
+SIM_TIME = 14  # 200 [days] per episode
 
 # Uncertainty factors
 
 
 def DEMAND_QTY_FUNC():
-    return random.randint(14, 14)
+    return random.randint(DEMAND_QTY_MIN, DEMAND_QTY_MAX)
 
 
 def SUP_LEAD_TIME_FUNC():
@@ -129,7 +130,7 @@ REORDER_LEVEL = 0
 
 # Print logs
 PRINT_SIM_EVENTS = True
-PRINT_SIM_REPORT = True
+PRINT_SIM_REPORT = False
 PRINT_SIM_COST = True
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
