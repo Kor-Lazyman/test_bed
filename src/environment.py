@@ -265,6 +265,7 @@ class Sales:
                 -demand_size, 'ON_HAND', daily_events)
             daily_events.append(
                 f"{present_daytime(self.env.now)}: Unable to deliver {self.num_shortages} units to the customer due to product shortage")
+        Cost.cal_cost(self,"Delivery cost")
 
     def receive_demands(self, demand_qty, product_inventory, daily_events):
         """
@@ -311,8 +312,7 @@ class Cost:
                 instance.env.now - instance.holding_cost_last_updated)
         elif cost_type == "Process cost":
             # Calculate processing cost
-            DAILY_COST_REPORT[cost_type] += instance.unit_processing_cost * \
-                instance.processing_time
+            DAILY_COST_REPORT[cost_type] += instance.unit_processing_cost
         elif cost_type == "Delivery cost":
             # Calculate delivery cost
             DAILY_COST_REPORT[cost_type] += instance.unit_delivery_cost * \

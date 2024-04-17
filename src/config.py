@@ -26,7 +26,7 @@ import random  # For random number generation
 # INPUT_TYPE_LIST: List of types of input materials or WIPs
 # QNTY_FOR_INPUT_ITEM: Quantity of input materials or WIPs [units]
 # OUTPUT: Output WIP or Product
-# PROCESS_COST: Processing cost of the process [$/day]
+# PROCESS_COST: Processing cost of the process [$/unit]
 # PROCESS_STOP_COST: Penalty cost for stopping the process [$/unit]
 
 
@@ -43,7 +43,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "SHORTAGE_COST_PRO": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1",
          "MANU_ORDER_CYCLE": 1,
-         "INIT_LEVEL": 2,
+         "INIT_LEVEL": 1,
          "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -109,7 +109,7 @@ INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 STATE_DEMAND = True  # True: Demand quantity is included in the state space
 
 # Simulation
-SIM_TIME = 50  # 200 [days] per episode
+SIM_TIME = 22  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -124,7 +124,7 @@ def SUP_LEAD_TIME_FUNC():
 
 
 # Ordering rules
-ORDER_QTY = 2
+ORDER_QTY = 1
 REORDER_LEVEL = 0
 
 # Print logs
