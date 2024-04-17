@@ -1,4 +1,3 @@
-import os
 import random  # For random number generation
 
 #### Items #####################################################################
@@ -27,7 +26,7 @@ import random  # For random number generation
 # INPUT_TYPE_LIST: List of types of input materials or WIPs
 # QNTY_FOR_INPUT_ITEM: Quantity of input materials or WIPs [units]
 # OUTPUT: Output WIP or Product
-# PROCESS_COST: Processing cost of the process [$/processtime]
+# PROCESS_COST: Processing cost of the process [$/unit]
 # PROCESS_STOP_COST: Penalty cost for stopping the process [$/unit]
 
 
@@ -44,7 +43,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "SHORTAGE_COST_PRO": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1",
          "MANU_ORDER_CYCLE": 1,
-         "INIT_LEVEL": 2,
+         "INIT_LEVEL": 1,
          "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -52,7 +51,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "LOT_SIZE_ORDER": 0}}
 
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [
-    1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 0}}
+    1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 2}}
 
 
 '''
@@ -102,26 +101,16 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
          "PROCESS_COST": 2,
          "PROCESS_STOP_COST": 3}}
 '''
-# RL algorithms
-RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
-ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 
 # State space
-
+# if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
-STATE_DEMAND = True  # True: Demand quantity is included in the state space
 DEMAND_QTY_MIN = 14
 DEMAND_QTY_MAX = 14
-#Find minimum Delta
-DELTA_MIN=0 
-for key in P:
-    DELTA_MIN= max(P[key]["PRODUCTION_RATE"]*max(P[key]['QNTY_FOR_INPUT_ITEM']),DEMAND_QTY_MAX)
-#maximum production
-EXPECTED_PRODUCT_MAX=I[0]['CUST_ORDER_CYCLE']*P[0]['PRODUCTION_RATE']
+
 # Simulation
-N_EPISODES = 3000  # 3000
-SIM_TIME = 100  # 200 [days] per episode
+SIM_TIME = 14  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -133,70 +122,21 @@ def DEMAND_QTY_FUNC():
 def SUP_LEAD_TIME_FUNC():
     # SUP_LEAD_TIME must be an integer and less than CUST_ORDER_CYCLE(7)
     return random.randint(1, 1)
-#Define Folder Path 
-def DEFINE_FOLDER(folder_name):
-    if os.path.exists(folder_name):
-        file_list = os.listdir(folder_name)
-        folder_name=os.path.join(folder_name, f"Train_{len(file_list)+1}")
-    else:
-        folder_name=os.path.join(folder_name, "Train_1")
-    
-    return folder_name
+
+
 # Ordering rules
-# ORDER_QTY = 2
-# REORDER_LEVEL = 0
-
-BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
-               'gamma':  0.01, 'batch_size': 256}
-
-# Hyperparameter optimization
-OPTIMIZE_HYPERPARAMETERS = False
-N_TRIALS = 50  # 50
-
-# Evaluation
-N_EVAL_EPISODES = 10  # 100
+ORDER_QTY = 1
+REORDER_LEVEL = 0
 
 # Print logs
 PRINT_SIM_EVENTS = False
-
-#Export files
-DAILY_REPORT_EXPORT=True
-XAI_TRAIN_EXPORT=True
-
-# Define parent dir's path
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.dirname(current_dir)
-# Define each dir's parent dir's path
-tensorboard_folder=os.path.join(parent_dir, "tensorboard_log")
-result_csv_folder=os.path.join(parent_dir,"result_CSV")
-XAI_folder=os.path.join(result_csv_folder,"XAI_Train")
-daily_report_folder=os.path.join(result_csv_folder,"daily_report")
-graph_folder=os.path.join(result_csv_folder,"Graph")
-#Define dir's path
-TENSORFLOW_LOGS=DEFINE_FOLDER(tensorboard_folder)
-XAI_TRAIN=DEFINE_FOLDER(XAI_folder)
-REPORT_LOGS=DEFINE_FOLDER(daily_report_folder)
-GRAPH_FOLDER=DEFINE_FOLDER(graph_folder)
-# Makedir
-if os.path.exists(XAI_TRAIN):
-    pass
-else:
-    os.makedirs(XAI_TRAIN)
-
-if os.path.exists(REPORT_LOGS):
-    pass
-else:
-    os.makedirs(REPORT_LOGS)
-if os.path.exists(GRAPH_FOLDER):
-    pass
-else:
-    os.makedirs(GRAPH_FOLDER)
-# tensorboard --logdir="~\tensorboard_log"
-# http://localhost:6006/
-
+PRINT_SIM_REPORT = False
+PRINT_SIM_COST = False
+# PRINT_LOG_TIMESTEP = True
+# PRINT_LOG_DAILY_REPORT = True
 
 # Cost model
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION = [1, 0, 1]  # Material / Wip / Product
+VISUALIAZTION = [0, 0, 0]  # PRINT RAW_MATERIAL, WIP, PRODUCT

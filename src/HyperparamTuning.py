@@ -1,4 +1,5 @@
-from config import *
+from config_SimPy import *
+from config_RL import *
 import optuna
 import optuna.visualization as vis
 if RL_ALGORITHM == "DQN":

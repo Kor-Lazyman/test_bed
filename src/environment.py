@@ -1,6 +1,6 @@
 import simpy
 import numpy as np
-from config import *  # Assuming this imports necessary configurations
+from config_SimPy import *  # Assuming this imports necessary configurations
 from log import *  # Assuming this imports necessary logging functionalities
 
 
@@ -406,8 +406,9 @@ def update_daily_report(inventoryList):
     for inven in inventoryList:
         inven.daily_inven_report[-1] = inven.on_hand_inventory
         day_report_list.append(inven.daily_inven_report)
-        
+
     DAILY_REPORTS.append(day_report_list)
+
 
 '''
 def cap_current_state(inventoryList):
@@ -424,6 +425,8 @@ def cap_current_state(inventoryList):
     return state
 
 '''
+
+
 def present_daytime(env_now):
     fill_length = len(str(SIM_TIME * 24))
     return str(int(env_now)).zfill(fill_length)

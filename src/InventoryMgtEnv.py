@@ -1,7 +1,8 @@
 import gym
 from gym import spaces
 import numpy as np
-from config import *
+from config_SimPy import *
+from config_RL import *
 import environment as env
 import matplotlib.pyplot as plt
 import optuna.visualization as vis
@@ -14,7 +15,7 @@ class GymInterface(gym.Env):
     def __init__(self):
         self.shortages = 0
         self.writer = SummaryWriter(log_dir=TENSORFLOW_LOGS)
-        os=[]
+        os = []
         super(GymInterface, self).__init__()
         # Action space, observation space
         if RL_ALGORITHM == "DQN":
@@ -98,7 +99,8 @@ class GymInterface(gym.Env):
             i = 0
             for _ in range(len(I)):
                 if I[_]["TYPE"] == "Material":
-                    I[_]["LOT_SIZE_ORDER"] = action[i]
+                    # I[_]["LOT_SIZE_ORDER"] = action[i]
+                    I[_]["LOT_SIZE_ORDER"] = ORDER_QTY
                     i += 1
 
         # Capture the current state of the environment
@@ -161,17 +163,19 @@ class GymInterface(gym.Env):
         return next_state, reward, done, info
 
     def cap_current_state(self):
-        state=[]
+        state = []
         for inven in self.inventoryList:
 
             # Function to capture the current state of the inventory
-            state.append(inven.daily_inven_report[4]-inven.daily_inven_report[5]+DELTA_MIN)
+            state.append(
+                inven.daily_inven_report[4]-inven.daily_inven_report[5]+DELTA_MIN)
             state.append(inven.daily_inven_report[6])
-            #Reset Report
+            # Reset Report
             inven.daily_inven_report = [f"Day {inven.env.now//24}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
-                                    inven.on_hand_inventory, 0, 0, 0]  # inventory report
+                                        inven.on_hand_inventory, 0, 0, 0]  # inventory report
         if STATE_DEMAND:
-                state.append(I[0]['DEMAND_QUANTITY']-self.inventoryList[0].on_hand_inventory+EXPECTED_PRODUCT_MAX)
+            state.append(I[0]['DEMAND_QUANTITY'] -
+                         self.inventoryList[0].on_hand_inventory+EXPECTED_PRODUCT_MAX)
 
         return state
 

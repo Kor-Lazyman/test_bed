@@ -1,5 +1,6 @@
 from InventoryMgtEnv import GymInterface
-from config import *
+from config_SimPy import *
+from config_RL import *
 import numpy as np
 import HyperparamTuning as ht  # Module for hyperparameter tuning
 import time
@@ -41,11 +42,9 @@ def evaluate_model(model, env, num_episodes):
         # Calculate mean order for the episode
         test_order_mean.append(sum(ORDER_HISTORY) / len(ORDER_HISTORY))
     print("Order_Average:", test_order_mean)
-    if XAI_TRAIN_EXPORT:   
-        df=pd.DataFrame(XAI) #Create a DataFrame from XAI data
-        df.to_csv(f"{XAI_TRAIN}/XAI_DATA.csv")#Save XAI data to CSV file
-
-
+    if XAI_TRAIN_EXPORT:
+        df = pd.DataFrame(XAI)  # Create a DataFrame from XAI data
+        df.to_csv(f"{XAI_TRAIN}/XAI_DATA.csv")  # Save XAI data to CSV file
 
     # Calculate mean reward across all episodes
     mean_reward = np.mean(all_rewards)
@@ -56,20 +55,20 @@ def evaluate_model(model, env, num_episodes):
 # Function to visualize the environment
 
 
-def report(env,i):
+def report(env, i):
     print(len(DAILY_REPORTS))
     export_Daily_Report = []
     for x in range(len(env.inventoryList)):
         for report in DAILY_REPORTS:
             export_Daily_Report.append(report[x])
-    if VISUALIAZTION.count(1)>0:
-        visualization.visualization(export_Daily_Report,i)
-    
+    if VISUALIAZTION.count(1) > 0:
+        visualization.visualization(export_Daily_Report, i)
+
     if DAILY_REPORT_EXPORT:
         daily_reports = pd.DataFrame(export_Daily_Report)
         daily_reports.columns = ["Day", "Name", "Type",
-                         "Start", "Income", "Outcome", "End"]
-        daily_reports.to_csv(os.path.join(REPORT_LOGS,f'Test_{i}.csv'))
+                                 "Start", "Income", "Outcome", "End"]
+        daily_reports.to_csv(os.path.join(REPORT_LOGS, f'Test_{i}.csv'))
 
 # Function to build the model based on the specified reinforcement learning algorithm
 
@@ -87,6 +86,7 @@ def build_model():
                     batch_size=BEST_PARAMS['batch_size'], verbose=0)
         print(env.observation_space)
     return model
+
 
 '''
 def export_report():
