@@ -15,12 +15,12 @@ if PRINT_SIM_EVENTS:
     print(f"============= Initial Inventory Status =============")
     for inventory in inventoryList:
         print(
-            f"Day 0 - {I[inventory.item_id]['NAME']} Inventory: {inventory.on_hand_inventory} units")
+            f"Day 1 - {I[inventory.item_id]['NAME']} Inventory: {inventory.on_hand_inventory} units")
 
     print(f"============= SimPy Simulation Begins =============")
 
 for x in range(SIM_TIME):
-    daily_events.append(f"\nDay {(simpy_env.now) // 24} Report:")
+    daily_events.append(f"\nDay {(simpy_env.now) // 24+1} Report:")
     simpy_env.run(until=simpy_env.now+24)
     # daily_total_cost = env.cal_daily_cost(inventoryList, procurementList, productionList, sales)
     if PRINT_SIM_EVENTS:
