@@ -212,15 +212,23 @@ class Production:
 
                 # Process items (consume time)
                 Cost.cal_cost(self, "Process cost")
-                yield self.env.timeout(self.processing_time)
+                # Time correction
+                yield self.env.timeout(self.processing_time-TIME_CORRECTION)
                 daily_events.append(
                     "===============Result Phase================")
-                daily_events.append(
-                    f"{self.env.now}: {self.output['NAME']} has been produced                        : 1 units")
 
-                # Update the output inventory
+                # Cost Update Time Correction
+                self.output_inventory.holding_cost_last_updated -= TIME_CORRECTION
+                # Update the inventory level for the output item
+                daily_events.append("UPDATE!")
                 self.output_inventory.update_inven_level(
                     1, "ON_HAND", daily_events)
+                # Cost Update Time Correction
+                self.output_inventory.holding_cost_last_updated += TIME_CORRECTION
+                daily_events.append(
+                    f"{self.env.now+TIME_CORRECTION}: {self.output['NAME']} has been produced                         : 1 units")
+
+                yield self.env.timeout(TIME_CORRECTION)  # Time correction
 
 
 class Sales:
@@ -249,7 +257,7 @@ class Sales:
             if product_inventory.on_hand_inventory > 0:
                 self.delivery_item = product_inventory.on_hand_inventory
                 daily_events.append(
-                    f"{self.env.now}: PRODUCT have been delivered to the customer       : {product_inventory.on_hand_inventory} units ")
+                    f"{self.env.now+TIME_CORRECTION/2}: PRODUCT have been delivered to the customer       : {product_inventory.on_hand_inventory} units ")
                 # Update inventory
                 product_inventory.update_inven_level(
                     -product_inventory.on_hand_inventory, 'ON_HAND', daily_events)
@@ -257,15 +265,20 @@ class Sales:
             # Calculate and log shortage cost
             Cost.cal_cost(self, "Shortage cost")
             daily_events.append(
-                f"{present_daytime(self.env.now)}: PRODUCT have been delivered to the customer : {product_inventory.on_hand_inventory} units ")
+                f"{present_daytime(self.env.now+TIME_CORRECTION/2)}: Unable to deliver {self.num_shortages} units to the customer due to product shortage")
+
         else:
             # Deliver products to the customer
             self.delivery_item = demand_size
             product_inventory.update_inven_level(
                 -demand_size, 'ON_HAND', daily_events)
             daily_events.append(
-                f"{present_daytime(self.env.now)}: Unable to deliver {self.num_shortages} units to the customer due to product shortage")
-        Cost.cal_cost(self, "Delivery_cost")
+                f"{present_daytime(self.env.now)}: PRODUCT have been delivered to the customer : {demand_size} units ")
+
+        # Cost Update Time Correction
+        product_inventory.holding_cost_last_updated += TIME_CORRECTION
+        Cost.cal_cost(self, "Delivery cost")
+        yield self.env.timeout(TIME_CORRECTION/2)  # Time Correction
 
     def receive_demands(self, demand_qty, product_inventory, daily_events):
         """

@@ -43,7 +43,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "SHORTAGE_COST_PRO": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1",
          "MANU_ORDER_CYCLE": 1,
-         "INIT_LEVEL": 1,
+         "INIT_LEVEL": 2,
          "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -110,7 +110,7 @@ DEMAND_QTY_MIN = 14
 DEMAND_QTY_MAX = 14
 
 # Simulation
-SIM_TIME = 14  # 200 [days] per episode
+SIM_TIME = 7  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -125,11 +125,11 @@ def SUP_LEAD_TIME_FUNC():
 
 
 # Ordering rules
-ORDER_QTY = 1
+ORDER_QTY = 2
 REORDER_LEVEL = 0
 
 # Print logs
-PRINT_SIM_EVENTS = False
+PRINT_SIM_EVENTS = True
 PRINT_SIM_REPORT = False
 PRINT_SIM_COST = False
 # PRINT_LOG_TIMESTEP = True
@@ -140,3 +140,4 @@ PRINT_SIM_COST = False
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
 VISUALIAZTION = [0, 0, 0]  # PRINT RAW_MATERIAL, WIP, PRODUCT
+TIME_CORRECTION = 0.0001

@@ -78,6 +78,7 @@ class GymInterface(gym.Env):
             I, P, DAILY_EVENTS)
         env.simpy_event_processes(self.simpy_env, self.inventoryList, self.procurementList,
                                   self.productionList, self.sales, self.customer, self.providerList, self.daily_events, I)
+
         self.shortages = 0
         return self.cap_current_state()
 
