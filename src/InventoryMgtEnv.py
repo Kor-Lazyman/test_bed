@@ -100,8 +100,8 @@ class GymInterface(gym.Env):
             i = 0
             for _ in range(len(I)):
                 if I[_]["TYPE"] == "Material":
-                    # I[_]["LOT_SIZE_ORDER"] = action[i]
-                    I[_]["LOT_SIZE_ORDER"] = ORDER_QTY
+                    I[_]["LOT_SIZE_ORDER"] = action[i]
+                    # I[_]["LOT_SIZE_ORDER"] = ORDER_QTY
                     i += 1
 
         # Capture the current state of the environment

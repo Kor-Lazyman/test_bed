@@ -106,11 +106,11 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2,
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
-DEMAND_QTY_MIN = 14
-DEMAND_QTY_MAX = 14
+DEMAND_QTY_MIN = 10
+DEMAND_QTY_MAX = 16
 
 # Simulation
-SIM_TIME = 7  # 200 [days] per episode
+SIM_TIME = 100  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -129,7 +129,7 @@ ORDER_QTY = 2
 REORDER_LEVEL = 0
 
 # Print logs
-PRINT_SIM_EVENTS = True
+PRINT_SIM_EVENTS = False
 PRINT_SIM_REPORT = False
 PRINT_SIM_COST = False
 # PRINT_LOG_TIMESTEP = True

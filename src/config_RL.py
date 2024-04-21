@@ -15,7 +15,7 @@ for key in P:
 # maximum production
 EXPECTED_PRODUCT_MAX = I[0]['CUST_ORDER_CYCLE']*P[0]['PRODUCTION_RATE']
 # Episode
-N_EPISODES = 1  # 3000
+N_EPISODES = 2500  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -28,19 +28,19 @@ def DEFINE_FOLDER(folder_name):
     return folder_name
 
 
-BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
-               'gamma':  0.01, 'batch_size': 256}
+# BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
+#                'gamma':  0.01, 'batch_size': 256}
 
 # Hyperparameter optimization
 OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 50  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 10  # 100
+N_EVAL_EPISODES = 3000  # 100
 
 # Export files
-DAILY_REPORT_EXPORT = False
-XAI_TRAIN_EXPORT = False
+DAILY_REPORT_EXPORT = True
+XAI_TRAIN_EXPORT = True
 
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)

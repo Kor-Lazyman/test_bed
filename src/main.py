@@ -75,15 +75,17 @@ def report(env, i):
 
 def build_model():
     if RL_ALGORITHM == "DQN":
-        # model = DQN("MlpPolicy", env, verbose=0)
-        model = DQN("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
-                    batch_size=BEST_PARAMS['batch_size'], verbose=0)
+        model = DQN("MlpPolicy", env, verbose=0)
+        # model = DQN("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
+        #             batch_size=BEST_PARAMS['batch_size'], verbose=0)
     elif RL_ALGORITHM == "DDPG":
-        model = DDPG("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
-                     batch_size=BEST_PARAMS['batch_size'], verbose=0)
+        model = DQN("MlpPolicy", env, verbose=0)
+        # model = DDPG("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
+        #              batch_size=BEST_PARAMS['batch_size'], verbose=0)
     elif RL_ALGORITHM == "PPO":
-        model = PPO("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
-                    batch_size=BEST_PARAMS['batch_size'], verbose=0)
+        model = PPO("MlpPolicy", env, verbose=0)
+        # model = PPO("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
+        #             batch_size=BEST_PARAMS['batch_size'], verbose=0)
         print(env.observation_space)
     return model
 
