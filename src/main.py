@@ -1,5 +1,5 @@
 from config_SimPy import *
-from log import *
+from log_SimPy import *
 import environment as env
 import pandas as pd
 import Visualization

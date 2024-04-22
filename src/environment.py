@@ -1,7 +1,7 @@
 import simpy
 import numpy as np
 from config_SimPy import *  # Assuming this imports necessary configurations
-from log import *  # Assuming this imports necessary logging functionalities
+from log_SimPy import *  # Assuming this imports necessary logging functionalities
 
 
 class Inventory:
@@ -212,21 +212,25 @@ class Production:
 
                 # Process items (consume time)
                 Cost.cal_cost(self, "Process cost")
-                yield self.env.timeout(self.processing_time-TIME_CORRECTION)#Time correction
+                # Time correction
+                yield self.env.timeout(self.processing_time-TIME_CORRECTION)
                 daily_events.append(
                     "===============Result Phase================")
-                
-                self.output_inventory.holding_cost_last_updated-=TIME_CORRECTION #Cost Update Time Correction
+
+                # Cost Update Time Correction
+                self.output_inventory.holding_cost_last_updated -= TIME_CORRECTION
                 # Update the inventory level for the output item
                 daily_events.append("UPDATE!")
                 self.output_inventory.update_inven_level(
                     1, "ON_HAND", daily_events)
-                self.output_inventory.holding_cost_last_updated+=TIME_CORRECTION #Cost Update Time Correction
+                # Cost Update Time Correction
+                self.output_inventory.holding_cost_last_updated += TIME_CORRECTION
                 daily_events.append(
                     f"{self.env.now+TIME_CORRECTION}: {self.output['NAME']} has been produced                         : 1 units")
 
-                yield self.env.timeout(TIME_CORRECTION) #Time correction
-                
+                yield self.env.timeout(TIME_CORRECTION)  # Time correction
+
+
 class Sales:
     def __init__(self, env, item_id, delivery_cost, setup_cost, shortage, due_date):
         # Initialize sales process
@@ -243,8 +247,9 @@ class Sales:
         """
         Deliver products to customers and handle shortages if any.
         """
-        yield self.env.timeout(I[self.item_id]["DUE_DATE"] * 24-TIME_CORRECTION/2)#Time Correction
-        product_inventory.holding_cost_last_updated-=TIME_CORRECTION/2 #Cost Update Time Correction
+        yield self.env.timeout(I[self.item_id]["DUE_DATE"] * 24-TIME_CORRECTION/2)  # Time Correction
+        product_inventory.holding_cost_last_updated -= TIME_CORRECTION / \
+            2  # Cost Update Time Correction
         # Check if products are available for delivery
         if product_inventory.on_hand_inventory < demand_size:
             # Calculate the shortage
@@ -263,7 +268,7 @@ class Sales:
             Cost.cal_cost(self, "Shortage cost")
             daily_events.append(
                 f"{present_daytime(self.env.now+TIME_CORRECTION/2)}: Unable to deliver {self.num_shortages} units to the customer due to product shortage")
-            
+
         else:
             # Deliver products to the customer
             self.delivery_item = demand_size
@@ -271,10 +276,12 @@ class Sales:
                 -demand_size, 'ON_HAND', daily_events)
             daily_events.append(
                 f"{present_daytime(self.env.now)}: PRODUCT have been delivered to the customer : {demand_size} units ")
-            
-        product_inventory.holding_cost_last_updated+=TIME_CORRECTION #Cost Update Time Correction
+
+        # Cost Update Time Correction
+        product_inventory.holding_cost_last_updated += TIME_CORRECTION
         Cost.cal_cost(self, "Delivery cost")
-        yield self.env.timeout(TIME_CORRECTION/2)#Time Correction
+        yield self.env.timeout(TIME_CORRECTION/2)  # Time Correction
+
     def receive_demands(self, demand_qty, product_inventory, daily_events):
         """
         Receive demands from customers and initiate the delivery process.
@@ -314,7 +321,7 @@ class Cost:
         """
         Calculate and log different types of costs.
         """
-    
+
         if cost_type == "Holding cost":
             # Calculate holding cost
             DAILY_COST_REPORT[cost_type] += instance.unit_holding_cost * instance.on_hand_inventory * (
