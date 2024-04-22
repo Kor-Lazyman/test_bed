@@ -26,7 +26,6 @@ class GymInterface(gym.Env):
             os = []
             for _ in range(len(I)):
                 os.append(INVEN_LEVEL_MAX+1)
-            if STATE_DEMAND:
                 os.append(DEMAND_QTY_MAX+1+DELTA_MIN)
                 os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
@@ -42,9 +41,8 @@ class GymInterface(gym.Env):
                 actionSpace_high), dtype=np.float32)
             # self.observation_space = spaces.Box(low=0, high=INVEN_LEVEL_MAX, shape=(len(I),), dtype=np.float32)
             os = [INVEN_LEVEL_MAX+1 for _ in range(len(I))]
-            if STATE_DEMAND:
-                os.append(DEMAND_QTY_MAX + 1)
-                os.append(DEMAND_QTY_MAX+1)
+            os.append(DEMAND_QTY_MAX + 1)
+            os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.Discrete(os)
         elif RL_ALGORITHM == "PPO":
             # Define action space
@@ -57,8 +55,8 @@ class GymInterface(gym.Env):
             for i in range(len(I)):
                 os.append(INVEN_LEVEL_MAX+1)
                 os.append(INVEN_LEVEL_MAX+1+DELTA_MIN)
-            if STATE_DEMAND:
-                os.append(DEMAND_QTY_MAX + 1+EXPECTED_PRODUCT_MAX)
+            # os.append(DEMAND_QTY_MAX + 1+EXPECTED_PRODUCT_MAX)
+            os.append(INVEN_LEVEL_MAX + DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
             print(os)
         # print(self.observation_space)
@@ -174,9 +172,9 @@ class GymInterface(gym.Env):
             # Reset Report
             inven.daily_inven_report = [f"Day {inven.env.now//24}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
                                         inven.on_hand_inventory, 0, 0, 0]  # inventory report
-        if STATE_DEMAND:
-            state.append(I[0]['DEMAND_QUANTITY'] -
-                         self.inventoryList[0].on_hand_inventory+EXPECTED_PRODUCT_MAX)
+        # state.append(I[0]['DEMAND_QUANTITY'] - self.inventoryList[0].on_hand_inventory+EXPECTED_PRODUCT_MAX)
+        state.append(I[0]['DEMAND_QUANTITY'] -
+                     self.inventoryList[0].on_hand_inventory+INVEN_LEVEL_MAX)
 
         return state
 

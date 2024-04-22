@@ -6,7 +6,6 @@ RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 
 # State space
-STATE_DEMAND = True  # True: Demand quantity is included in the state space
 # Find minimum Delta
 DELTA_MIN = 0
 for key in P:

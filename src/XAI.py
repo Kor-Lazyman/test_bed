@@ -5,6 +5,7 @@ from sklearn.tree import export_graphviz
 import graphviz
 from config_RL import *
 
+
 # df = pd.read_csv('./XAI_DATA.csv')
 df = pd.read_csv('src/XAI_DATA.csv')
 # XAI data classification
@@ -14,6 +15,8 @@ print(X, y)
 # Decision tree learning
 clf = DecisionTreeClassifier()
 print('start_fit')
+print(y.iloc[0, 0])
+print(type(y.iloc[0, 0]))
 clf = clf.fit(X, y)
 
 FEATURE_NAME = ['Mat. InvenLevel', 'Mat. DailyChange',
@@ -24,7 +27,8 @@ FEATURE_NAME = ['Mat. InvenLevel', 'Mat. DailyChange',
 # Generate data in DOT format to visualize decision trees
 dot_data = export_graphviz(clf, out_file=None,
                            feature_names=FEATURE_NAME,
-                           class_names=[ACTION_SPACE],
+                           class_names=['[0]', '[1]',
+                                        '[2]', '[3]', '[4]', '[5]'],
                            filled=True, rounded=True,
                            special_characters=True)
 graph = graphviz.Source(dot_data)
