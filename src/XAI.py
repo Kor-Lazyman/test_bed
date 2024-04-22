@@ -14,9 +14,13 @@ y = df.iloc[:, -1:]
 print(X, y)
 # Decision tree learning
 clf = DecisionTreeClassifier()
+# clf = DecisionTreeClassifier(
+#     criterion='gini',          # 'gini' 또는 'entropy'
+#     max_depth=5,               # 트리의 최대 깊이
+#     min_samples_split=20,      # 노드를 분할하기 위한 최소 샘플 수
+#     min_samples_leaf=10        # 잎 노드가 가지고 있어야 할 최소 샘플 수
+# )
 print('start_fit')
-print(y.iloc[0, 0])
-print(type(y.iloc[0, 0]))
 clf = clf.fit(X, y)
 
 FEATURE_NAME = ['Mat. InvenLevel', 'Mat. DailyChange',

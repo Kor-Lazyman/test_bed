@@ -4,9 +4,7 @@ import numpy as np
 from config_SimPy import *
 from config_RL import *
 import environment as env
-import matplotlib.pyplot as plt
-import optuna.visualization as vis
-from log import *
+from log_SimPy import *
 import random
 from torch.utils.tensorboard import SummaryWriter
 
@@ -47,10 +45,11 @@ class GymInterface(gym.Env):
         elif RL_ALGORITHM == "PPO":
             # Define action space
             actionSpace = []
-            for _ in range(len(I)):
-                if I[_]["TYPE"] == "Material":
+            for i in range(len(I)):
+                if I[i]["TYPE"] == "Material":
                     actionSpace.append(len(ACTION_SPACE))
             self.action_space = spaces.MultiDiscrete(actionSpace)
+            '''
             # Define observation space:
             for i in range(len(I)):
                 os.append(INVEN_LEVEL_MAX+1)
@@ -58,13 +57,13 @@ class GymInterface(gym.Env):
             # os.append(DEMAND_QTY_MAX + 1+EXPECTED_PRODUCT_MAX)
             os.append(INVEN_LEVEL_MAX + DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
+            print(os) 
+            '''
+            # Define the size of observation space:
+            os = [upper - lower + 1 for lower, upper in STATE_RANGES]
+            self.observation_space = spaces.MultiDiscrete(os)
             print(os)
-        # print(self.observation_space)
-        # Simpy environment
-        # self.simpy_env = simpy.Environment()
-        # self.simpy_env, self.inventoryList, self.procurementList, self.productionList, self.sales, self.customer, self.providerList, self.daily_events = env.create_env(
-        #    I, P, DAILY_EVENTS)
-        # print(self.simpy_env, self.inventoryList, self.procurementList, self.productionList, self.sales, self.customer, self.providerList, self.daily_events)
+
         self.total_reward_over_episode = []
         self.total_reward = 0
         self.num_episode = 1
@@ -117,12 +116,7 @@ class GymInterface(gym.Env):
         self.total_reward += reward
         self.shortages += self.sales.num_shortages
         self.sales.num_shortages = 0
-        '''
-        s = []
-        for _ in range(len(self.inventoryList)):
-            s.append(self.inventoryList[_].current_level)
-        daily_total_cost = env.cal_daily_cost_DESC(s[0], s[1], action)
-        '''
+
         if PRINT_SIM_EVENTS:
             # Print the simulation log every 24 hours (1 day)
             print(f"\nDay {(self.simpy_env.now+1) // 24}:")
@@ -156,9 +150,6 @@ class GymInterface(gym.Env):
 
         info = {}  # 추가 정보 (필요에 따라 사용)
 
-        # self.all_order_quantities.append(action)
-        # self.all_rewards.append(reward)
-        # self.all_inventory_levels.append((next_state[0], next_state[1]))
         return next_state, reward, done, info
 
     def cap_current_state(self):

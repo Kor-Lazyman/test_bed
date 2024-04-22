@@ -6,8 +6,7 @@ import HyperparamTuning as ht  # Module for hyperparameter tuning
 import time
 from stable_baselines3 import DQN, DDPG, PPO
 import visualization
-from log import *
-import environment as Env
+from log_SimPy import *
 import pandas as pd
 
 # Create environment

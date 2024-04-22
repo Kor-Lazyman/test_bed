@@ -6,6 +6,15 @@ RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 
 # State space
+STATE_RANGES = []
+for i in range(len(I)):
+    # Inventory level
+    STATE_RANGES.append((0, INVEN_LEVEL_MAX))
+    # Daily change for the on-hand inventory
+    STATE_RANGES.append((-INVEN_LEVEL_MAX, INVEN_LEVEL_MAX))
+# Remaining demand: Demand quantity - Current product level
+STATE_RANGES.append((0, max(DEMAND_QTY_MAX, INVEN_LEVEL_MAX)))
+
 # Find minimum Delta
 DELTA_MIN = 0
 for key in P:
@@ -14,7 +23,7 @@ for key in P:
 # maximum production
 EXPECTED_PRODUCT_MAX = I[0]['CUST_ORDER_CYCLE']*P[0]['PRODUCTION_RATE']
 # Episode
-N_EPISODES = 2500  # 3000
+N_EPISODES = 1  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -38,8 +47,8 @@ N_TRIALS = 50  # 50
 N_EVAL_EPISODES = 3000  # 100
 
 # Export files
-DAILY_REPORT_EXPORT = True
-XAI_TRAIN_EXPORT = True
+DAILY_REPORT_EXPORT = False
+XAI_TRAIN_EXPORT = False
 
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)

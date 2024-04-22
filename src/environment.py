@@ -1,7 +1,6 @@
 import simpy
-import numpy as np
 from config_SimPy import *  # Assuming this imports necessary configurations
-from log import *  # Assuming this imports necessary logging functionalities
+from log_SimPy import *  # Assuming this imports necessary logging functionalities
 
 
 class Inventory:
