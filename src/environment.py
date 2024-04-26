@@ -1,7 +1,7 @@
 import simpy
 from config_SimPy import *  # Assuming this imports necessary configurations
 from log_SimPy import *  # Assuming this imports necessary logging functionalities
-
+from log_RL import *
 
 class Inventory:
     def __init__(self, env, item_id, holding_cost):
@@ -413,12 +413,20 @@ def simpy_event_processes(simpy_env, inventoryList, procurementList, productionL
 
 def update_daily_report(inventoryList):
     # Update daily reports for inventory
-    day_report_list = []
+    day_list = []
     for inven in inventoryList:
         inven.daily_inven_report[-1] = inven.on_hand_inventory
-        day_report_list.append(inven.daily_inven_report)
+        day_list=day_list+(inven.daily_inven_report)
+    DAILY_REPORTS.append(day_list)
 
-    DAILY_REPORTS.append(day_report_list)
+    #Reset report
+    for inven in inventoryList:
+            if PRINT_SIM_REPORT:
+                print(inven.daily_inven_report)
+            inven.daily_inven_report = [f"Day {inven.env.now//24}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
+                                        inven.on_hand_inventory, 0, 0, 0]  # inventory report
+    
+
 
 
 '''

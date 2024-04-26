@@ -1,8 +1,14 @@
-## config
-  * +117~121: Variable for correction
-## environment cap_current_statedelete
-  * -409 Init Removed
-## Inventory
-  * +56~60: Add value correction (Delta, Product correction)
-  * +81,110: cap_current_state: Changed calling method (changed to built-in function)
-  * +163~179: Add cap_current_state
+config
+53,54: State output status management variable added
+Changed to 62,67,75,77:XAI->State
+
+wrapper
+85,85 state creation added
+121,122: for state calculation
+Add next_state_real,next_state_corr
+167~204: get_state added, correct_state_for_SB3 added
+
+main:
+62~83 Report function deleted, export_state function added
+environment
+414~428update_daily_report function changed

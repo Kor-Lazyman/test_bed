@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from config_SimPy import *
-
+from config_RL import *
 
 def visualization(export_Daily_Report, i):
     Visual_Dict = {
@@ -14,11 +14,10 @@ def visualization(export_Daily_Report, i):
     for id in I.keys():
         temp = []
         for x in range(SIM_TIME):
-            temp.append(export_Daily_Report[id * SIM_TIME + x][6])
-        Visual_Dict[export_Daily_Report[id * SIM_TIME + x][2]].append(temp)
-        Visual_Dict['Keys'][export_Daily_Report[id * SIM_TIME + x]
-                            [2]].append(export_Daily_Report[id * SIM_TIME + x][1])
-
+            temp.append(export_Daily_Report[x][id*7+6])#Record Onhand inventory at day end
+        Visual_Dict[export_Daily_Report[0][id*7+2]].append(temp)#Update 
+        Visual_Dict['Keys'][export_Daily_Report[0][2+id*7]].append(export_Daily_Report[0][id *7+1])#Update Keys
+        print(export_Daily_Report[0][2+id*7])
     visual = VISUALIAZTION.count(1)
     print(visual)
     count_type = 0
