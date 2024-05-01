@@ -25,7 +25,7 @@ for key in P:
 EXPECTED_PRODUCT_MAX = I[0]['CUST_ORDER_CYCLE']*P[0]['PRODUCTION_RATE']
 
 # Episode
-N_EPISODES = 1  # 3000
+N_EPISODES = 2500  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -46,11 +46,11 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 50  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 10  # 100
+N_EVAL_EPISODES = 3000  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = True
-STATE_TRAIN_EXPORT=True
+STATE_TRAIN_EXPORT = True
 STATE_TEST_EXPORT = True
 
 # Define parent dir's path

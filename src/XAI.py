@@ -3,23 +3,27 @@ import numpy as np
 import pandas as pd
 from sklearn.tree import export_graphviz
 import graphviz
-from config_RL import *
+
+# from config_RL import *
 
 
 # df = pd.read_csv('./XAI_DATA.csv')
-df = pd.read_csv('src/XAI_DATA.csv')
+# df = pd.read_csv('src/STATE_ACTION_REPORT_CORRECTION_TEST.csv')
+df = pd.read_csv(
+    'c:\Github\DRL-based-IO\src\STATE_ACTION_REPORT_REAL_TEST2.csv')
 # XAI data classification
-X = df.iloc[:, 1:-1]
+# X = df.iloc[:, 1:-1]
+X = df.iloc[:, 0:-1]
 y = df.iloc[:, -1:]
 print(X, y)
 # Decision tree learning
-clf = DecisionTreeClassifier()
-# clf = DecisionTreeClassifier(
-#     criterion='gini',          # 'gini' 또는 'entropy'
-#     max_depth=5,               # 트리의 최대 깊이
-#     min_samples_split=20,      # 노드를 분할하기 위한 최소 샘플 수
-#     min_samples_leaf=10        # 잎 노드가 가지고 있어야 할 최소 샘플 수
-# )
+# clf = DecisionTreeClassifier()
+clf = DecisionTreeClassifier(
+    criterion='gini',          # 'gini' 또는 'entropy'
+    max_depth=6,               # 트리의 최대 깊이
+    min_samples_split=20,      # 노드를 분할하기 위한 최소 샘플 수
+    min_samples_leaf=10        # 잎 노드가 가지고 있어야 할 최소 샘플 수
+)
 print('start_fit')
 clf = clf.fit(X, y)
 
@@ -40,4 +44,10 @@ graph = graphviz.Source(dot_data)
 
 # you can save the graph as a PDF file or display it on the screen.
 # graph.render("decision_tree_visualization")
-graph.view()
+# graph.view()
+
+# you can save the graph as a PDF file or display it on the screen.
+graph.render('decision_tree_visualization',
+             format='png', view=False)
+
+# http://magjac.com/graphviz-visual-editor/

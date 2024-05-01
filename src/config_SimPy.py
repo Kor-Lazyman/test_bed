@@ -44,7 +44,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
      1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1",
          "MANU_ORDER_CYCLE": 1,
          "INIT_LEVEL": 2,
-         "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
+         "SUP_LEAD_TIME": 1,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
          "ORDER_COST_TO_SUP": 1,
@@ -110,7 +110,7 @@ DEMAND_QTY_MIN = 10
 DEMAND_QTY_MAX = 16
 
 # Simulation
-SIM_TIME = 8  # 200 [days] per episode
+SIM_TIME = 100  # 200 [days] per episode
 
 # Uncertainty factors
 
