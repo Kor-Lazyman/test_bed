@@ -1,23 +1,16 @@
 from sklearn.tree import DecisionTreeClassifier, export_text
-import numpy as np
 import pandas as pd
 from sklearn.tree import export_graphviz
 import graphviz
+from config_RL import *
 
-# from config_RL import *
-
-
-# df = pd.read_csv('./XAI_DATA.csv')
-# df = pd.read_csv('src/STATE_ACTION_REPORT_CORRECTION_TEST.csv')
 df = pd.read_csv(
-    'c:\Github\DRL-based-IO\src\STATE_ACTION_REPORT_REAL_TEST2.csv')
+    'c:\Github\DRL-based-IO\src\STATE_ACTION_REPORT_REAL_TEST.csv')
 # XAI data classification
-# X = df.iloc[:, 1:-1]
-X = df.iloc[:, 0:-1]
+X = df.iloc[:, 1:-1]
 y = df.iloc[:, -1:]
 print(X, y)
 # Decision tree learning
-# clf = DecisionTreeClassifier()
 clf = DecisionTreeClassifier(
     criterion='gini',          # 'gini' 또는 'entropy'
     max_depth=6,               # 트리의 최대 깊이
@@ -41,13 +34,5 @@ dot_data = export_graphviz(clf, out_file=None,
                            special_characters=True)
 graph = graphviz.Source(dot_data)
 
-
 # you can save the graph as a PDF file or display it on the screen.
-# graph.render("decision_tree_visualization")
-# graph.view()
-
-# you can save the graph as a PDF file or display it on the screen.
-graph.render('decision_tree_visualization',
-             format='png', view=False)
-
-# http://magjac.com/graphviz-visual-editor/
+graph.render('decision_tree_visualization',  format='png', view=False)
