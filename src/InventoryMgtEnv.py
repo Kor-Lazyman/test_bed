@@ -105,7 +105,7 @@ class GymInterface(gym.Env):
             for _ in range(len(I)):
                 if I[_]["TYPE"] == "Material":
                     I[_]["LOT_SIZE_ORDER"] = action[i]
-                    # I[_]["LOT_SIZE_ORDER"] = ORDER_QTY
+                    #I[_]["LOT_SIZE_ORDER"] = ORDER_QTY
                     i += 1
 
         # Capture the current state of the environment
@@ -122,6 +122,8 @@ class GymInterface(gym.Env):
         next_state_corr = self.correct_state_for_SB3(next_state_real)
         # Calculate the total cost of the day
         env.Cost.update_cost_log(self.inventoryList)
+        if VALIDATION_PRINT:
+            cost=dict(DAILY_COST_REPORT)
         env.Cost.clear_cost()
         # reward = -COST_LOG[-1]-next_state[-1]*I[0]["SHORTAGE_COST_PRO"]
         reward = -COST_LOG[-1]
@@ -144,7 +146,15 @@ class GymInterface(gym.Env):
             for log in self.daily_events:
                 print(log)
             print("[Daily Total Cost] ", -reward)
-            print("[STATE for the next round] ", next_state_real)
+            
+            if VALIDATION_PRINT:
+
+                for _ in cost.keys():
+                    print(_,cost[_])
+                print("Total cost: ", -self.total_reward)
+                print("[STATE for the next round] ", next_state_real)
+            else:
+                print("[STATE for the next round] ", next_state_real)
         self.daily_events.clear()
 
         # Check if the simulation is done
@@ -174,7 +184,6 @@ class GymInterface(gym.Env):
             temp.append(DAILY_REPORTS[-1][(id)*7+4]-DAILY_REPORTS[-1][(id)*7+5])#append changes in inventory
         temp.append(I[0]["DEMAND_QUANTITY"]-DAILY_REPORTS[-1][6])#append remaining demand
         STATE_ACTION_REPORT_REAL.append(temp)
-
         return STATE_ACTION_REPORT_REAL[-1]
     #Min-Max Normalization    
     def correct_state_for_SB3(self,state):
@@ -200,7 +209,6 @@ class GymInterface(gym.Env):
             state_corrected.append(round(((state[id*2+1]-(-DELTA_MIN))/(ACTION_SPACE[-1]-(-DELTA_MIN)))*100))#normalization changes in inventory
         state_corrected.append(round(((state[-1]+INVEN_LEVEL_MAX)/(I[0]['DEMAND_QUANTITY']+INVEN_LEVEL_MAX))*100))#normalization remaining demand
         STATE_ACTION_REPORT_CORRECTION.append(state_corrected)
-
         return STATE_ACTION_REPORT_CORRECTION[-1]
     
     def render(self, mode='human'):

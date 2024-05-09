@@ -17,9 +17,7 @@ def visualization(export_Daily_Report, i):
             temp.append(export_Daily_Report[x][id*7+6])#Record Onhand inventory at day end
         Visual_Dict[export_Daily_Report[0][id*7+2]].append(temp)#Update 
         Visual_Dict['Keys'][export_Daily_Report[0][2+id*7]].append(export_Daily_Report[0][id *7+1])#Update Keys
-        print(export_Daily_Report[0][2+id*7])
     visual = VISUALIAZTION.count(1)
-    print(visual)
     count_type = 0
     cont_len = 1
     for x in VISUALIAZTION:
@@ -33,6 +31,5 @@ def visualization(export_Daily_Report, i):
                 cont += 1
         count_type += 1
     path = os.path.join(GRAPH_FOLDER, f'그래프{i}.png')
-    print(path)
     plt.savefig(path)
     plt.clf()
