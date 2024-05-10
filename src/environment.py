@@ -15,7 +15,7 @@ class Inventory:
         self.in_transition_inventory = 0
         self.capacity_limit = INVEN_LEVEL_MAX  # Maximum capacity of the inventory
         # Daily inventory report template
-        self.daily_inven_report = [f"Day {self.env.now // 24}", I[self.item_id]['NAME'],
+        self.daily_inven_report = [f"Day {self.env.now // 24+1}", I[self.item_id]['NAME'],
                                    I[self.item_id]['TYPE'], self.on_hand_inventory, 0, 0, 0]
         # Unit holding cost per hour
         self.unit_holding_cost = holding_cost / 24
@@ -220,7 +220,6 @@ class Production:
                 # Cost Update Time Correction
                 self.output_inventory.holding_cost_last_updated -= TIME_CORRECTION
                 # Update the inventory level for the output item
-                daily_events.append("UPDATE!")
                 self.output_inventory.update_inven_level(
                     1, "ON_HAND", daily_events)
                 # Cost Update Time Correction
@@ -342,7 +341,7 @@ class Cost:
             DAILY_COST_REPORT[cost_type] += instance.unit_shortage_cost * \
                 instance.num_shortages
 
-    def update_cost_log(env, inventoryList):
+    def update_cost_log(inventoryList):
         """
         Update the cost log at the end of each day.
         """
@@ -350,8 +349,8 @@ class Cost:
         # Update holding cost
         for inven in inventoryList:
             DAILY_COST_REPORT['Holding cost'] += inven.unit_holding_cost * inven.on_hand_inventory * (
-                env.now - inven.holding_cost_last_updated)
-            inven.holding_cost_last_updated = env.now
+                inven.env.now - inven.holding_cost_last_updated)
+            inven.holding_cost_last_updated = inven.env.now
 
         # Update daily total cost
         for key in DAILY_COST_REPORT.keys():
@@ -368,7 +367,7 @@ class Cost:
             DAILY_COST_REPORT[key] = 0
 
 
-def create_env(I, P, daily_events, daily_reports):
+def create_env(I, P, daily_events):
     # Function to create the simulation environment and necessary objects
     simpy_env = simpy.Environment()  # Create a SimPy environment
 
@@ -401,10 +400,10 @@ def create_env(I, P, daily_events, daily_reports):
         productionList.append(Production(simpy_env, "PROCESS_" + str(i), P[i]["ID"],
                                          P[i]["PRODUCTION_RATE"], P[i]["OUTPUT"], input_inventories, P[i]["QNTY_FOR_INPUT_ITEM"], output_inventory, P[i]["PROCESS_COST"], P[i]["PROCESS_STOP_COST"]))
 
-    return simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events, daily_reports
+    return simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events
 
 
-def simpy_event_processes(simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events, daily_reports, I):
+def simpy_event_processes(simpy_env, inventoryList, procurementList, productionList, sales, customer, supplierList, daily_events, I):
     # Event processes for SimPy simulation
     for production in productionList:
         simpy_env.process(production.process_items(daily_events))
@@ -417,25 +416,34 @@ def simpy_event_processes(simpy_env, inventoryList, procurementList, productionL
 
 def update_daily_report(inventoryList):
     # Update daily reports for inventory
-    day_report_list = []
+    day_list = []
     for inven in inventoryList:
-        inven.daily_inven_report[-1] = inven.on_hand_inventory + \
-            inven.in_transition_inventory
-        day_report_list.append(inven.daily_inven_report)
-        inven.daily_inven_report = [f"Day {inven.env.now//24}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
-                                    inven.on_hand_inventory+inven.in_transition_inventory, 0, 0, 0]  # inventory report
-    DAILY_REPORTS.append(day_report_list)
+        inven.daily_inven_report[-1] = inven.on_hand_inventory
+        day_list=day_list+(inven.daily_inven_report)
+    DAILY_REPORTS.append(day_list)
+    #Reset report
+    for inven in inventoryList:
+        inven.daily_inven_report = [f"Day {inven.env.now//24+1}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
+                                        inven.on_hand_inventory, 0, 0, 0]  # inventory report
 
 
-def cap_current_state(inventoryList):
-    # Function to capture the current state of the inventory
-    state = np.array([inven.on_hand_inventory for inven in inventoryList])
-    if STATE_DEMAND:
-        # Include demand quantity in the state if required
-        state = np.append(state, I[0]['DEMAND_QUANTITY'])
-    return state
+'''
 
+def update_daily_report(inventoryList):
+    # Update daily reports for inventory
+    day_list = []
+    for inven in inventoryList:
+        inven.daily_inven_report[-1] = inven.on_hand_inventory
+        day_list=day_list+(inven.daily_inven_report)
+    DAILY_REPORTS.append(day_list)
 
+    #Reset report
+    for inven in inventoryList:
+            if PRINT_SIM_REPORT:
+                print(inven.daily_inven_report)
+            inven.daily_inven_report = [f"Day {inven.env.now//24}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
+                                        inven.on_hand_inventory, 0, 0, 0]  # inventory report
+'''
 def present_daytime(env_now):
     fill_length = len(str(SIM_TIME * 24))
     return str(int(env_now)).zfill(fill_length)

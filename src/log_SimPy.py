@@ -1,7 +1,7 @@
 # Log simulation events
 DAILY_EVENTS = []
 
-# Log daily repots
+# Log daily repots: Inventory level for each item; daily change for each item; Remaining demand (demand - product level)
 DAILY_REPORTS = []
 COST_LOG = []
 DEMAND_LOG = []
