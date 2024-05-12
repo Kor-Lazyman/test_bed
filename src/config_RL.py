@@ -43,10 +43,10 @@ def DEFINE_FOLDER(folder_name):
 
 # Hyperparameter optimization
 OPTIMIZE_HYPERPARAMETERS = False
-N_TRIALS = 50  # 50
+N_TRIALS = 100  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 3000  # 100
+N_EVAL_EPISODES = 10  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = True
@@ -62,6 +62,7 @@ result_csv_folder = os.path.join(parent_dir, "result_CSV")
 STATE_folder = os.path.join(result_csv_folder, "state")
 daily_report_folder = os.path.join(result_csv_folder, "daily_report")
 graph_folder = os.path.join(result_csv_folder, "Graph")
+
 # Define dir's path
 TENSORFLOW_LOGS = DEFINE_FOLDER(tensorboard_folder)
 STATE = DEFINE_FOLDER(STATE_folder)
@@ -84,3 +85,6 @@ else:
     os.makedirs(GRAPH_FOLDER)
 # tensorboard --logdir="~\tensorboard_log"
 # http://localhost:6006/
+#Validation 
+VALIDATION_PRINT=True
+

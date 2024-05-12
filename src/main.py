@@ -64,15 +64,20 @@ def evaluate_model(model, env, num_episodes):
 def export_state(Record_Type):
     state_corr=pd.DataFrame(STATE_ACTION_REPORT_CORRECTION)
     state_real=pd.DataFrame(STATE_ACTION_REPORT_REAL)
-    state_corr.dropna(axis=0,inplace=True)
-    state_real.dropna(axis=0,inplace=True)
-    columns_list=[]
+    if Record_Type=='TEST':
+        state_corr.dropna(axis=0,inplace=True)
+        state_real.dropna(axis=0,inplace=True)
+    print(state_real)
+    columns_list=['Prod. InvenLevel', 'Prod. DailyChange', 'Mat. InvenLevel', 'Mat. DailyChange',
+                'Remaining Demand','ACTION']
+    '''
     for keys in I:
         columns_list.append(f"{I[keys]['NAME']}'s inventory")
-    for keys in I:
         columns_list.append(f"{I[keys]['NAME']}'s Change")
+    
     columns_list.append("Remaining Demand")
     columns_list.append("Action")
+    '''
     state_corr.columns=columns_list
     state_real.columns=columns_list
     state_corr.to_csv(f'{STATE}/STATE_ACTION_REPORT_CORRECTION_{Record_Type}.csv')
@@ -91,7 +96,7 @@ def build_model():
         # model = DDPG("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
         #              batch_size=BEST_PARAMS['batch_size'], verbose=0)
     elif RL_ALGORITHM == "PPO":
-        model = PPO("MlpPolicy", env, verbose=0)
+        model = PPO("MlpPolicy", env, verbose=0,n_steps=SIM_TIME)
         # model = PPO("MlpPolicy", env, learning_rate=BEST_PARAMS['learning_rate'], gamma=BEST_PARAMS['gamma'],
         #             batch_size=BEST_PARAMS['batch_size'], verbose=0)
         print(env.observation_space)

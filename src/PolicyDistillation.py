@@ -1,11 +1,22 @@
+
 from sklearn.tree import DecisionTreeClassifier, export_text
 import pandas as pd
 from sklearn.tree import export_graphviz
 import graphviz
-from config_RL import *
+import os
 
+def read_path():
+    current_dir = os.path.dirname(__file__)
+    parent_dir = os.path.dirname(current_dir)
+    result_csv_folder = os.path.join(parent_dir, "result_CSV")
+    STATE_folder = os.path.join(result_csv_folder, "state")
+    Data_place=os.path.join(STATE_folder,f"Train_{len(os.listdir(STATE_folder))}")
+    return Data_place
+
+print(read_path)
 df = pd.read_csv(
-    'c:\Github\DRL-based-IO\src\STATE_ACTION_REPORT_REAL_TEST.csv')
+    os.path.join(read_path(),"STATE_ACTION_REPORT_REAL_TEST.csv"))
+
 # XAI data classification
 X = df.iloc[:, 1:-1]
 y = df.iloc[:, -1:]
@@ -20,9 +31,7 @@ clf = DecisionTreeClassifier(
 print('start_fit')
 clf = clf.fit(X, y)
 
-FEATURE_NAME = ['Mat. InvenLevel', 'Mat. DailyChange',
-                'Prod. InvenLevel', 'Prod. DailyChange', 'Remaining Demand']
-
+FEATURE_NAME = df.columns[1:-1]
 # XAI
 # Visualize DOT format data to create graphs
 # Generate data in DOT format to visualize decision trees
@@ -36,3 +45,4 @@ graph = graphviz.Source(dot_data)
 
 # you can save the graph as a PDF file or display it on the screen.
 graph.render('decision_tree_visualization',  format='png', view=False)
+
