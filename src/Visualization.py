@@ -14,13 +14,10 @@ def visualization(export_Daily_Report):
     for id in I.keys():
         temp = []
         for x in range(SIM_TIME):
-            temp.append(export_Daily_Report[id * SIM_TIME + x][6])
-        Visual_Dict[export_Daily_Report[id * SIM_TIME + x][2]].append(temp)
-        Visual_Dict['Keys'][export_Daily_Report[id * SIM_TIME + x]
-                            [2]].append(export_Daily_Report[id * SIM_TIME + x][1])
-
+            temp.append(export_Daily_Report[x][id*7+6])#Record Onhand inventory at day end
+        Visual_Dict[export_Daily_Report[0][id*7+2]].append(temp)#Update 
+        Visual_Dict['Keys'][export_Daily_Report[0][2+id*7]].append(export_Daily_Report[0][id *7+1])#Update Keys
     visual = VISUALIAZTION.count(1)
-    print(visual)
     count_type = 0
     cont_len = 1
     for x in VISUALIAZTION:
@@ -33,5 +30,6 @@ def visualization(export_Daily_Report):
                 plt.legend()
                 cont += 1
         count_type += 1
+    plt.savefig("Graph")
+    plt.clf()
 
-    plt.show()
