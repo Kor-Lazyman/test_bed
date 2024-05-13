@@ -58,7 +58,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INP
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
-DEMAND_QTY_MIN = 14
+DEMAND_QTY_MIN = 10
 DEMAND_QTY_MAX = 14
 
 # Simulation
@@ -81,9 +81,7 @@ ORDER_QTY = 2
 REORDER_LEVEL = 0
 
 # Print logs
-PRINT_SIM_EVENTS = True
-PRINT_SIM_REPORT = False
-PRINT_SIM_COST = True
+VALIDATION=True
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
 
