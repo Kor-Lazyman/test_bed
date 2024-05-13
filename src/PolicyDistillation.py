@@ -4,6 +4,19 @@ import pandas as pd
 from sklearn.tree import export_graphviz
 import graphviz
 import os
+from call_shap import cal_shap #Call cal_shap function
+
+SHAP_PLOT_TYPE='bar' #auto, bar, violin, dot, layered_violin, heatmap, waterfall, image
+'''
+'auto': Automatically selects the appropriate plot type based on the Shap value.
+'bar': Creates a bar graph that displays the average Shap value for each feature and the absolute average effect of that feature value.
+'violin': Visualize the distribution of Shap values for each feature as a violin plot.
+'dot': Creates a dot plot that displays the distribution of Shap values for each feature as dots.
+'layered_violin': Visualizes the violin plot divided into multiple layers.
+'heatmap': Creates a heatmap of Shap values to visualize interactions between features.
+'waterfall': Visualize the contribution of Shap values for each feature as a stacked bar graph.
+'image': Supports visualization of Shap values for image data
+'''
 
 def read_path():
     current_dir = os.path.dirname(__file__)
@@ -13,14 +26,13 @@ def read_path():
     Data_place=os.path.join(STATE_folder,f"Train_{len(os.listdir(STATE_folder))}")
     return Data_place
 
-print(read_path)
+#Read newest Test Dataset
 df = pd.read_csv(
-    os.path.join(read_path(),"STATE_ACTION_REPORT_REAL_TEST.csv"))
+    os.path.join(f"{read_path()}","STATE_ACTION_REPORT_REAL_TEST.csv"))
 
 # XAI data classification
 X = df.iloc[:, 1:-1]
 y = df.iloc[:, -1:]
-print(X, y)
 # Decision tree learning
 clf = DecisionTreeClassifier(
     criterion='gini',          # 'gini' 또는 'entropy'
@@ -30,6 +42,8 @@ clf = DecisionTreeClassifier(
 )
 print('start_fit')
 clf = clf.fit(X, y)
+# Extract Unique Actions of test dataset
+actions=df['ACTION'].unique()
 
 FEATURE_NAME = df.columns[1:-1]
 # XAI
@@ -46,3 +60,9 @@ graph = graphviz.Source(dot_data)
 # you can save the graph as a PDF file or display it on the screen.
 graph.render('decision_tree_visualization',  format='png', view=False)
 
+# cal_shap(model,X of dataset, Plot type what you want, unique actions)
+cal_shap(clf,X,SHAP_PLOT_TYPE,actions)
+#model: Model of distilated policy
+#X_test: Test dataset
+#SHAP_PLOT_TYPE: Decision_PLOT_TYPE
+#actions: actions of test_dataset

@@ -122,7 +122,7 @@ class GymInterface(gym.Env):
         next_state_corr = self.correct_state_for_SB3(next_state_real)
         # Calculate the total cost of the day
         env.Cost.update_cost_log(self.inventoryList)
-        if VALIDATION_PRINT:
+        if VALIDATION:
             cost=dict(DAILY_COST_REPORT)
         env.Cost.clear_cost()
         # reward = -COST_LOG[-1]-next_state[-1]*I[0]["SHORTAGE_COST_PRO"]
@@ -131,7 +131,7 @@ class GymInterface(gym.Env):
         self.shortages += self.sales.num_shortages
         self.sales.num_shortages = 0
         
-        if PRINT_SIM_EVENTS:
+        if VALIDATION:
             # Print the simulation log every 24 hours (1 day)
             print(f"\nDay {(self.simpy_env.now+1) // 24}:")
             if RL_ALGORITHM == "DQN":
@@ -146,15 +146,12 @@ class GymInterface(gym.Env):
             for log in self.daily_events:
                 print(log)
             print("[Daily Total Cost] ", -reward)
-            
-            if VALIDATION_PRINT:
+            for _ in cost.keys():
+                print(_,cost[_])
+            print("Total cost: ", -self.total_reward)
+            print("[STATE for the next round] ", next_state_real)
 
-                for _ in cost.keys():
-                    print(_,cost[_])
-                print("Total cost: ", -self.total_reward)
-                print("[STATE for the next round] ", next_state_real)
-            else:
-                print("[STATE for the next round] ", next_state_real)
+                
         self.daily_events.clear()
 
         # Check if the simulation is done
