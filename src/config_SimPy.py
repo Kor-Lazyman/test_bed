@@ -59,7 +59,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INP
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
 DEMAND_QTY_MIN = 10
-DEMAND_QTY_MAX = 14
+DEMAND_QTY_MAX = 16
 
 # Simulation
 SIM_TIME = 100  # 200 [days] per episode
@@ -81,7 +81,7 @@ ORDER_QTY = 2
 REORDER_LEVEL = 0
 
 # Print logs
-VALIDATION=True
+VALIDATION = False
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
 
@@ -89,5 +89,5 @@ VALIDATION=True
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION = [1, 0, 1]  # PRINT RAW_MATERIAL, WIP, PRODUCT
+VISUALIAZTION = [0, 0, 0]  # PRINT RAW_MATERIAL, WIP, PRODUCT
 TIME_CORRECTION = 0.0001

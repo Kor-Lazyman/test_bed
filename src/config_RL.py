@@ -46,7 +46,7 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 100  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 10  # 100
+N_EVAL_EPISODES = 1000  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = True
@@ -85,6 +85,5 @@ else:
     os.makedirs(GRAPH_FOLDER)
 # tensorboard --logdir="~\tensorboard_log"
 # http://localhost:6006/
-#Validation 
-VALIDATION_PRINT=True
-
+# Validation
+VALIDATION_PRINT = False
