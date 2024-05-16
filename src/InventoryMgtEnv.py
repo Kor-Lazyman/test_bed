@@ -26,7 +26,7 @@ class GymInterface(gym.Env):
                 os.append(DEMAND_QTY_MAX+1+DELTA_MIN)
                 os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
-        elif RL_ALGORITHM == "PPO":
+        elif RL_ALGORITHM == "DDPG":
             # Define action space
             actionSpace = []
             for i in range(len(I)):
@@ -38,7 +38,7 @@ class GymInterface(gym.Env):
             self.observation_space = spaces.MultiDiscrete(os)
             print(os)
 
-        elif RL_ALGORITHM == "DDPG":
+        elif RL_ALGORITHM == "PPO":
             # Define action space
             actionSpace = []
             for i in range(len(I)):
