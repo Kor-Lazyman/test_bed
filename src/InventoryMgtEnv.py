@@ -38,7 +38,7 @@ class GymInterface(gym.Env):
             self.observation_space = spaces.MultiDiscrete(os)
             print(os)
 
-        elif RL_ALGORITHM == "PPO":
+        elif RL_ALGORITHM == "DDPG":
             # Define action space
             actionSpace = []
             for i in range(len(I)):
