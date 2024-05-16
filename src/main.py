@@ -104,7 +104,7 @@ def build_model():
 
 
 '''
-def export_report():
+def export_report(inventoryList):
     for x in range(len(inventoryList)):
         for report in DAILY_REPORTS:
             export_Daily_Report.append(report[x])

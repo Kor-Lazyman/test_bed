@@ -22,10 +22,9 @@ for key in P:
     DELTA_MIN = max(P[key]["PRODUCTION_RATE"] *
                     max(P[key]['QNTY_FOR_INPUT_ITEM']), DEMAND_QTY_MAX)
 # maximum production
-EXPECTED_PRODUCT_MAX = I[0]['CUST_ORDER_CYCLE']*P[0]['PRODUCTION_RATE']
 
 # Episode
-N_EPISODES = 2500  # 3000
+N_EPISODES = 2  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -37,6 +36,15 @@ def DEFINE_FOLDER(folder_name):
 
     return folder_name
 
+def save_path(path):
+    import shutil
+
+    if os.path.exists(path):
+        shutil.rmtree(path)
+
+    # Create a new folder
+    os.makedirs(path)
+    return path
 
 # BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
 #                'gamma':  0.01, 'batch_size': 256}
@@ -46,7 +54,7 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 100  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 1000  # 100
+N_EVAL_EPISODES = 10  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = True
@@ -65,11 +73,16 @@ graph_folder = os.path.join(result_csv_folder, "Graph")
 
 # Define dir's path
 TENSORFLOW_LOGS = DEFINE_FOLDER(tensorboard_folder)
+'''
 STATE = DEFINE_FOLDER(STATE_folder)
 REPORT_LOGS = DEFINE_FOLDER(daily_report_folder)
 GRAPH_FOLDER = DEFINE_FOLDER(graph_folder)
-
+'''
+STATE = save_path(STATE_folder)
+REPORT_LOGS = save_path(daily_report_folder)
+GRAPH_FOLDER = save_path(graph_folder)
 # Makedir
+'''
 if os.path.exists(STATE):
     pass
 else:
@@ -83,7 +96,11 @@ if os.path.exists(GRAPH_FOLDER):
     pass
 else:
     os.makedirs(GRAPH_FOLDER)
+'''
+
+
+
 # tensorboard --logdir="~\tensorboard_log"
 # http://localhost:6006/
-# Validation
-VALIDATION_PRINT = False
+
+
