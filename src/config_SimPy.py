@@ -81,7 +81,7 @@ ORDER_QTY = 2
 REORDER_LEVEL = 0
 
 # Print logs
-PRINT_SIM=True
+PRINT_SIM = False
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
 
@@ -89,5 +89,5 @@ PRINT_SIM=True
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION = [1, 0, 1]  # PRINT RAW_MATERIAL, WIP, PRODUCT
+VISUALIAZTION = [0, 0, 0]  # PRINT RAW_MATERIAL, WIP, PRODUCT
 TIME_CORRECTION = 0.0001

@@ -24,7 +24,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 2  # 3000
+N_EPISODES = 3000  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -35,6 +35,7 @@ def DEFINE_FOLDER(folder_name):
         folder_name = os.path.join(folder_name, "Train_1")
 
     return folder_name
+
 
 def save_path(path):
     import shutil
@@ -49,12 +50,13 @@ def save_path(path):
 # BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
 #                'gamma':  0.01, 'batch_size': 256}
 
+
 # Hyperparameter optimization
 OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 100  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 10  # 100
+N_EVAL_EPISODES = 2000  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = True
@@ -98,9 +100,10 @@ else:
     os.makedirs(GRAPH_FOLDER)
 '''
 
+# Non-stationary demand
+mean_demand = 100
+standard_deviation_demand = 20
 
 
 # tensorboard --logdir="~\tensorboard_log"
 # http://localhost:6006/
-
-
