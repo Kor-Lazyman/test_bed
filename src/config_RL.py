@@ -24,7 +24,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 3000  # 3000
+N_EPISODES = 1  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -56,7 +56,7 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 100  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 2000  # 100
+N_EVAL_EPISODES = 10  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = True
@@ -99,6 +99,12 @@ if os.path.exists(GRAPH_FOLDER):
 else:
     os.makedirs(GRAPH_FOLDER)
 '''
+#Visualize_Graph
+VIZ_INVEN_LINE=True
+VIZ_INVEN_PIE=True
+VIZ_COST_PIE=True
+VIZ_COST_BOX=True
+
 
 # Non-stationary demand
 mean_demand = 100

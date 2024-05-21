@@ -25,7 +25,6 @@ class Inventory:
         """
         Update the demand quantity and log the event.
         """
-        DEMAND_LOG.append(demand_qty)
         daily_events.append(
             f"{present_daytime(self.env.now)}: Customer order of {I[0]['NAME']}                                 : {I[0]['DEMAND_QUANTITY']} units ")
 
@@ -158,8 +157,8 @@ class Procurement:
                     f"{present_daytime(self.env.now)}: {I[self.item_id]['NAME']}\'s Total_Inventory                            : {inventory.in_transition_inventory+inventory.on_hand_inventory} units  ")
             yield self.env.timeout(I[self.item_id]["MANU_ORDER_CYCLE"] *
                                    24)  # Wait for the next order cycle
-
-
+            #record order history
+           
 class Production:
     def __init__(self, env, name, process_id, production_rate, output, input_inventories, qnty_for_input_item, output_inventory, processing_cost, process_stop_cost):
         # Initialize production process

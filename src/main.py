@@ -9,7 +9,7 @@ import visualization
 from log_SimPy import *
 from log_RL import *
 import pandas as pd
-
+import matplotlib.pyplot as plt
 # Create environment
 env = GymInterface()
 
@@ -21,30 +21,51 @@ def evaluate_model(model, env, num_episodes):
     #XAI = []  # List for storing data for explainable AI purposes
     STATE_ACTION_REPORT_CORRECTION.clear()
     STATE_ACTION_REPORT_REAL.clear()
+    ORDER_HISTORY=[]
+    #For validation and visualization
+    order_qty=[]
+    demand_qty=[]
+    onhand_inventory=[]
     test_order_mean = []  # List to store average orders per episode
     for i in range(num_episodes):
-        ORDER_HISTORY.clear()  # Clear order history at the start of each episode
+        ORDER_HISTORY.clear()
+        episode_inventory=[[] for _ in range(len(I))]
         DAILY_REPORTS.clear()  # Clear daily reports at the start of each episode
         obs = env.reset()  # Reset the environment to get initial observation
         episode_reward = 0  # Initialize reward for the episode
+        env.model_test=True
         done = False  # Flag to check if episode is finished
         while not done:
+            
+            for x in range(len(env.inventoryList)):
+                episode_inventory[x].append(env.inventoryList[x].on_hand_inventory)
             action, _ = model.predict(obs)  # Get action from model
             # Execute action in environment
-            obs, reward, done, _ = env.step(action)
+            obs, reward, done, _ = env.step([2])
             episode_reward += reward  # Accumulate rewards
             #XAI.append(
             #    [_[3:-1] for _ in list(env.cap_current_state())])
             #XAI[-1].append(action)  # Append action to XAI data
+           
+            
             ORDER_HISTORY.append(action[0])  # Log order history
+            order_qty.append(action[-1])
+            demand_qty.append(I[0]["DEMAND_QUANTITY"])
+            
+            
+        onhand_inventory.append(episode_inventory)
         all_rewards.append(episode_reward)  # Store total reward for episode
+
+        
         # Function to visualize the environment
         if VISUALIAZTION.count(1) > 0:
             visualization.visualization(DAILY_REPORTS, i)
-       
-
+  
         # Calculate mean order for the episode
         test_order_mean.append(sum(ORDER_HISTORY) / len(ORDER_HISTORY))
+        COST_RATIO_HISTORY.append(env.cost_ratio)
+    Visualize_invens(onhand_inventory,demand_qty,order_qty)
+    cal_cost_avg()
     #print("Order_Average:", test_order_mean)
     '''
     if XAI_TRAIN_EXPORT:
@@ -58,8 +79,53 @@ def evaluate_model(model, env, num_episodes):
     std_reward = np.std(all_rewards)  # Calculate standard deviation of rewards
 
     return mean_reward, std_reward  # Return mean and std of rewards
+def Visualize_invens(inventory,demand_qty,order_qty):
+    avg_inven=[[0 for _ in range(SIM_TIME)] for _ in range(len(I))]
+    if VIZ_INVEN_PIE:
+        for x in range(N_EVAL_EPISODES):
+            for y in range(len(I)):
+                for z in range(SIM_TIME):
+                    avg_inven[y][z]+=round(inventory[x][y][z]/N_EVAL_EPISODES)
+    if VIZ_INVEN_PIE:
+        plt.pie([sum(avg_inven[x]) for x in range(len(I))],explode= [0.2, 0.2], labels=["Product","Material"], autopct='%1.1f%%')
+        plt.legend()
+        plt.show()
 
+    if VIZ_INVEN_LINE:
+        plt.plot(inventory[-1][0],"g--",label="Product")
+        plt.plot(inventory[-1][1],"b--",label="Material_1")
+        plt.plot(demand_qty[-SIM_TIME:],"r--",label="Demand_QTY")
+        plt.plot(order_qty[-SIM_TIME:],"y--",label="ORDER")
+        plt.legend()
+        plt.show()
 
+def cal_cost_avg():
+    #Temp_Dict
+    cost_avg={
+    'Holding cost': 0,
+    'Process cost': 0,
+    'Delivery cost': 0,
+    'Order cost': 0,
+    'Shortage cost': 0
+}
+    #Temp_List
+    total_avg=[]
+
+    #Cal_cost_AVG
+    for x in range(N_EVAL_EPISODES):
+        for key in COST_RATIO_HISTORY[x].keys():
+            cost_avg[key]+=COST_RATIO_HISTORY[x][key]
+        total_avg.append(sum(COST_RATIO_HISTORY[x].values()))
+    for key in cost_avg.keys():
+        cost_avg[key]=cost_avg[key]/N_EVAL_EPISODES
+    #Visualize
+    if VIZ_COST_PIE:
+        fig, ax = plt.subplots()
+        plt.pie(cost_avg.values(), explode= [0.2, 0.2, 0.2, 0.2,0.2], labels=cost_avg.keys(), autopct='%1.1f%%')
+        plt.show()
+    if VIZ_COST_BOX:
+        plt.boxplot(total_avg)
+        plt.show()
 
 def export_state(Record_Type):
     state_corr=pd.DataFrame(STATE_ACTION_REPORT_CORRECTION)

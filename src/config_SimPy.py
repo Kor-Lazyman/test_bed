@@ -31,7 +31,6 @@ import random  # For random number generation
 
 
 # Scenario 1
-
 I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "CUST_ORDER_CYCLE": 7,
          "INIT_LEVEL": 0,
@@ -58,7 +57,7 @@ P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INP
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
-DEMAND_QTY_MIN = 10
+DEMAND_QTY_MIN = 14
 DEMAND_QTY_MAX = 14
 
 # Simulation
@@ -79,6 +78,8 @@ def SUP_LEAD_TIME_FUNC():
 # Ordering rules
 ORDER_QTY = 2
 REORDER_LEVEL = 0
+
+
 
 # Print logs
 PRINT_SIM = False
