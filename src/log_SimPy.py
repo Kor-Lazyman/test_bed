@@ -1,6 +1,5 @@
 # Log simulation events
 DAILY_EVENTS = []
-
 # Log daily repots
 DAILY_REPORTS = []
 COST_LOG = []
@@ -12,4 +11,4 @@ DAILY_COST_REPORT = {
     'Order cost': 0,
     'Shortage cost': 0
 }
-ORDER_HISTORY = []
+

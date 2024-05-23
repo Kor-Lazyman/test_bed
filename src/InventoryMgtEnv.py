@@ -52,7 +52,25 @@ class GymInterface(gym.Env):
         self.total_reward_over_episode = []
         self.total_reward = 0
         self.num_episode = 1
+
+        # For functions that only work when testing the model
+        self.model_test=False 
+        #Record the cumulative value of each cost
+        self.cost_ratio={
+                        'Holding cost': 0,
+                        'Process cost': 0,
+                        'Delivery cost': 0,
+                        'Order cost': 0,
+                        'Shortage cost': 0
+                            }
     def reset(self):
+        self.cost_ratio={
+                        'Holding cost': 0,
+                        'Process cost': 0,
+                        'Delivery cost': 0,
+                        'Order cost': 0,
+                        'Shortage cost': 0
+                        }
         # Initialize the simulation environment
         print("\nEpisode: ", self.num_episode)
         self.simpy_env, self.inventoryList, self.procurementList, self.productionList, self.sales, self.customer, self.providerList, self.daily_events = env.create_env(
@@ -103,6 +121,11 @@ class GymInterface(gym.Env):
         env.Cost.update_cost_log(self.inventoryList)
         if PRINT_SIM:
             cost=dict(DAILY_COST_REPORT)
+
+        if self.model_test:
+            for key in DAILY_COST_REPORT.keys():
+                self.cost_ratio[key]+=DAILY_COST_REPORT[key]
+        
         env.Cost.clear_cost()
 
         reward = -COST_LOG[-1]
