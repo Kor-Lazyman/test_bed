@@ -54,12 +54,13 @@ def evaluate_model(model, env, num_episodes):
 
         
         # Function to visualize the environment
-        if VISUALIAZTION.count(1) > 0:
-            visualization.visualization(DAILY_REPORTS, i)
+        
   
         # Calculate mean order for the episode
         test_order_mean.append(sum(ORDER_HISTORY) / len(ORDER_HISTORY))
         COST_RATIO_HISTORY.append(env.cost_ratio)
+    if VISUALIAZTION.count(1) > 0:
+            visualization.visualization(DAILY_REPORTS)
     Visualize_invens(onhand_inventory,demand_qty,order_qty)
     cal_cost_avg()
     #print("Order_Average:", test_order_mean)
@@ -190,6 +191,7 @@ if OPTIMIZE_HYPERPARAMETERS:
 model = build_model()
 # Train the model
 model.learn(total_timesteps=SIM_TIME * N_EPISODES)
+training_end_time=time.time()
 if STATE_TRAIN_EXPORT:
     export_state('TRAIN')
     
@@ -205,4 +207,6 @@ print(
 
 # Calculate computation time and print it
 end_time = time.time()
-print(f"Computation time: {(end_time - start_time)/3600:.2f} hours")
+print(f"Computation time: {(end_time - start_time)/60:.2f} minutes \n",
+      f"Training time: {(training_end_time - start_time)/60:.2f} minutes \n ",
+      f"Test time:{(end_time - training_end_time)/60:.2f} minutes")

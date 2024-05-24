@@ -1,5 +1,5 @@
 import random  # For random number generation
-
+import os
 #### Items #####################################################################
 # ID: Index of the element in the dictionary
 # TYPE: Product, Material, WIP;
@@ -52,6 +52,30 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [
     1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 2}}
 
+def DEFINE_FOLDER(folder_name):
+    if os.path.exists(folder_name):
+        file_list = os.listdir(folder_name)
+        folder_name = os.path.join(folder_name, f"Train_{len(file_list)+1}")
+    else:
+        folder_name = os.path.join(folder_name, "Train_1")
+
+    return folder_name
+
+
+def save_path(path):
+    import shutil
+
+    if os.path.exists(path):
+        shutil.rmtree(path)
+
+    # Create a new folder
+    os.makedirs(path)
+    return path
+# Define parent dir's path
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+result_Graph_folder = os.path.join(parent_dir, "result_Graph")
+GRAPH_FOLDER = save_path(result_Graph_folder)
 
 # State space
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
@@ -90,5 +114,5 @@ PRINT_SIM = False
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
 # Otherwise, the total cost is accumulated every hour.
 HOURLY_COST_MODEL = True
-VISUALIAZTION = [0, 0, 0]  # PRINT RAW_MATERIAL, WIP, PRODUCT
+VISUALIAZTION = [1, 0, 1]  # PRINT RAW_MATERIAL, WIP, PRODUCT
 TIME_CORRECTION = 0.0001

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from config_SimPy import *
 from config_RL import *
 
-def visualization(export_Daily_Report, i):
+def visualization(export_Daily_Report):
     Visual_Dict = {
         'Material': [],
         'WIP': [],
@@ -30,6 +30,6 @@ def visualization(export_Daily_Report, i):
                 plt.legend()
                 cont += 1
         count_type += 1
-    path = os.path.join(GRAPH_FOLDER, f'그래프{i}.png')
+    path = os.path.join(GRAPH_FOLDER, f'그래프.png')
     plt.savefig(path)
     plt.clf()
