@@ -81,12 +81,14 @@ def Visualize_invens(inventory,demand_qty,order_qty):
         for x in range(N_EVAL_EPISODES):
             for y in range(len(I)):
                 for z in range(SIM_TIME):
-                    avg_inven[y][z]+=round(inventory[x][y][z]/N_EVAL_EPISODES)
+                    avg_inven[y][z]+=inventory[x][y][z]
+
+   
     if VIZ_INVEN_PIE:
-        plt.pie([sum(avg_inven[x]) for x in range(len(I))],explode= [0.2, 0.2], labels=["Product","Material"], autopct='%1.1f%%')
+        plt.pie([sum(avg_inven[x])/N_EVAL_EPISODES for x in range(len(I))],explode= [0.2, 0.2], labels=["Product","Material"], autopct='%1.1f%%')
         plt.legend()
         plt.show()
-
+  
     if VIZ_INVEN_LINE:
         plt.plot(inventory[-1][0],"g--",label="Product")
         plt.plot(inventory[-1][1],"b--",label="Material_1")
@@ -94,7 +96,7 @@ def Visualize_invens(inventory,demand_qty,order_qty):
         plt.plot(order_qty[-SIM_TIME:],"y--",label="ORDER")
         plt.legend()
         plt.show()
-
+    
 def cal_cost_avg():
     #Temp_Dict
     cost_avg={
