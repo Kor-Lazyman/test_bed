@@ -54,12 +54,13 @@ def evaluate_model(model, env, num_episodes):
 
         
         # Function to visualize the environment
-        if VISUALIAZTION.count(1) > 0:
-            visualization.visualization(DAILY_REPORTS, i)
+        
   
         # Calculate mean order for the episode
         test_order_mean.append(sum(ORDER_HISTORY) / len(ORDER_HISTORY))
         COST_RATIO_HISTORY.append(env.cost_ratio)
+    if VISUALIAZTION.count(1) > 0:
+            visualization.visualization(DAILY_REPORTS)
     Visualize_invens(onhand_inventory,demand_qty,order_qty)
     cal_cost_avg()
     #print("Order_Average:", test_order_mean)
@@ -81,12 +82,14 @@ def Visualize_invens(inventory,demand_qty,order_qty):
         for x in range(N_EVAL_EPISODES):
             for y in range(len(I)):
                 for z in range(SIM_TIME):
-                    avg_inven[y][z]+=round(inventory[x][y][z]/N_EVAL_EPISODES)
+                    avg_inven[y][z]+=inventory[x][y][z]
+
+   
     if VIZ_INVEN_PIE:
-        plt.pie([sum(avg_inven[x]) for x in range(len(I))],explode= [0.2, 0.2], labels=["Product","Material"], autopct='%1.1f%%')
+        plt.pie([sum(avg_inven[x])/N_EVAL_EPISODES for x in range(len(I))],explode= [0.2, 0.2], labels=["Product","Material"], autopct='%1.1f%%')
         plt.legend()
         plt.show()
-
+  
     if VIZ_INVEN_LINE:
         plt.plot(inventory[-1][0],"g--",label="Product")
         plt.plot(inventory[-1][1],"b--",label="Material_1")
@@ -94,7 +97,7 @@ def Visualize_invens(inventory,demand_qty,order_qty):
         plt.plot(order_qty[-SIM_TIME:],"y--",label="ORDER")
         plt.legend()
         plt.show()
-
+    
 def cal_cost_avg():
     #Temp_Dict
     cost_avg={
@@ -188,6 +191,7 @@ if OPTIMIZE_HYPERPARAMETERS:
 model = build_model()
 # Train the model
 model.learn(total_timesteps=SIM_TIME * N_EPISODES)
+training_end_time=time.time()
 if STATE_TRAIN_EXPORT:
     export_state('TRAIN')
     
@@ -203,4 +207,6 @@ print(
 
 # Calculate computation time and print it
 end_time = time.time()
-print(f"Computation time: {(end_time - start_time)/3600:.2f} hours")
+print(f"Computation time: {(end_time - start_time)/60:.2f} minutes \n",
+      f"Training time: {(training_end_time - start_time)/60:.2f} minutes \n ",
+      f"Test time:{(end_time - training_end_time)/60:.2f} minutes")

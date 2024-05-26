@@ -17,14 +17,14 @@ for i in range(len(I)):
 STATE_RANGES.append((0, max(DEMAND_QTY_MAX, INVEN_LEVEL_MAX)))
 '''
 # Find minimum Delta
-DELTA_MIN = 0
+PRODUCT_OUTGOING_CORRECTION = 0
 for key in P:
-    DELTA_MIN = max(P[key]["PRODUCTION_RATE"] *
+    PRODUCT_OUTGOING_CORRECTION = max(P[key]["PRODUCTION_RATE"] *
                     max(P[key]['QNTY_FOR_INPUT_ITEM']), DEMAND_QTY_MAX)
 # maximum production
 
 # Episode
-N_EPISODES = 1  # 3000
+N_EPISODES = 2000  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -56,7 +56,7 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 100  # 50
 
 # Evaluation
-N_EVAL_EPISODES = 10  # 100
+N_EVAL_EPISODES = 100  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = True
@@ -71,7 +71,6 @@ tensorboard_folder = os.path.join(parent_dir, "tensorboard_log")
 result_csv_folder = os.path.join(parent_dir, "result_CSV")
 STATE_folder = os.path.join(result_csv_folder, "state")
 daily_report_folder = os.path.join(result_csv_folder, "daily_report")
-graph_folder = os.path.join(result_csv_folder, "Graph")
 
 # Define dir's path
 TENSORFLOW_LOGS = DEFINE_FOLDER(tensorboard_folder)
@@ -82,7 +81,7 @@ GRAPH_FOLDER = DEFINE_FOLDER(graph_folder)
 '''
 STATE = save_path(STATE_folder)
 REPORT_LOGS = save_path(daily_report_folder)
-GRAPH_FOLDER = save_path(graph_folder)
+
 # Makedir
 '''
 if os.path.exists(STATE):

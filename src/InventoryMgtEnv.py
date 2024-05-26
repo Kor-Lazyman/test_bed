@@ -23,7 +23,7 @@ class GymInterface(gym.Env):
             os = []
             for _ in range(len(I)):
                 os.append(INVEN_LEVEL_MAX+1)
-                os.append(DEMAND_QTY_MAX+1+DELTA_MIN)
+                os.append(DEMAND_QTY_MAX+1+PRODUCT_OUTGOING_CORRECTION)
                 os.append(DEMAND_QTY_MAX+1)
             self.observation_space = spaces.MultiDiscrete(os)
         elif RL_ALGORITHM == "DDPG":
@@ -191,7 +191,7 @@ class GymInterface(gym.Env):
         state_corrected=[]
         for id in range(len(I)):
             state_corrected.append(round((state[id*2]/INVEN_LEVEL_MAX)*100))#normalization Onhand inventory
-            state_corrected.append(round(((state[id*2+1]-(-DELTA_MIN))/(ACTION_SPACE[-1]-(-DELTA_MIN)))*100))#normalization changes in inventory
+            state_corrected.append(round(((state[id*2+1]-(-PRODUCT_OUTGOING_CORRECTION))/(ACTION_SPACE[-1]-(-PRODUCT_OUTGOING_CORRECTION)))*100))#normalization changes in inventory
         state_corrected.append(round(((state[-1]+INVEN_LEVEL_MAX)/(I[0]['DEMAND_QUANTITY']+INVEN_LEVEL_MAX))*100))#normalization remaining demand
         STATE_ACTION_REPORT_CORRECTION.append(state_corrected)
         return STATE_ACTION_REPORT_CORRECTION[-1]
