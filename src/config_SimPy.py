@@ -52,6 +52,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
 P = {0: {"ID": 0, "PRODUCTION_RATE": 2, "INPUT_TYPE_LIST": [I[1]], "QNTY_FOR_INPUT_ITEM": [
     1], "OUTPUT": I[0], "PROCESS_COST": 1, "PROCESS_STOP_COST": 2}}
 
+
 def DEFINE_FOLDER(folder_name):
     if os.path.exists(folder_name):
         file_list = os.listdir(folder_name)
@@ -71,6 +72,8 @@ def save_path(path):
     # Create a new folder
     os.makedirs(path)
     return path
+
+
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
@@ -81,8 +84,8 @@ GRAPH_FOLDER = save_path(result_Graph_folder)
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
-DEMAND_QTY_MIN = 14
-DEMAND_QTY_MAX = 14
+DEMAND_QTY_MIN = 10
+DEMAND_QTY_MAX = 16
 
 # Simulation
 SIM_TIME = 100  # 200 [days] per episode
@@ -102,7 +105,6 @@ def SUP_LEAD_TIME_FUNC():
 # Ordering rules
 ORDER_QTY = 2
 REORDER_LEVEL = 0
-
 
 
 # Print logs

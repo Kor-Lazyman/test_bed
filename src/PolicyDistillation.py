@@ -50,7 +50,8 @@ def simplify_tree(tree, node_id=0):
 
 
 # Read newest Test Dataset
-file_path = os.path.join(f"{read_path()}", "STATE_ACTION_REPORT_REAL_TEST.csv")
+file_path = os.path.join(
+    f"{read_path()}", "STATE_ACTION_REPORT_REAL_TEST.csv")
 print("Import a data file: ", file_path)
 df = pd.read_csv(file_path)
 

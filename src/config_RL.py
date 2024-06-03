@@ -20,11 +20,11 @@ STATE_RANGES.append((0, max(DEMAND_QTY_MAX, INVEN_LEVEL_MAX)))
 PRODUCT_OUTGOING_CORRECTION = 0
 for key in P:
     PRODUCT_OUTGOING_CORRECTION = max(P[key]["PRODUCTION_RATE"] *
-                    max(P[key]['QNTY_FOR_INPUT_ITEM']), DEMAND_QTY_MAX)
+                                      max(P[key]['QNTY_FOR_INPUT_ITEM']), DEMAND_QTY_MAX)
 # maximum production
 
 # Episode
-N_EPISODES = 2000  # 3000
+N_EPISODES = 10000  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -98,11 +98,11 @@ if os.path.exists(GRAPH_FOLDER):
 else:
     os.makedirs(GRAPH_FOLDER)
 '''
-#Visualize_Graph
-VIZ_INVEN_LINE=True
-VIZ_INVEN_PIE=True
-VIZ_COST_PIE=True
-VIZ_COST_BOX=True
+# Visualize_Graph
+VIZ_INVEN_LINE = False
+VIZ_INVEN_PIE = False
+VIZ_COST_PIE = False
+VIZ_COST_BOX = False
 
 
 # Non-stationary demand
