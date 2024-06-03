@@ -192,10 +192,25 @@ if OPTIMIZE_HYPERPARAMETERS:
     ht.run_optuna(env)
 
 # Build the model
-model = build_model()
+# Build the model
+if LOAD_MODEL:
+    if RL_ALGORITHM == "DQN":
+        model = DQN.load(os.path.join(SAVED_MODEL_PATH,LOAD_MODEL_NAME),env=env)
+
+    elif RL_ALGORITHM == "DDPG":
+        model = DDPG.load(os.path.join(SAVED_MODEL_PATH,LOAD_MODEL_NAME),env=env)
+
+    elif RL_ALGORITHM == "PPO":
+        model = PPO.load(os.path.join(SAVED_MODEL_PATH,LOAD_MODEL_NAME),env=env)
+    print(f"{LOAD_MODEL_NAME} is loaded successfully")
+else:
+    model = build_model()
 # Train the model
 model.learn(total_timesteps=SIM_TIME * N_EPISODES)
 training_end_time = time.time()
+if SAVE_MODEL:
+    model.save(os.path.join(SAVED_MODEL_PATH,SAVED_MODEL_NAME))
+    print(f"{SAVED_MODEL_NAME} is saved successfully")
 if STATE_TRAIN_EXPORT:
     export_state('TRAIN')
 
