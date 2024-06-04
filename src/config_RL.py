@@ -24,7 +24,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 10000  # 3000
+N_EPISODES = 100  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -104,6 +104,14 @@ VIZ_INVEN_PIE = False
 VIZ_COST_PIE = False
 VIZ_COST_BOX = False
 
+#Saved Model
+SAVED_MODEL_PATH=os.path.join(parent_dir,"Saved_Model")
+SAVE_MODEL=True
+SAVED_MODEL_NAME="PPO_MODEL"
+
+#Load Model
+LOAD_MODEL=True
+LOAD_MODEL_NAME="PPO_MODEL" 
 
 # Non-stationary demand
 mean_demand = 100
