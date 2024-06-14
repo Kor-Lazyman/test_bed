@@ -1,8 +1,12 @@
 import os
+import shutil
 from config_SimPy import *
 
 # RL algorithms
 RL_ALGORITHM = "PPO"  # "DP", "DQN", "DDPG", "PPO", "SAC"
+# BEST_PARAMS = {'learning_rate': 0.000171573369797847,
+#                'gamma': 0.9380991034336233, 'batch_size': 16}
+
 ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 
 '''
@@ -24,7 +28,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 100  # 3000
+N_EPISODES = 5000  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -33,35 +37,28 @@ def DEFINE_FOLDER(folder_name):
         folder_name = os.path.join(folder_name, f"Train_{len(file_list)+1}")
     else:
         folder_name = os.path.join(folder_name, "Train_1")
-
     return folder_name
 
 
 def save_path(path):
-    import shutil
-
     if os.path.exists(path):
         shutil.rmtree(path)
-
     # Create a new folder
     os.makedirs(path)
     return path
 
-# BEST_PARAMS = {'learning_rate': 0.00012381151768747168,
-#                'gamma':  0.01, 'batch_size': 256}
-
 
 # Hyperparameter optimization
 OPTIMIZE_HYPERPARAMETERS = False
-N_TRIALS = 100  # 50
+N_TRIALS = 15  # 50
 
 # Evaluation
 N_EVAL_EPISODES = 100  # 100
 
 # Export files
-DAILY_REPORT_EXPORT = True
-STATE_TRAIN_EXPORT = True
-STATE_TEST_EXPORT = True
+DAILY_REPORT_EXPORT = False
+STATE_TRAIN_EXPORT = False
+STATE_TEST_EXPORT = False
 
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)
@@ -99,19 +96,19 @@ else:
     os.makedirs(GRAPH_FOLDER)
 '''
 # Visualize_Graph
-VIZ_INVEN_LINE = False
-VIZ_INVEN_PIE = False
-VIZ_COST_PIE = False
-VIZ_COST_BOX = False
+VIZ_INVEN_LINE = True
+VIZ_INVEN_PIE = True
+VIZ_COST_PIE = True
+VIZ_COST_BOX = True
 
-#Saved Model
-SAVED_MODEL_PATH=os.path.join(parent_dir,"Saved_Model")
-SAVE_MODEL=True
-SAVED_MODEL_NAME="PPO_MODEL"
+# Saved Model
+SAVED_MODEL_PATH = os.path.join(parent_dir, "Saved_Model")
+SAVE_MODEL = False
+SAVED_MODEL_NAME = "PPO_MODEL_SIM500"
 
-#Load Model
-LOAD_MODEL=True
-LOAD_MODEL_NAME="PPO_MODEL" 
+# Load Model
+LOAD_MODEL = True
+LOAD_MODEL_NAME = "PPO_MODEL_SIM500"
 
 # Non-stationary demand
 mean_demand = 100

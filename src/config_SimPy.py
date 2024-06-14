@@ -88,7 +88,7 @@ DEMAND_QTY_MIN = 10
 DEMAND_QTY_MAX = 16
 
 # Simulation
-SIM_TIME = 100  # 200 [days] per episode
+SIM_TIME = 500  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -103,7 +103,7 @@ def SUP_LEAD_TIME_FUNC():
 
 
 # Ordering rules
-ORDER_QTY = 2
+ORDER_QTY = 1
 REORDER_LEVEL = 0
 
 
