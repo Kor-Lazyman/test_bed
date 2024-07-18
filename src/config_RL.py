@@ -28,7 +28,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 5000  # 3000
+N_EPISODES = 1  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -52,8 +52,12 @@ def save_path(path):
 OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 15  # 50
 
+#RL_Options
+DAILY_CHANGE=1 #0 is False 1 is True
+INTRANSIT=1 #0 is False 1 is True
+
 # Evaluation
-N_EVAL_EPISODES = 100  # 100
+N_EVAL_EPISODES = 1  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = False
@@ -107,7 +111,7 @@ SAVE_MODEL = False
 SAVED_MODEL_NAME = "PPO_MODEL_SIM500"
 
 # Load Model
-LOAD_MODEL = True
+LOAD_MODEL = False
 LOAD_MODEL_NAME = "PPO_MODEL_SIM500"
 
 # Non-stationary demand
