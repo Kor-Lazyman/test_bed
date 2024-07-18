@@ -14,9 +14,9 @@ def visualization(export_Daily_Report):
     for id in I.keys():
         temp = []
         for x in range(SIM_TIME):
-            temp.append(export_Daily_Report[x][id*7+6])#Record Onhand inventory at day end
-        Visual_Dict[export_Daily_Report[0][id*7+2]].append(temp)#Update 
-        Visual_Dict['Keys'][export_Daily_Report[0][2+id*7]].append(export_Daily_Report[0][id *7+1])#Update Keys
+            temp.append(export_Daily_Report[x][id*8+6])#Record Onhand inventory at day end
+        Visual_Dict[export_Daily_Report[0][id*8+2]].append(temp)#Update 
+        Visual_Dict['Keys'][export_Daily_Report[0][2+id*8]].append(export_Daily_Report[0][id *8+1])#Update Keys
     visual = VISUALIAZTION.count(1)
     count_type = 0
     cont_len = 1
