@@ -28,7 +28,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 1  # 3000
+N_EPISODES = 1500  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -57,12 +57,12 @@ DAILY_CHANGE=1 #0 is False 1 is True
 INTRANSIT=1 #0 is False 1 is True
 
 # Evaluation
-N_EVAL_EPISODES = 1  # 100
+N_EVAL_EPISODES = 15  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = False
-STATE_TRAIN_EXPORT = False
-STATE_TEST_EXPORT = False
+STATE_TRAIN_EXPORT = True
+STATE_TEST_EXPORT = True
 
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)
@@ -100,15 +100,15 @@ else:
     os.makedirs(GRAPH_FOLDER)
 '''
 # Visualize_Graph
-VIZ_INVEN_LINE = True
-VIZ_INVEN_PIE = True
-VIZ_COST_PIE = True
-VIZ_COST_BOX = True
+VIZ_INVEN_LINE = False
+VIZ_INVEN_PIE = False
+VIZ_COST_PIE = False
+VIZ_COST_BOX = False
 
 # Saved Model
 SAVED_MODEL_PATH = os.path.join(parent_dir, "Saved_Model")
 SAVE_MODEL = False
-SAVED_MODEL_NAME = "PPO_MODEL_SIM500"
+SAVED_MODEL_NAME = "PPO_MODEL_test_val"
 
 # Load Model
 LOAD_MODEL = False

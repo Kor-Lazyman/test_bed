@@ -184,16 +184,15 @@ class GymInterface(gym.Env):
         for id in range(len(I)):
             # ID means Item_ID, 7 means to the length of the report for one item
             # append On_Hand_inventory
-            temp.append(DAILY_REPORTS[-1][(id)*8+7])
+            temp.append(STATE_DICT[-1][f"On_Hand_{I[id]['NAME']}"])
             # append changes in inventory
             if DAILY_CHANGE==1:
                 # append changes in inventory
-                temp.append(DAILY_REPORTS[-1][(id)*8+4] -
-                        DAILY_REPORTS[-1][(id)*8+5])
+                temp.append(STATE_DICT[-1][f"Daily_Change_{I[id]['NAME']}"])
             if INTRANSIT==1:
                 if I[id]["TYPE"]=="Material":
                     # append Intransition inventory
-                    temp.append(DAILY_REPORTS[-1][(id)*8+6])
+                    temp.append(STATE_DICT[-1][f"In_Transit_{I[id]['NAME']}"])
 
         temp.append(I[0]["DEMAND_QUANTITY"]-self.inventoryList[0].on_hand_inventory)  # append remaining demand
         STATE_ACTION_REPORT_REAL.append(temp)
@@ -210,27 +209,16 @@ class GymInterface(gym.Env):
 
         # Update STATE_ACTION_REPORT_CORRECTION.append(state_corrected)
         state_corrected = []
-        index=0
         for id in range(len(I)):
-            if I[id]["TYPE"]=="Material":
-                # normalization Onhand inventory
-                state_corrected.append(round((state[index]/INVEN_LEVEL_MAX)*100))
-                index+=1
-                if DAILY_CHANGE==1:
-                    state_corrected.append(round(((state[index]-(-product_outgoing_correction))/(
-                    ACTION_SPACE[-1]-(-product_outgoing_correction)))*100))  # normalization changes in inventory
-                    index+=1
+            # normalization Onhand inventory
+            state_corrected.append(round((STATE_DICT[-1][f"On_Hand_{I[id]['NAME']}"]/INVEN_LEVEL_MAX)*100))
+            if DAILY_CHANGE==1:
+                state_corrected.append(round(((STATE_DICT[-1][f"Daily_Change_{I[id]['NAME']}"]-(-product_outgoing_correction))/(
+                ACTION_SPACE[-1]-(-product_outgoing_correction)))*100))  # normalization changes in inventory
+            if I[id]['TYPE']=="Material":
                 if INTRANSIT==1:
-                    state_corrected.append(round((state[index]-ACTION_SPACE[0])/(ACTION_SPACE[-1]-ACTION_SPACE[0])))
-                    index+=1
-            else:
-                # normalization Onhand inventory
-                state_corrected.append(round((state[index]/INVEN_LEVEL_MAX)*100))
-                index+=1
-                if DAILY_CHANGE==1:
-                    state_corrected.append(round(((state[index]-(-product_outgoing_correction))/(
-                    ACTION_SPACE[-1]-(-product_outgoing_correction)))*100))  # normalization changes in inventory
-                index+=1
+                    state_corrected.append(round((STATE_DICT[-1][f"In_Transit_{I[id]['NAME']}"]-ACTION_SPACE[0])/(ACTION_SPACE[-1]-ACTION_SPACE[0])))
+
         # normalization remaining demand
         state_corrected.append(round(
             ((state[-1]+INVEN_LEVEL_MAX)/(I[0]['DEMAND_QUANTITY']+INVEN_LEVEL_MAX))*100))
@@ -272,6 +260,7 @@ def evaluate_model(model, env, num_episodes):
                     env.inventoryList[x].on_hand_inventory)
             action, _ = model.predict(obs)  # Get action from model
             # Execute action in environment => 현재 Material 1개에 대한 action만 코딩되어 있음. 추후 여러 Material에 대한 action을 코딩해야 함.
+            #시뮬레이션 Validaition을 위한 코드 차후 지울것
             if VALIDATION:
                 action=validation_input(day)
             obs, reward, done, _ = env.step(action)
