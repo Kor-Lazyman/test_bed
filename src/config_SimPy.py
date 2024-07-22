@@ -31,7 +31,7 @@ import os
 
 
 # Scenario 1
-I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
+I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PROD",
          "CUST_ORDER_CYCLE": 7,
          "INIT_LEVEL": 0,
          "DEMAND_QUANTITY": 0,
@@ -40,9 +40,9 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PRODUCT",
          "DELIVERY_COST": 1,
          "DUE_DATE": 7,
          "SHORTAGE_COST_PRO": 50},
-     1: {"ID": 1, "TYPE": "Material", "NAME": "MATERIAL 1",
+     1: {"ID": 1, "TYPE": "Material", "NAME": "MAT_1",
          "MANU_ORDER_CYCLE": 1,
-         "INIT_LEVEL": 3,
+         "INIT_LEVEL": 1,
          "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -72,14 +72,14 @@ def save_path(path):
     # Create a new folder
     os.makedirs(path)
     return path
+
 #Validation
+#시뮬레이션 Validaition을 위한 코드 차후 지울것
 VALIDATION=True 
 def validation_input(day):
-    if day%2==1:
-        action=[1]
-    else:
-        action=[3]
+    action=[1]
     return action
+
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
@@ -89,7 +89,7 @@ GRAPH_FOLDER = save_path(result_Graph_folder)
 # State space
 # if this is not 0, the length of state space of demand quantity is not identical to INVEN_LEVEL_MAX
 INVEN_LEVEL_MIN = 0
-INVEN_LEVEL_MAX = 50  # Capacity limit of the inventory [units]
+INVEN_LEVEL_MAX = 20  # Capacity limit of the inventory [units]
 DEMAND_QTY_MIN = 14
 DEMAND_QTY_MAX = 14
 

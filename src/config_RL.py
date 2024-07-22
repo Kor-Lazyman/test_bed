@@ -53,16 +53,17 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 15  # 50
 
 #RL_Options
-DAILY_CHANGE=1 #0 is False 1 is True
-INTRANSIT=1 #0 is False 1 is True
+DAILY_CHANGE=1 #0 Means False , 1 Means True
+INTRANSIT=0 #0 Means False , 1 Means True
+USE_CORRECTION=True
 
 # Evaluation
-N_EVAL_EPISODES = 1  # 100
+N_EVAL_EPISODES = 15  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = False
-STATE_TRAIN_EXPORT = False
-STATE_TEST_EXPORT = False
+STATE_TRAIN_EXPORT = True
+STATE_TEST_EXPORT = True
 
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)
@@ -100,15 +101,15 @@ else:
     os.makedirs(GRAPH_FOLDER)
 '''
 # Visualize_Graph
-VIZ_INVEN_LINE = True
-VIZ_INVEN_PIE = True
-VIZ_COST_PIE = True
-VIZ_COST_BOX = True
+VIZ_INVEN_LINE = False
+VIZ_INVEN_PIE = False
+VIZ_COST_PIE = False
+VIZ_COST_BOX = False
 
 # Saved Model
 SAVED_MODEL_PATH = os.path.join(parent_dir, "Saved_Model")
 SAVE_MODEL = False
-SAVED_MODEL_NAME = "PPO_MODEL_SIM500"
+SAVED_MODEL_NAME = "PPO_MODEL_test_val"
 
 # Load Model
 LOAD_MODEL = False

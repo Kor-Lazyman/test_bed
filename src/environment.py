@@ -2,7 +2,7 @@ import simpy
 import numpy as np
 from config_SimPy import *  # Assuming this imports necessary configurations
 from log_SimPy import *  # Assuming this imports necessary logging functionalities
-
+from config_RL import *
 
 class Inventory:
     def __init__(self, env, item_id, holding_cost):
@@ -14,7 +14,7 @@ class Inventory:
         # Inventory in transition (e.g., being delivered)
         self.in_transition_inventory = 0
         self.capacity_limit = INVEN_LEVEL_MAX  # Maximum capacity of the inventory
-        # Daily inventory report template
+        # Daily inventory report template: Day/Name/Type/Start/Income/Outgoing/In_transit/End
         self.daily_inven_report = [f"Day {self.env.now // 24+1}", I[self.item_id]['NAME'],
                                    I[self.item_id]['TYPE'], self.on_hand_inventory, 0, 0, 0, 0]
         # Unit holding cost per hour
@@ -74,13 +74,12 @@ class Inventory:
         if inven_type=="ON_HAND":
             if quantity_of_change > 0:
                 self.daily_inven_report[4] += quantity_of_change#Income Inventory
-            elif quantity_of_change == 0:
-                pass
+
             else:
                 self.daily_inven_report[5] -= quantity_of_change#Outgoing Invnetory
 
         elif inven_type=="IN_TRANSIT":
-            self.daily_inven_report[6]+=quantity_of_change
+            self.daily_inven_report[6]+=quantity_of_change#In_Transit Inventory
 
 class Supplier:
     def __init__(self, env, name, item_id):
@@ -423,11 +422,20 @@ def simpy_event_processes(simpy_env, inventoryList, procurementList, productionL
 def update_daily_report(inventoryList):
     # Update daily reports for inventory
     day_list = []
+    day_dict={}
     for inven in inventoryList:
         inven.daily_inven_report[-1] = inven.on_hand_inventory
         day_list=day_list+(inven.daily_inven_report)
-        print(day_list)
+        
+        day_dict[f"On_Hand_{I[inven.item_id]['NAME']}"]=inven.on_hand_inventory
+        #daily_inven_report[4]: Income inven.daily_inven_report[5]: Outgoing
+        day_dict[f"Daily_Change_{I[inven.item_id]['NAME']}"]=inven.daily_inven_report[4]-inven.daily_inven_report[5]
+        if INTRANSIT==1:
+            if I[inven.item_id]["TYPE"]=="Material":
+                #inven.daily_inven_report[6]: In_Transit
+                day_dict[f"In_Transit_{I[inven.item_id]['NAME']}"]=inven.daily_inven_report[6]
     DAILY_REPORTS.append(day_list)
+    STATE_DICT.append(day_dict)
     #Reset report
     for inven in inventoryList:
         inven.daily_inven_report = [f"Day {inven.env.now//24+1}", I[inven.item_id]['NAME'], I[inven.item_id]['TYPE'],
