@@ -152,6 +152,7 @@ class GymInterface(gym.Env):
         self.shortages += self.sales.num_shortages
         self.sales.num_shortages = 0
 
+
         if PRINT_SIM:
             # Print the simulation log every 24 hours (1 day)
             print(f"\nDay {(self.simpy_env.now+1) // 24}:")
