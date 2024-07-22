@@ -42,7 +42,7 @@ I = {0: {"ID": 0, "TYPE": "Product",      "NAME": "PROD",
          "SHORTAGE_COST_PRO": 50},
      1: {"ID": 1, "TYPE": "Material", "NAME": "MAT_1",
          "MANU_ORDER_CYCLE": 1,
-         "INIT_LEVEL": 2,
+         "INIT_LEVEL": 1,
          "SUP_LEAD_TIME": 2,  # SUP_LEAD_TIME must be an integer
          "HOLD_COST": 1,
          "PURCHASE_COST": 2,
@@ -75,13 +75,11 @@ def save_path(path):
 
 #Validation
 #시뮬레이션 Validaition을 위한 코드 차후 지울것
-VALIDATION=False 
+VALIDATION=True 
 def validation_input(day):
-    if day%2==1:
-        action=[1]
-    else:
-        action=[3]
+    action=[1]
     return action
+
 # Define parent dir's path
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
@@ -96,7 +94,7 @@ DEMAND_QTY_MIN = 14
 DEMAND_QTY_MAX = 14
 
 # Simulation
-SIM_TIME = 100  # 200 [days] per episode
+SIM_TIME = 7  # 200 [days] per episode
 
 # Uncertainty factors
 
@@ -116,7 +114,7 @@ REORDER_LEVEL = 0
 
 
 # Print logs
-PRINT_SIM = False
+PRINT_SIM = True
 # PRINT_LOG_TIMESTEP = True
 # PRINT_LOG_DAILY_REPORT = True
 

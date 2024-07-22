@@ -50,8 +50,11 @@ class GymInterface(gym.Env):
             self.action_space = spaces.MultiDiscrete(actionSpace)
             #if self.scenario["Dist_Type"] == "UNIFORM":
             #    k = INVEN_LEVEL_MAX*2+(self.scenario["max"]+1)
+            if USE_CORRECTION:
+                os=[102 for _ in range(len(I)*(1+DAILY_CHANGE)+MAT_COUNT*INTRANSIT+1)] #DAILY_CHANGE + INTRANSIT + REMAINING_DEMAND
+            else:
+                os=[INVEN_LEVEL_MAX*2 for _ in range(len(I)*(1+DAILY_CHANGE)+MAT_COUNT*INTRANSIT+1)]
 
-            os=[102 for _ in range(len(I)*(1+DAILY_CHANGE)+MAT_COUNT*INTRANSIT+1)] #DAILY_CHANGE + INTRANSIT + REMAINING_DEMAND
             self.observation_space = spaces.MultiDiscrete(os)
             print(os)
         self.total_reward_over_episode = []
@@ -87,9 +90,14 @@ class GymInterface(gym.Env):
 
         # print("==========Reset==========")
         self.shortages = 0
-        state_real = self.get_current_state()
-        state_corr=self.correct_state_for_SB3(state_real)
-        return state_corr
+        state_real=self.get_current_state()
+        state_corr=self.correct_state_for_SB3()
+        if USE_CORRECTION:
+            state=state_corr
+        else:
+            state = state_real
+        
+        return state
 
     def step(self, action):
 
@@ -115,13 +123,20 @@ class GymInterface(gym.Env):
         # current_state = env.cap_current_state(self.inventoryList)
         # Run the simulation for 24 hours (until the next day)
         # Action append
-        STATE_ACTION_REPORT_REAL[-1].append(action)
         STATE_ACTION_REPORT_CORRECTION[-1].append(action)
+        STATE_ACTION_REPORT_REAL[-1].append(action)
+        
         self.simpy_env.run(until=self.simpy_env.now + 24)
         env.update_daily_report(self.inventoryList)
+
         # Capture the next state of the environment
-        next_state_real = self.get_current_state()
-        next_state_corr = self.correct_state_for_SB3(next_state_real)
+        state_real=self.get_current_state()
+        state_corr=self.correct_state_for_SB3()
+        if USE_CORRECTION:
+            next_state=state_corr
+        else:
+            next_state = state_real
+
         # Calculate the total cost of the day
         env.Cost.update_cost_log(self.inventoryList)
         if PRINT_SIM:
@@ -155,7 +170,11 @@ class GymInterface(gym.Env):
             for _ in cost.keys():
                 print(_, cost[_])
             print("Total cost: ", -self.total_reward)
-            print("[STATE for the next round] ", next_state_real)
+
+            if USE_CORRECTION:
+                print("[CORRECTED_STATE for the next round] ", [item for item in next_state])
+            else:
+                print("[REAL_STATE for the next round] ",  [item-INVEN_LEVEL_MAX for item in next_state])
 
         self.daily_events.clear()
 
@@ -175,7 +194,7 @@ class GymInterface(gym.Env):
             self.num_episode += 1
 
         info = {}  # 추가 정보 (필요에 따라 사용)
-        return next_state_corr, reward, done, info
+        return next_state, reward, done, info
 
     def get_current_state(self):
         # Make State for RL
@@ -184,22 +203,22 @@ class GymInterface(gym.Env):
         for id in range(len(I)):
             # ID means Item_ID, 7 means to the length of the report for one item
             # append On_Hand_inventory
-            temp.append(STATE_DICT[-1][f"On_Hand_{I[id]['NAME']}"])
+            temp.append(STATE_DICT[-1][f"On_Hand_{I[id]['NAME']}"]+INVEN_LEVEL_MAX)
             # append changes in inventory
             if DAILY_CHANGE==1:
                 # append changes in inventory
-                temp.append(STATE_DICT[-1][f"Daily_Change_{I[id]['NAME']}"])
+                temp.append(STATE_DICT[-1][f"Daily_Change_{I[id]['NAME']}"]+INVEN_LEVEL_MAX)
             if INTRANSIT==1:
                 if I[id]["TYPE"]=="Material":
                     # append Intransition inventory
-                    temp.append(STATE_DICT[-1][f"In_Transit_{I[id]['NAME']}"])
+                    temp.append(STATE_DICT[-1][f"In_Transit_{I[id]['NAME']}"]+INVEN_LEVEL_MAX)
 
-        temp.append(I[0]["DEMAND_QUANTITY"]-self.inventoryList[0].on_hand_inventory)  # append remaining demand
+        temp.append(I[0]["DEMAND_QUANTITY"]-self.inventoryList[0].on_hand_inventory+INVEN_LEVEL_MAX)  # append remaining demand
         STATE_ACTION_REPORT_REAL.append(temp)
         return STATE_ACTION_REPORT_REAL[-1]
 
     # Min-Max Normalization
-    def correct_state_for_SB3(self, state):
+    def correct_state_for_SB3(self):
         # Find minimum Delta
         product_outgoing_correction = 0
         for key in P:
@@ -221,7 +240,7 @@ class GymInterface(gym.Env):
 
         # normalization remaining demand
         state_corrected.append(round(
-            ((state[-1]+INVEN_LEVEL_MAX)/(I[0]['DEMAND_QUANTITY']+INVEN_LEVEL_MAX))*100))
+            ((I[0]["DEMAND_QUANTITY"]-self.inventoryList[0].on_hand_inventory+INVEN_LEVEL_MAX)/(I[0]['DEMAND_QUANTITY']+INVEN_LEVEL_MAX))*100))
         STATE_ACTION_REPORT_CORRECTION.append(state_corrected)
         return STATE_ACTION_REPORT_CORRECTION[-1]
 
@@ -237,8 +256,9 @@ class GymInterface(gym.Env):
 def evaluate_model(model, env, num_episodes):
     all_rewards = []  # List to store total rewards for each episode
     # XAI = []  # List for storing data for explainable AI purposes
-    STATE_ACTION_REPORT_CORRECTION.clear()
+    
     STATE_ACTION_REPORT_REAL.clear()
+    STATE_ACTION_REPORT_CORRECTION.clear()
     ORDER_HISTORY = []
     # For validation and visualization
     order_qty = []
@@ -364,12 +384,13 @@ def Visualize_invens(inventory, demand_qty, order_qty, all_rewards):
 
 
 def export_state(Record_Type):
-    state_corr = pd.DataFrame(STATE_ACTION_REPORT_CORRECTION)
     state_real = pd.DataFrame(STATE_ACTION_REPORT_REAL)
+    state_corr = pd.DataFrame(STATE_ACTION_REPORT_CORRECTION)
+    
     if Record_Type == 'TEST':
         state_corr.dropna(axis=0, inplace=True)
         state_real.dropna(axis=0, inplace=True)
-    print(state_real)
+        
     columns_list = []
     for id in I.keys():
         if I[id]["TYPE"]=='Material':
@@ -392,8 +413,10 @@ def export_state(Record_Type):
     columns_list.append("Remaining Demand")
     columns_list.append("Action")
     '''
-    state_corr.columns = columns_list
     state_real.columns = columns_list
+    state_corr.columns = columns_list
+    
+    state_real.to_csv(f'{STATE}/STATE_ACTION_REPORT_REAL_{Record_Type}.csv')
     state_corr.to_csv(
         f'{STATE}/STATE_ACTION_REPORT_CORRECTION_{Record_Type}.csv')
-    state_real.to_csv(f'{STATE}/STATE_ACTION_REPORT_REAL_{Record_Type}.csv')
+    

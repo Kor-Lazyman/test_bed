@@ -28,7 +28,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 1500  # 3000
+N_EPISODES = 1  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -53,8 +53,9 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 15  # 50
 
 #RL_Options
-DAILY_CHANGE=1 #0 is False 1 is True
-INTRANSIT=1 #0 is False 1 is True
+DAILY_CHANGE=1 #0 Means False , 1 Means True
+INTRANSIT=0 #0 Means False , 1 Means True
+USE_CORRECTION=True
 
 # Evaluation
 N_EVAL_EPISODES = 15  # 100
