@@ -287,14 +287,10 @@ SQPAIR = {'Reorder': 0,
 # ORDER_QTY = [1, 1, 1, 1, 1]  # AP3 when normal
 # ORDER_QTY = 2 # S_Level when SsPolicy
 
-
 # Print logs
 PRINT_SIM_EVENTS = True
-PRINT_SIM_REPORT = True
-PRINT_DAILY_COST = True
-
-# PRINT_LOG_TIMESTEP = True
-# PRINT_LOG_DAILY_REPORT = True
+PRINT_SIM_REPORT = False
+PRINT_DAILY_COST = False
 
 # Cost model
 # If False, the total cost is calculated based on the inventory level for every 24 hours.
