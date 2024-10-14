@@ -34,16 +34,6 @@ class Inventory:
         """
         Update the inventory level based on the quantity of change and log the event.
         """
-        '''
-        if I[self.item_id]["TYPE"] == "Material":
-            if quantity_of_change < 0 and inven_type == "ON_HAND":
-                self._update_report(quantity_of_change)
-            elif inven_type == "IN_TRANSIT" and quantity_of_change > 0:
-                self.change_qty = quantity_of_change
-                self._update_report(quantity_of_change)
-        else:
-            self._update_report(quantity_of_change)
-        '''
 
         if inven_type == "ON_HAND":
             # Update on-hand inventory
@@ -55,6 +45,8 @@ class Inventory:
                 daily_events.append(
                     f"{present_daytime(self.env.now)}: Due to the upper limit of the inventory, {I[self.item_id]['NAME']} is wasted: {self.on_hand_inventory - self.capacity_limit}")
                 self.on_hand_inventory = self.capacity_limit
+            '''
+            삭제 예정
             # Check if inventory goes negative
             if self.on_hand_inventory < 0:
                 daily_events.append(
@@ -62,7 +54,7 @@ class Inventory:
                 self.on_hand_inventory = 0
 
             self.holding_cost_last_updated = self.env.now
-
+            '''
         elif inven_type == "IN_TRANSIT":
             # Update in-transition inventory
             self.in_transition_inventory += quantity_of_change
@@ -196,13 +188,14 @@ class Production:
         """
         Simulate the production process.
         """
-        yield self.env.timeout(0)
         while True:
             # Check if there's a shortage of input materials or WIPs
             shortage_check = False
             for inven, input_qnty in zip(self.input_inventories, self.qnty_for_input_item):
                 if inven.on_hand_inventory < input_qnty:
                     shortage_check = True
+                    # early stop
+                    break 
 
             # Check if the output inventory is full
             inven_upper_limit_check = False
@@ -217,7 +210,6 @@ class Production:
                     daily_events.append(
                         f"{present_daytime(self.env.now)}: Stop {self.name} due to a shortage of input materials or WIPs")
                 self.print_stop = False
-
                 yield self.env.timeout(1)  # Check shortage every hour
             elif inven_upper_limit_check:
                 if self.print_limit:
