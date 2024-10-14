@@ -267,7 +267,6 @@ SQPAIR = {'Reorder': 0,
 
 # Print logs
 PRINT_SIM_EVENTS = True
-PRINT_SIM_REPORT = True
 PRINT_DAILY_COST = True
 
 # Cost model

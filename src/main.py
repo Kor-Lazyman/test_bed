@@ -2,7 +2,7 @@ from config_SimPy import *
 from log_SimPy import *
 import environment as env
 import pandas as pd
-import Visualization
+from Visualization import *
 import matplotlib.pyplot as plt
 # Define the scenario
 scenario = {"DEMAND": DEMAND_SCENARIO, "LEADTIME": LEADTIME_SCENARIO}
@@ -43,7 +43,4 @@ for x in range(SIM_TIME):
     print(f"Cumulative Total Cost: {sum(LOG_COST)}")
     env.Cost.clear_cost()
 
-for graph in GRAPH_LOG.keys():
-    plt.plot(GRAPH_LOG[graph], label = f'{graph}')
-plt.legend()
-plt.show()
+viz_sq()
