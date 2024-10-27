@@ -24,11 +24,11 @@ STATE_RANGES.append((0, max(DEMAND_QTY_MAX, INVEN_LEVEL_MAX)))
 PRODUCT_OUTGOING_CORRECTION = 0
 for key in P:
     PRODUCT_OUTGOING_CORRECTION = max(P[key]["PRODUCTION_RATE"] *
-                                      max(P[key]['QNTY_FOR_INPUT_ITEM']), DEMAND_QTY_MAX)
+                                      max(P[key]['QNTY_FOR_INPUT_ITEM']), INVEN_LEVEL_MAX)
 # maximum production
 
 # Episode
-N_EPISODES = 1  # 3000
+N_EPISODES = 10000  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -53,10 +53,10 @@ OPTIMIZE_HYPERPARAMETERS = False
 N_TRIALS = 15  # 50
 
 #RL_Options
-DAILY_CHANGE=1 #0 Means False , 1 Means True
-INTRANSIT=0 #0 Means False , 1 Means True
-USE_CORRECTION=True
-
+DAILY_CHANGE = 0 #0 Means False , 1 Means True
+INTRANSIT = 1 #0 Means False , 1 Means True
+USE_CORRECTION = False
+EXPERIMENT = True
 # Evaluation
 N_EVAL_EPISODES = 15  # 100
 
@@ -70,12 +70,14 @@ current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
 # Define each dir's parent dir's path
 tensorboard_folder = os.path.join(parent_dir, "tensorboard_log")
+experiment_folder = os.path.join(parent_dir, "experiment_log")
 result_csv_folder = os.path.join(parent_dir, "result_CSV")
 STATE_folder = os.path.join(result_csv_folder, "state")
 daily_report_folder = os.path.join(result_csv_folder, "daily_report")
 
 # Define dir's path
 TENSORFLOW_LOGS = DEFINE_FOLDER(tensorboard_folder)
+EXPERIMENT_LOGS = DEFINE_FOLDER(experiment_folder)
 '''
 STATE = DEFINE_FOLDER(STATE_folder)
 REPORT_LOGS = DEFINE_FOLDER(daily_report_folder)
@@ -108,7 +110,7 @@ VIZ_COST_BOX = False
 
 # Saved Model
 SAVED_MODEL_PATH = os.path.join(parent_dir, "Saved_Model")
-SAVE_MODEL = False
+SAVE_MODEL = True
 SAVED_MODEL_NAME = "PPO_MODEL_test_val"
 
 # Load Model

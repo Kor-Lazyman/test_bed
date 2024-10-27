@@ -70,7 +70,7 @@ else:
     else:
         model = build_model()
         # Train the model
-        model.learn(total_timesteps=SIM_TIME * N_EPISODES)
+        model.learn(total_timesteps = SIM_TIME * N_EPISODES)
         if SAVE_MODEL:
             model.save(os.path.join(SAVED_MODEL_PATH, SAVED_MODEL_NAME))
             print(f"{SAVED_MODEL_NAME} is saved successfully")
