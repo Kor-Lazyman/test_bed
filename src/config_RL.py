@@ -28,7 +28,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 10000  # 3000
+N_EPISODES = 5000  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -37,6 +37,7 @@ def DEFINE_FOLDER(folder_name):
         folder_name = os.path.join(folder_name, f"Train_{len(file_list)+1}")
     else:
         folder_name = os.path.join(folder_name, "Train_1")
+    os.makedirs(folder_name)
     return folder_name
 
 
@@ -73,16 +74,20 @@ tensorboard_folder = os.path.join(parent_dir, "tensorboard_log")
 experiment_folder = os.path.join(parent_dir, "experiment_log")
 result_csv_folder = os.path.join(parent_dir, "result_CSV")
 STATE_folder = os.path.join(result_csv_folder, "state")
+result_experiment = os.path.join(result_csv_folder, "Experiment_Result")
 daily_report_folder = os.path.join(result_csv_folder, "daily_report")
 
 # Define dir's path
 TENSORFLOW_LOGS = DEFINE_FOLDER(tensorboard_folder)
-EXPERIMENT_LOGS = DEFINE_FOLDER(experiment_folder)
+if EXPERIMENT:
+    EXPERIMENT_LOGS = DEFINE_FOLDER(experiment_folder)
 '''
 STATE = DEFINE_FOLDER(STATE_folder)
 REPORT_LOGS = DEFINE_FOLDER(daily_report_folder)
 GRAPH_FOLDER = DEFINE_FOLDER(graph_folder)
 '''
+if EXPERIMENT:
+    RESULT_CSV_EXPERIMENT = save_path(result_experiment)
 STATE = save_path(STATE_folder)
 REPORT_LOGS = save_path(daily_report_folder)
 
