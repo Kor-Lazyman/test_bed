@@ -63,11 +63,11 @@ def load_model(env):
 def make_scenario():
     demand_scenario = []  # List to store demand scenarios
     leadtime_scenario = []  # List to store lead time scenarios
-    for mean in range(13, 14):  # Range of mean demand values
+    for mean in range(12, 15):  # Range of mean demand values
         demand_dict = {}
         demand_dict["Dist_Type"] = "GAUSSIAN"  # Demand distribution type
         demand_dict["mean"] = mean  # Mean value of demand
-        for std in range(1):  # Range of standard deviations
+        for std in range(2):  # Range of standard deviations
             demand_dict["std"] = std  # Standard deviation of demand
             demand_scenario.append(demand_dict)  # Append each demand scenario
 
@@ -123,7 +123,7 @@ for demand_scenario_dict in demand_scenario:
                 experiment_result[f'Case {case_num:02}'].append(meta_callback.rewards[x])  # Store Meta model rewards
         case_num += 1  # Increment case number for each scenario combination
 
-# Convert experiment results to a DataFrame and save as a CSV file
-df = pd.DataFrame(os.path.join(RESULT_CSV_EXPERIMENT, 'experiment_result')).T  # Transpose results for column labeling
-df.columns = ['RL_1000', 'META_1000', 'RL_2000', 'META_2000', 'RL_3000', 'META_3000', 'RL_4000', 'META_4000', 'RL_5000', 'META_5000']  # Columns for each evaluation step
-df.to_csv("./Experiment_Result.csv")  # Save DataFrame as CSV file for analysis
+    # Convert experiment results to a DataFrame and save as a CSV file
+    df = pd.DataFrame(experiment_result).T  # Transpose results for column labeling
+    df.columns = ['RL_1000', 'META_1000', 'RL_2000', 'META_2000', 'RL_3000', 'META_3000', 'RL_4000', 'META_4000', 'RL_5000', 'META_5000']  # Columns for each evaluation step
+    df.to_csv(os.path.join(RESULT_CSV_EXPERIMENT, 'experiment_result.csv'))  # Save DataFrame as CSV file for analysis
