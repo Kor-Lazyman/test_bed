@@ -38,7 +38,7 @@ class CustomEvalCallback(EvalCallback):
 def make_call_back(env):
     eval_callback = CustomEvalCallback(
         env,                     # Evaluation environment
-        eval_freq=SIM_TIME * 1000,               # Evaluation frequency (in simulation time steps)
+        eval_freq=SIM_TIME * 2,               # Evaluation frequency (in simulation time steps)
         n_eval_episodes=15,           # Number of evaluation episodes to average reward over
         log_path='./logs/',           # Path for saving evaluation logs
         best_model_save_path='./logs/', # Path for saving the best-performing model
@@ -100,7 +100,7 @@ for demand_scenario_dict in demand_scenario:
         # Build and train RL model with evaluation callback
         rl_model = build_model(rl_env)
         rl_callback = make_call_back(rl_env)
-        rl_model.learn(total_timesteps=SIM_TIME * N_EPISODES, callback=rl_callback)  # Train model
+        rl_model.learn(total_timesteps=SIM_TIME * 10, callback=rl_callback)  # Train model
 
         # Initialize Meta environment and configure scenario settings
         meta_env = GymInterface()
@@ -113,17 +113,16 @@ for demand_scenario_dict in demand_scenario:
         # Load pre-trained meta model and set evaluation callback for training
         meta_model = load_model(meta_env)
         meta_callback = make_call_back(meta_env)
-        meta_model.learn(total_timesteps=SIM_TIME * N_EPISODES, callback=meta_callback)  # Train model with adaptation
+        meta_model.learn(total_timesteps=SIM_TIME * 10, callback=meta_callback)  # Train model with adaptation
 
         # Store evaluation rewards from both RL and Meta models for analysis
         experiment_result[f'Case {case_num:02}'] = []
         for x in range(len(rl_callback.rewards)):
-            for y in range(2):
-                experiment_result[f'Case {case_num:02}'].append(rl_callback.rewards[x])  # Store RL model rewards
-                experiment_result[f'Case {case_num:02}'].append(meta_callback.rewards[x])  # Store Meta model rewards
+            experiment_result[f'Case {case_num:02}'].append(rl_callback.rewards[x])  # Store RL model rewards
+            experiment_result[f'Case {case_num:02}'].append(meta_callback.rewards[x])  # Store Meta model rewards
         case_num += 1  # Increment case number for each scenario combination
-
-    # Convert experiment results to a DataFrame and save as a CSV file
-    df = pd.DataFrame(experiment_result).T  # Transpose results for column labeling
-    df.columns = ['RL_1000', 'META_1000', 'RL_2000', 'META_2000', 'RL_3000', 'META_3000', 'RL_4000', 'META_4000', 'RL_5000', 'META_5000']  # Columns for each evaluation step
-    df.to_csv(os.path.join(RESULT_CSV_EXPERIMENT, 'experiment_result.csv'))  # Save DataFrame as CSV file for analysis
+        print(experiment_result)
+        # Convert experiment results to a DataFrame and save as a CSV file
+        df = pd.DataFrame(experiment_result).T  # Transpose results for column labeling
+        df.columns = ['RL_1000', 'META_1000', 'RL_2000', 'META_2000', 'RL_3000', 'META_3000', 'RL_4000', 'META_4000', 'RL_5000', 'META_5000']  # Columns for each evaluation step
+        df.to_csv(os.path.join(RESULT_CSV_EXPERIMENT, 'experiment_result.csv'))  # Save DataFrame as CSV file for analysis
