@@ -38,7 +38,7 @@ class CustomEvalCallback(EvalCallback):
 def make_call_back(env):
     eval_callback = CustomEvalCallback(
         env,                     # Evaluation environment
-        eval_freq=SIM_TIME * 2,               # Evaluation frequency (in simulation time steps)
+        eval_freq=SIM_TIME * 1000,               # Evaluation frequency (in simulation time steps)
         n_eval_episodes=15,           # Number of evaluation episodes to average reward over
         log_path='./logs/',           # Path for saving evaluation logs
         best_model_save_path='./logs/', # Path for saving the best-performing model
@@ -100,7 +100,7 @@ for demand_scenario_dict in demand_scenario:
         # Build and train RL model with evaluation callback
         rl_model = build_model(rl_env)
         rl_callback = make_call_back(rl_env)
-        rl_model.learn(total_timesteps=SIM_TIME * 10, callback=rl_callback)  # Train model
+        rl_model.learn(total_timesteps=SIM_TIME * N_EPISODES, callback=rl_callback)  # Train model
 
         # Initialize Meta environment and configure scenario settings
         meta_env = GymInterface()
@@ -113,7 +113,7 @@ for demand_scenario_dict in demand_scenario:
         # Load pre-trained meta model and set evaluation callback for training
         meta_model = load_model(meta_env)
         meta_callback = make_call_back(meta_env)
-        meta_model.learn(total_timesteps=SIM_TIME * 10, callback=meta_callback)  # Train model with adaptation
+        meta_model.learn(total_timesteps=SIM_TIME * N_EPISODES, callback=meta_callback)  # Train model with adaptation
 
         # Store evaluation rewards from both RL and Meta models for analysis
         experiment_result[f'Case {case_num:02}'] = []
