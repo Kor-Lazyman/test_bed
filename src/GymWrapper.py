@@ -56,7 +56,7 @@ class GymInterface(gym.Env):
 
             # DAILY_CHANGE + INTRANSIT + REMAINING_DEMAND
             os = [
-                    INVEN_LEVEL_MAX * 2 + 1 for _ in range(len(I)*(1+DAILY_CHANGE)+MAT_COUNT*INTRANSIT+1)]
+                    INVEN_LEVEL_MAX * 2 + 1 for _ in range(len(I)*(1+DAILY_CHANGE)+MAT_COUNT*INTRANSIT+BACKORDER+1)]
             '''
             - Inventory Level of Product
             - Daily Change of Product
@@ -125,7 +125,7 @@ class GymInterface(gym.Env):
 
         reward = -LOG_COST[-1]
         self.total_reward += reward
-        self.shortages += self.sales.num_shortages
+        self.shortages = self.sales.num_shortages
         self.sales.num_shortages = 0
 
         if PRINT_SIM_EVENTS:
@@ -189,6 +189,10 @@ class GymInterface(gym.Env):
                     # append Intransition inventory
                     state.append(
                         LOG_STATE_DICT[-1][f"In_Transit_{I[id]['NAME']}"])
+        if BACKORDER == 1:
+            state.append(
+                self.shortages)
+            self.shortages = 0
 
         # Append remaining demand
         state.append(I[0]["DEMAND_QUANTITY"] -
@@ -375,6 +379,8 @@ def export_state(Record_Type):
             columns_list.append(f"{I[id]['NAME']}.InvenLevel")
             if DAILY_CHANGE:
                 columns_list.append(f"{I[id]['NAME']}.DailyChange")
+    if BACKORDER == 1:
+        columns_list.append("Backorder")
     columns_list.append("Remaining_Demand")
     columns_list.append("Action")
     '''

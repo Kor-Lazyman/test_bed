@@ -28,7 +28,7 @@ for key in P:
 # maximum production
 
 # Episode
-N_EPISODES = 5000  # 3000
+N_EPISODES = 3000  # 3000
 
 
 def DEFINE_FOLDER(folder_name):
@@ -56,10 +56,11 @@ N_TRIALS = 15  # 50
 #RL_Options
 DAILY_CHANGE = 0 #0 Means False , 1 Means True
 INTRANSIT = 1 #0 Means False , 1 Means True
+BACKORDER = 1
 USE_CORRECTION = False
-EXPERIMENT = True
+EXPERIMENT = False
 # Evaluation
-N_EVAL_EPISODES = 15  # 100
+N_EVAL_EPISODES = 100  # 100
 
 # Export files
 DAILY_REPORT_EXPORT = False
