@@ -1,5 +1,6 @@
 import numpy as np
 from config_SimPy import *
+from config_MARL import *
 from environment import *
 from MAAC import *
 
@@ -28,8 +29,8 @@ class GymWrapper:
         self.batch_size = batch_size
 
         # Initialize MAAC components
-        self.maac = MAAC(n_agents, obs_dim, action_dim,
-                         len(P) + 2, lr, gamma)  # global state dim = WIPs + 2
+        self.maac = MAAC(n_agents, obs_dim, action_dim, len(
+            P) + 2, lr, gamma)  # global state dim = WIPs + 2
         self.buffer = ReplayBuffer(buffer_size, obs_dim, n_agents, action_dim)
 
     def train(self, episodes, eval_interval):
@@ -87,11 +88,9 @@ class GymWrapper:
 
                 if episode_reward > best_reward:
                     best_reward = episode_reward
-                    # Could save best model here
 
-                    model.save(os.path.join(
-                        SAVED_MODEL_PATH, SAVED_MODEL_NAME))
-                    print(f"{SAVED_MODEL_NAME} is saved successfully")
+                    # Save best model
+                    self.save_model(episode, episode_reward)
 
         # return self.maac
 
@@ -125,3 +124,56 @@ class GymWrapper:
             print(
                 f"Average Daily Cost: {-episode_reward/self.env.current_day}")
             print("-" * 50)
+
+    def save_model(self, episode, reward):
+        """
+        Save the model to the specified path
+
+        Args: 
+            episode (int): Current episode number
+            reward (float): Current episode reward 
+        """
+        # Save best model
+        model_path = os.path.join(
+            MODEL_DIR, f"maac_best_model_episode_{episode}.pt")
+        torch.save({
+            'episode': episode,
+            'best_reward': reward,
+            'critic_state_dict': self.maac.critic.state_dict(),
+            'actors_state_dict': [actor.state_dict() for actor in self.maac.actors],
+            'target_critic_state_dict': self.maac.target_critic.state_dict(),
+            'target_actors_state_dict': [target_actor.state_dict() for target_actor in self.maac.target_actors],
+            'critic_optimizer_state_dict': self.maac.critic_optimizer.state_dict(),
+            'actors_optimizer_state_dict': [actor_optimizer.state_dict() for actor_optimizer in self.maac.actors_optimizer]
+        }, model_path)
+        # print(f"Saved best model with reward {best_reward} to {model_path}")
+
+    def load_model(self, model_path):
+        """
+        Load a saved model
+
+        Args:
+            model_path (str): Path to the saved model
+        """
+        checkpoint = torch.load(model_path)
+
+        # Load model states
+        self.maac.critic.load_state_dict(checkpoint['critic_state_dict'])
+        self.maac.target_critic.load_state_dict(
+            checkpoint['target_critic_state_dict'])
+
+        for i, actor_state_dict in enumerate(checkpoint['actors_state_dict']):
+            self.maac.actors[i].load_state_dict(actor_state_dict)
+
+        for i, target_actor_state_dict in enumerate(checkpoint['target_actors_state_dict']):
+            self.maac.target_actors[i].load_state_dict(target_actor_state_dict)
+
+        # Load optimizer states
+        self.maac.critic_optimizer.load_state_dict(
+            checkpoint['critic_optimizer_state_dict'])
+
+        for i, actor_opt_state_dict in enumerate(checkpoint['actors_optimizer_state_dict']):
+            self.maac.actors_optimizer[i].load_state_dict(actor_opt_state_dict)
+
+        print(
+            f"Loaded model from episode {checkpoint['episode']} with best reward {checkpoint['best_reward']}")

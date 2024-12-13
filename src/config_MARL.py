@@ -29,11 +29,9 @@ N_EVAL_EPISODES: Number of evaluation episodes (Default=100)
 '''
 N_EVAL_EPISODES = 10
 
-# Saved Model
-SAVE_MODEL = False
-SAVED_MODEL_PATH = os.path.join(parent_dir, "Saved_Model")
-SAVED_MODEL_NAME = "PPO_MODEL_test_val"
-
-# Load Model
-LOAD_MODEL = False
-LOAD_MODEL_NAME = "PPO_MODEL_SIM500"
+# Configuration for model loading/saving
+LOAD_MODEL = False  # Set to True to load a saved model
+MODEL_DIR = "saved_models"
+if not os.path.exists(MODEL_DIR):
+    os.makedirs(MODEL_DIR)
+MODEL_PATH = os.path.join(MODEL_DIR, "maac_best_model.pt")  # 불러올 모델 경로

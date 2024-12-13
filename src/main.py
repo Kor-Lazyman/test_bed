@@ -21,29 +21,33 @@ wrapper = GymWrapper(
     gamma=GAMMA
 )
 
-# Train MAAC
-wrapper.train(N_TRAIN_EPISODES, EVAL_INTERVAL)
-# trained_maac = wrapper.train(N_TRAIN_EPISODES, EVAL_INTERVAL)
-training_end_time = time.time()
-'''
-# model = build_model()
-# # Train the model
-# model.learn(total_timesteps=SIM_TIME * N_EPISODES)
-# model.save(os.path.join(SAVED_MODEL_PATH, SAVED_MODEL_NAME))
-# print(f"{SAVED_MODEL_NAME} is saved successfully")
-'''
+if LOAD_MODEL:
+    # Load the saved model and evaluate
+    print(f"Loading model from {MODEL_PATH}")
+    try:
+        wrapper.load_model(MODEL_PATH)
+        print("Model loaded successfully")
 
-# Evaluate
-wrapper.evaluate(N_EVAL_EPISODES)
-'''
-# Evaluate the trained model
-mean_reward, std_reward = gw.evaluate_model(model, env, N_EVAL_EPISODES)
-print(
-    f"Mean reward over {N_EVAL_EPISODES} episodes: {mean_reward:.2f} +/- {std_reward:.2f}")
-'''
+        # Evaluate the loaded model
+        training_end_time = time.time()
+        wrapper.evaluate(N_EVAL_EPISODES)
+    except FileNotFoundError:
+        print(f"No saved model found at {MODEL_PATH}")
+        exit()
+else:
+    # Train new model
+    print("Starting training of new model...")
+    wrapper.train(N_TRAIN_EPISODES, EVAL_INTERVAL)
+    training_end_time = time.time()
+
+    # Evaluate the trained model
+    print("\nStarting evaluation...")
+    wrapper.evaluate(N_EVAL_EPISODES)
 
 # Calculate computation time and print it
 end_time = time.time()
-print(f"Computation time: {(end_time - start_time)/60:.2f} minutes \n",
-      f"Training time: {(training_end_time - start_time)/60:.2f} minutes \n ",
-      f"Test time:{(end_time - training_end_time)/60:.2f} minutes")
+print("\nTime Analysis:")
+print(f"Total computation time: {(end_time - start_time)/60:.2f} minutes")
+if not LOAD_MODEL:
+    print(f"Training time: {(training_end_time - start_time)/60:.2f} minutes")
+print(f"Evaluation time: {(end_time - training_end_time)/60:.2f} minutes")
