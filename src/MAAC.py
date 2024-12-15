@@ -219,9 +219,12 @@ class MAAC:
         Args:
             batch_size: Size of sampled batch
             buffer: Replay buffer to sample from
+
+        Returns:
+            tuple: (critic_loss, actor_losses) - Loss values for logging
         """
         if len(buffer) < batch_size:
-            return
+            return 0, [0] * self.n_agents
 
         # Sample batch of transitions
         states, global_states, actions, rewards, next_states, next_global_states, dones = buffer.sample(
@@ -247,12 +250,14 @@ class MAAC:
         self.critic_optimizer.step()
 
         # Update actors
+        actor_losses = []
         for i in range(self.n_agents):
             current_actions = actions.clone()
             current_actions[:, i] = self.actors[i](states[:, i])
 
             # Actor loss is negative of critic value
             actor_loss = -self.critic(states, current_actions).mean()
+            actor_losses.append(actor_loss.item())
 
             self.actor_optimizers[i].zero_grad()
             actor_loss.backward()
@@ -260,6 +265,8 @@ class MAAC:
 
         # Soft update target networks
         self.update_targets()
+
+        return critic_loss.item(), actor_losses
 
     def update_targets(self, tau=0.01):
         """Soft update target networks"""

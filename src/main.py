@@ -51,3 +51,6 @@ print(f"Total computation time: {(end_time - start_time)/60:.2f} minutes")
 if not LOAD_MODEL:
     print(f"Training time: {(training_end_time - start_time)/60:.2f} minutes")
 print(f"Evaluation time: {(end_time - training_end_time)/60:.2f} minutes")
+
+
+# tensorboard --logdir=runs

@@ -1,6 +1,7 @@
 import numpy as np
 from config_SimPy import *
 from config_MARL import *
+from log_MARL import *
 from environment import *
 from MAAC import *
 
@@ -33,6 +34,21 @@ class GymWrapper:
             P) + 2, lr, gamma)  # global state dim = WIPs + 2
         self.buffer = ReplayBuffer(buffer_size, obs_dim, n_agents, action_dim)
 
+        # Initialize tensorboard logger
+        self.logger = TensorboardLogger(n_agents)
+
+        # Log hyperparameters
+        self.logger.log_hyperparameters({
+            'n_agents': n_agents,
+            'action_dim': action_dim,
+            'obs_dim': obs_dim,
+            'hidden_dim': hidden_dim,
+            'buffer_size': buffer_size,
+            'batch_size': batch_size,
+            'learning_rate': lr,
+            'gamma': gamma
+        })
+
     def train(self, episodes, eval_interval):
         """
         Train the MAAC system using the Gym environment
@@ -46,6 +62,9 @@ class GymWrapper:
             observations = self.env.reset()
             episode_reward = 0
             done = False
+            critic_loss = 0
+            actor_losses = [0] * self.n_agents
+            epsilon = max(0.1, 1.0 - episode/500)  # Decreasing epsilon
 
             while not done:
                 # Extract local observations for each agent
@@ -54,7 +73,6 @@ class GymWrapper:
                 # Select actions for each agent
                 actions = []
                 for i in range(self.n_agents):
-                    epsilon = max(0.1, 1.0 - episode/500)  # Decreasing epsilon
                     action = self.maac.select_action(local_obs[i], i, epsilon)
                     actions.append(action)
 
@@ -72,17 +90,31 @@ class GymWrapper:
                     done
                 )
 
-                # Update networks
-                self.maac.update(self.batch_size, self.buffer)
+                # Update networks and get losses
+                if len(self.buffer) >= self.batch_size:
+                    critic_loss, actor_losses = self.maac.update(
+                        self.batch_size, self.buffer)
 
                 episode_reward += reward
                 observations = next_observations
 
-            # Evaluation and logging
+            # Log training information
+            avg_cost = -episode_reward/self.env.current_day
+            self.logger.log_training_info(
+                episode=episode,
+                episode_reward=episode_reward,
+                avg_cost=avg_cost,
+                inventory_levels=info['inventory_levels'],
+                critic_loss=critic_loss,
+                actor_losses=actor_losses,
+                epsilon=epsilon
+            )
+
+            # Evaluation and saving best model
             if episode % eval_interval == 0:
                 print(f"Episode {episode}")
                 print(f"Episode Reward: {episode_reward}")
-                print(f"Average Cost: {-episode_reward/self.env.current_day}")
+                print(f"Average Cost: {avg_cost}")
                 print("Inventory Levels:", info['inventory_levels'])
                 print("-" * 50)
 
@@ -91,8 +123,6 @@ class GymWrapper:
 
                     # Save best model
                     self.save_model(episode, episode_reward)
-
-        # return self.maac
 
     def evaluate(self, episodes):
         """
@@ -119,10 +149,19 @@ class GymWrapper:
 
                 self.env.render()  # Visualize the environment state
 
+            avg_daily_cost = -episode_reward/self.env.current_day
+
+            # Log evaluation information
+            self.logger.log_evaluation_info(
+                episode=episode,
+                total_reward=episode_reward,
+                avg_daily_cost=avg_daily_cost,
+                inventory_levels=info['inventory_levels']
+            )
+
             print(f"Evaluation Episode {episode}")
             print(f"Total Reward: {episode_reward}")
-            print(
-                f"Average Daily Cost: {-episode_reward/self.env.current_day}")
+            print(f"Average Daily Cost: {avg_daily_cost}")
             print("-" * 50)
 
     def save_model(self, episode, reward):
@@ -141,10 +180,10 @@ class GymWrapper:
             'best_reward': reward,
             'critic_state_dict': self.maac.critic.state_dict(),
             'actors_state_dict': [actor.state_dict() for actor in self.maac.actors],
-            'target_critic_state_dict': self.maac.target_critic.state_dict(),
-            'target_actors_state_dict': [target_actor.state_dict() for target_actor in self.maac.target_actors],
+            'target_critic_state_dict': self.maac.critic_target.state_dict(),
+            'target_actors_state_dict': [target_actor.state_dict() for target_actor in self.maac.actors_target],
             'critic_optimizer_state_dict': self.maac.critic_optimizer.state_dict(),
-            'actors_optimizer_state_dict': [actor_optimizer.state_dict() for actor_optimizer in self.maac.actors_optimizer]
+            'actors_optimizer_state_dict': [optimizer.state_dict() for optimizer in self.maac.actor_optimizers]
         }, model_path)
         # print(f"Saved best model with reward {best_reward} to {model_path}")
 
@@ -166,14 +205,19 @@ class GymWrapper:
             self.maac.actors[i].load_state_dict(actor_state_dict)
 
         for i, target_actor_state_dict in enumerate(checkpoint['target_actors_state_dict']):
-            self.maac.target_actors[i].load_state_dict(target_actor_state_dict)
+            self.maac.actors_target[i].load_state_dict(target_actor_state_dict)
 
         # Load optimizer states
         self.maac.critic_optimizer.load_state_dict(
             checkpoint['critic_optimizer_state_dict'])
 
         for i, actor_opt_state_dict in enumerate(checkpoint['actors_optimizer_state_dict']):
-            self.maac.actors_optimizer[i].load_state_dict(actor_opt_state_dict)
+            self.maac.actor_optimizers[i].load_state_dict(actor_opt_state_dict)
 
         print(
             f"Loaded model from episode {checkpoint['episode']} with best reward {checkpoint['best_reward']}")
+
+    def __del__(self):
+        """Cleanup method to ensure tensorboard writer is closed"""
+        if hasattr(self, 'logger'):
+            self.logger.close()
