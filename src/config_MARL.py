@@ -1,7 +1,18 @@
 import os
 from config_SimPy import *
 
-ACTION_SPACE = [0, 1, 2, 3, 4, 5]
+# Action space constants
+ACTION_MIN = 0
+ACTION_MAX = 5  # ACTION_SPACE = [0, 1, 2, 3, 4, 5]
+
+# State dimension constants
+'''
+On-hand inventory level for each item: len(I)
+In-transition inventory level for each material: MAT_COUNT
+Remaining demand: 1 
+'''
+STATE_DIM = len(P) + MAT_COUNT + 1
+
 
 BUFFER_SIZE = 100000,
 BATCH_SIZE = 64,

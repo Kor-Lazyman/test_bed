@@ -11,28 +11,28 @@ class GymWrapper:
     Wrapper class to handle the interaction between MAAC and Gym environment
 
     Args:
-        env: Gym environment
-        n_agents (int): Number of agents
-        action_dim (int): Dimension of action space
-        obs_dim (int): Dimension of observation space (default=2: on_hand and in_transit inventory)
-        hidden_dim (int): Hidden layer dimension
-        buffer_size (int): Replay buffer size
+        env (gym.Env): Gym environment
+        n_agents (int): Number of agents in the environment
+        action_dim (int): Dimension of the action space
+        state_dim (int): Dimension of the state space
+        buffer_size (int): Size of the replay buffer
         batch_size (int): Batch size for training
-        lr (float): Learning rate
-        gamma (float): Discount factor
+        lr (float): Learning rate for the actor and critic networks
+        gamma (float): Discount factor for future rewards
+        hidden_dim (int): Hidden dimension for actor and critic networks
     """
 
-    def __init__(self, env, n_agents, action_dim, buffer_size, batch_size, lr, gamma, obs_dim=2, hidden_dim=64):
+    def __init__(self, env, n_agents, action_dim, state_dim, buffer_size, batch_size, lr, gamma, hidden_dim=64):
         self.env = env
         self.n_agents = n_agents
         self.action_dim = action_dim
-        self.obs_dim = obs_dim
+        self.state_dim = state_dim
         self.batch_size = batch_size
 
         # Initialize MAAC components
-        self.maac = MAAC(n_agents, obs_dim, action_dim, len(
-            P) + 2, lr, gamma)  # global state dim = WIPs + 2
-        self.buffer = ReplayBuffer(buffer_size, obs_dim, n_agents, action_dim)
+        self.maac = MAAC(n_agents, self.state_dim, action_dim, lr, gamma)
+        self.buffer = ReplayBuffer(
+            buffer_size, self.state_dim, n_agents, action_dim)
 
         # Initialize tensorboard logger
         self.logger = TensorboardLogger(n_agents)
@@ -41,7 +41,7 @@ class GymWrapper:
         self.logger.log_hyperparameters({
             'n_agents': n_agents,
             'action_dim': action_dim,
-            'obs_dim': obs_dim,
+            'state_dim': self.state_dim,
             'hidden_dim': hidden_dim,
             'buffer_size': buffer_size,
             'batch_size': batch_size,
@@ -59,44 +59,34 @@ class GymWrapper:
         """
         best_reward = float('-inf')
         for episode in range(episodes):
-            observations = self.env.reset()
+            states = self.env.reset()
             episode_reward = 0
             done = False
             critic_loss = 0
             actor_losses = [0] * self.n_agents
-            epsilon = max(0.1, 1.0 - episode/500)  # Decreasing epsilon
+            epsilon = max(0.1, 1.0 - episode/500)
 
             while not done:
-                # Extract local observations for each agent
-                local_obs = observations['local_obs']
-
                 # Select actions for each agent
                 actions = []
                 for i in range(self.n_agents):
-                    action = self.maac.select_action(local_obs[i], i, epsilon)
+                    action = self.maac.select_action(states[i], i, epsilon)
                     actions.append(action)
 
                 # Execute actions in environment
-                next_observations, reward, done, info = self.env.step(actions)
+                next_states, reward, done, info = self.env.step(actions)
 
                 # Store transition in buffer
-                self.buffer.push(
-                    local_obs,
-                    observations['global_obs'],
-                    np.array(actions),
-                    reward,
-                    next_observations['local_obs'],
-                    next_observations['global_obs'],
-                    done
-                )
+                self.buffer.push(states, np.array(actions),
+                                 reward, next_states, done)
 
-                # Update networks and get losses
+                # Update networks
                 if len(self.buffer) >= self.batch_size:
                     critic_loss, actor_losses = self.maac.update(
                         self.batch_size, self.buffer)
 
                 episode_reward += reward
-                observations = next_observations
+                states = next_states
 
             # Log training information
             avg_cost = -episode_reward/self.env.current_day

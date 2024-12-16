@@ -176,7 +176,7 @@ INVEN_LEVEL_MAX = 20  # Capacity limit of the inventory [units]
 # Simulation
 SIM_TIME = 200  # 200 [days] per episode
 
-# Count for intransit inventory
+# Count for material inventory
 MAT_COUNT = 0
 for id in I.keys():
     if I[id]["TYPE"] == "Material":

@@ -15,6 +15,7 @@ wrapper = GymWrapper(
     env=env,
     n_agents=MAT_COUNT,
     action_dim=len(ACTION_SPACE),  # 0-5 units order quantity
+    state_dim=STATE_DIM,
     buffer_size=BUFFER_SIZE,
     batch_size=BATCH_SIZE,
     lr=LEARNING_RATE,
