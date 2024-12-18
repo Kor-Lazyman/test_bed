@@ -4,7 +4,6 @@ import numpy as np
 from config_SimPy import *
 from config_MARL import *
 from environment import *
-from MAAC import *
 from log_SimPy import *
 from log_MARL import *
 
@@ -155,48 +154,40 @@ class InventoryManagementEnv(gym.Env):
         Returns:
             numpy array with shape [n_agents, STATE_DIM]
         """
-        # Initialize state array for all agents
-        states = np.zeros((self.n_agents, STATE_DIM), dtype=np.int32)
+        # Initialize single state array
+        state = np.zeros(STATE_DIM, dtype=np.int32)
+        state_idx = 0
 
-        # Get on-hand inventory levels for all items
-        on_hand_levels = [inv.on_hand_inventory for inv in self.inventory_list]
-
-        # Get in-transition inventory levels for material items
-        in_transit_levels = [
-            inv.in_transition_inventory
-            for inv in self.inventory_list
-            if I[inv.item_id]["TYPE"] == "Material"
-        ]
-
-        # Calculate remaining demand
-        remaining_demand = I[0]['DEMAND_QUANTITY'] - \
-            self.inventory_list[0].on_hand_inventory
-
-        # For each agent, construct their state
-        for i in range(self.n_agents):
-            # Concatenate all state components
-            state = np.concatenate([
-                on_hand_levels,                    # on-hand levels for all items
-                in_transit_levels,                 # in-transit levels for materials
-                # remaining demand as single value
-                [remaining_demand]
-            ])
-            states[i] = state
-
-            # Clip values to ensure they stay within defined ranges
-            # Clip on-hand inventory levels
-            states[i, :len(I)] = np.clip(
-                states[i, :len(I)],
+        # Add on-hand inventory levels for all items
+        for inv in self.inventory_list:
+            state[state_idx] = np.clip(
+                inv.on_hand_inventory,
                 INVEN_LEVEL_MIN,
                 INVEN_LEVEL_MAX
             )
+            state_idx += 1
 
-            # Clip in-transit inventory levels and remaining demand
-            states[i, len(I):] = np.clip(
-                states[i, len(I):],
-                ACTION_MIN,
-                ACTION_MAX
-            )
+        # Add in-transit inventory levels for material items
+        for inv in self.inventory_list:
+            if I[inv.item_id]["TYPE"] == "Material":
+                state[state_idx] = np.clip(
+                    inv.in_transition_inventory,
+                    ACTION_MIN,
+                    ACTION_MAX
+                )
+                state_idx += 1
+
+        # Add remaining demand
+        remaining_demand = I[0]['DEMAND_QUANTITY'] - \
+            self.inventory_list[0].on_hand_inventory
+        state[state_idx] = np.clip(
+            remaining_demand,
+            ACTION_MIN,
+            ACTION_MAX
+        )
+
+        # Copy the same state for all agents
+        states = np.tile(state, (self.n_agents, 1))
 
         return states
 

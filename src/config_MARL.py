@@ -9,14 +9,14 @@ ACTION_MAX = 5  # ACTION_SPACE = [0, 1, 2, 3, 4, 5]
 '''
 On-hand inventory level for each item: len(I)
 In-transition inventory level for each material: MAT_COUNT
-Remaining demand: 1 
+Remaining demand: 1 MAA
 '''
-STATE_DIM = len(P) + MAT_COUNT + 1
+STATE_DIM = len(I) + MAT_COUNT + 1
 
 
-BUFFER_SIZE = 100000,
-BATCH_SIZE = 64,
-LEARNING_RATE = 0.01,
+BUFFER_SIZE = 100000
+BATCH_SIZE = 64
+LEARNING_RATE = 0.01
 GAMMA = 0.95
 
 # Find minimum Delta

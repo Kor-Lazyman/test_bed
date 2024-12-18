@@ -141,7 +141,7 @@ class ReplayBuffer:
 
     Args:
         capacity (int): Maximum size of buffer
-        obs_dim (int): Dimension of observation space
+        state_dim (int): Dimension of local observation space
         n_agents (int): Number of agents
         action_dim (int): Dimension of action space
     """
@@ -149,7 +149,6 @@ class ReplayBuffer:
     def __init__(self, capacity: int, state_dim: int, n_agents: int, action_dim: int):
         self.capacity = capacity
         self.buffer = deque(maxlen=capacity)
-        self.state_dim = state_dim
         self.n_agents = n_agents
         self.action_dim = action_dim
 
@@ -206,9 +205,9 @@ class MAAC:
         tau (float): Soft update rate for target networks
     """
 
-    def __init__(self, n_agents, state_dim, action_dim, lr=3e-4, gamma=0.99, tau=0.005):
+    def __init__(self, n_agents: int, state_dim: int, action_dim: int,
+                 lr: float = 3e-4, gamma: float = 0.99, tau: float = 0.005):
         self.n_agents = n_agents
-        self.state_dim = state_dim
         self.action_dim = action_dim
         self.gamma = gamma
         self.tau = tau
