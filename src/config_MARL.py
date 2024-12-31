@@ -15,7 +15,7 @@ STATE_DIM = len(I) + MAT_COUNT + 1
 
 
 BUFFER_SIZE = 100000
-BATCH_SIZE = 64
+BATCH_SIZE = 64  # Batch size for training (unit: episodes)
 LEARNING_RATE = 0.01
 GAMMA = 0.95
 

@@ -16,7 +16,7 @@ class GymWrapper:
         action_dim (int): Dimension of the action space
         state_dim (int): Dimension of the state space
         buffer_size (int): Size of the replay buffer
-        batch_size (int): Batch size for training
+        batch_size (int): Batch size for training (unit: episodes)
         lr (float): Learning rate for the actor and critic networks
         gamma (float): Discount factor for future rewards
         hidden_dim (int): Hidden dimension for actor and critic networks
@@ -29,10 +29,16 @@ class GymWrapper:
         self.state_dim = state_dim
         self.batch_size = batch_size
 
-        # Initialize MAAC components
-        self.maac = MAAC(n_agents, self.state_dim, action_dim, lr, gamma)
+        # Initialize MAAC components with correct parameter order
+        self.maac = MAAC(
+            n_agents=n_agents,
+            state_dim=state_dim,
+            action_dim=action_dim,
+            lr=lr,
+            gamma=gamma
+        )
         self.buffer = ReplayBuffer(
-            buffer_size, self.state_dim, n_agents, action_dim)
+            buffer_size, n_agents, action_dim)
 
         # Initialize tensorboard logger
         self.logger = TensorboardLogger(n_agents)
@@ -41,7 +47,7 @@ class GymWrapper:
         self.logger.log_hyperparameters({
             'n_agents': n_agents,
             'action_dim': action_dim,
-            'state_dim': self.state_dim,
+            'state_dim': state_dim,
             'hidden_dim': hidden_dim,
             'buffer_size': buffer_size,
             'batch_size': batch_size,
@@ -58,6 +64,7 @@ class GymWrapper:
             eval_interval: Interval for evaluation and printing results
         """
         best_reward = float('-inf')
+        episode_batch = []
         for episode in range(episodes):
             states = self.env.reset()
             episode_reward = 0
@@ -79,14 +86,25 @@ class GymWrapper:
                 # Store transition in buffer
                 self.buffer.push(states, np.array(actions),
                                  reward, next_states, done)
+                '''
 
-                # Update networks
-                if len(self.buffer) >= self.batch_size:
-                    critic_loss, actor_losses = self.maac.update(
-                        self.batch_size, self.buffer)
+                # # Update networks
+                # if len(self.buffer) >= self.batch_size:
+                #     critic_loss, actor_losses = self.maac.update(
+                #         self.batch_size, self.buffer)
+                '''
 
                 episode_reward += reward
                 states = next_states
+
+                # Print simulation events
+                if PRINT_SIM_EVENTS:
+                    print(info)
+
+            # If we have enough complete episodes, perform training
+            if len(self.buffer) >= self.batch_size:
+                critic_loss, actor_losses = self.maac.update(
+                    self.batch_size, self.buffer)
 
             # Log training information
             avg_cost = -episode_reward/self.env.current_day
@@ -110,8 +128,6 @@ class GymWrapper:
 
                 if episode_reward > best_reward:
                     best_reward = episode_reward
-
-                    # Save best model
                     self.save_model(episode, episode_reward)
 
     def evaluate(self, episodes):

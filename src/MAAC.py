@@ -70,6 +70,12 @@ class AttentionCritic(nn.Module):
         """
         batch_size = states.shape[0]
 
+        # Shape 체크 추가
+        assert states.dim(
+        ) == 3, f"Expected states to be 3D tensor, got shape {states.shape}"
+        assert actions.dim(
+        ) == 3, f"Expected actions to be 3D tensor, got shape {actions.shape}"
+
         # Each agent gets the same global state
         # states shape: [batch_size, n_agents, state_dim]
         inputs = torch.cat([states, actions], dim=2)
@@ -137,18 +143,20 @@ class Actor(nn.Module):
 
 class ReplayBuffer:
     """
-    Experience replay buffer for storing and sampling transitions.
+    Experience replay buffer for storing and sampling episodes.
 
     Args:
         capacity (int): Maximum size of buffer
-        state_dim (int): Dimension of local observation space
+        buffer_episodes (list): List to store complete episodes
+        current_episode (list): Temporary storage for current episode
         n_agents (int): Number of agents
         action_dim (int): Dimension of action space
     """
 
-    def __init__(self, capacity: int, state_dim: int, n_agents: int, action_dim: int):
+    def __init__(self, capacity: int,  n_agents: int, action_dim: int):
         self.capacity = capacity
-        self.buffer = deque(maxlen=capacity)
+        self.buffer_episodes = []
+        self.current_episode = []
         self.n_agents = n_agents
         self.action_dim = action_dim
 
@@ -164,31 +172,59 @@ class ReplayBuffer:
             next_state: [n_agents, state_dim]
             done: bool
         """
-        self.buffer.append((state, actions, rewards, next_state, done))
+        # Store transition in current episode
+        self.current_episode.append(
+            (state, actions, rewards, next_state, done))
+
+        # If episode is done, store it and start new episode
+        if done:
+            self.buffer_episodes.append(self.current_episode)
+            self.current_episode = []
+
+            # Remove oldest episode if capacity is exceeded
+            if len(self.buffer_episodes) > self.capacity:
+                self.buffer_episodes.pop(0)
 
     def sample(self, batch_size: int):
-        """Sample a batch of transitions"""
-        indices = np.random.choice(len(self.buffer), batch_size, replace=False)
+        """Sample batch_size number of complete episodes"""
+        # Ensure we have enough episodes
+        if len(self.buffer_episodes) < batch_size:
+            raise ValueError(
+                f"Not enough episodes in buffer. Have {len(self.buffer_episodes)}, need {batch_size}")
 
-        states, actions, rewards, next_states, dones = zip(
-            *[self.buffer[idx] for idx in indices])
+        # Randomly select batch_size episodes
+        selected_episodes = random.sample(self.buffer_episodes, batch_size)
 
-        # Convert to torch tensors with proper shapes
-        # [batch_size, n_agents, state_dim]
-        states = torch.FloatTensor(np.array(states))
-        # [batch_size, n_agents, action_dim]
-        actions = torch.FloatTensor(np.array(actions))
-        # [batch_size, n_agents, 1]
-        rewards = torch.FloatTensor(np.array(rewards))
-        # [batch_size, n_agents, state_dim]
-        next_states = torch.FloatTensor(np.array(next_states))
-        dones = torch.FloatTensor(
-            np.array(dones)).unsqueeze(-1)  # [batch_size, 1]
+        # Process all transitions from selected episodes
+        all_states = []
+        all_actions = []
+        all_rewards = []
+        all_next_states = []
+        all_dones = []
+
+        for episode in selected_episodes:
+            # Combine all transitions from the episode
+            states, actions, rewards, next_states, dones = zip(*episode)
+
+            # Extend our lists with the episode data
+            all_states.extend(states)
+            all_actions.extend(actions)
+            all_rewards.extend(rewards)
+            all_next_states.extend(next_states)
+            all_dones.extend(dones)
+
+        # Convert to torch tensors
+        states = torch.FloatTensor(np.array(all_states))
+        actions = torch.FloatTensor(np.array(all_actions))
+        rewards = torch.FloatTensor(np.array(all_rewards))
+        next_states = torch.FloatTensor(np.array(all_next_states))
+        dones = torch.FloatTensor(np.array(all_dones)).unsqueeze(-1)
 
         return states, actions, rewards, next_states, dones
 
     def __len__(self):
-        return len(self.buffer)
+        """Return the number of complete episodes in buffer"""
+        return len(self.buffer_episodes)
 
 
 class MAAC:
@@ -212,8 +248,10 @@ class MAAC:
         self.gamma = gamma
         self.tau = tau
 
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")
+        # Default to CPU for inference
+        self.device = torch.device("cpu")
+        self.training = False
+        print(f"Initialized MAAC on {self.device}")
 
         # Create actor networks (one per agent)
         self.actors = [Actor(state_dim, action_dim).to(self.device)
@@ -239,6 +277,47 @@ class MAAC:
         # Initialize target networks
         self.update_targets(tau=1.0)
 
+    def get_device(self):
+        """Return the current device (cpu or gpu)"""
+        return self.device
+
+    def to_training_mode(self):
+        """Switch to GPU and set training mode"""
+        if not self.training:
+            if torch.cuda.is_available():
+                new_device = torch.device("cuda")
+                print(f"Switching to {new_device} for training")
+
+                # Move all networks to GPU
+                for actor in self.actors:
+                    actor.to(new_device)
+                for actor_target in self.actors_target:
+                    actor_target.to(new_device)
+                self.critic.to(new_device)
+                self.critic_target.to(new_device)
+
+                self.device = new_device
+            self.training = True
+            print(f"Training mode enabled on {self.device}")
+
+    def to_inference_mode(self):
+        """Switch to CPU and set inference mode"""
+        if self.training:
+            new_device = torch.device("cpu")
+            print(f"Switching to {new_device} for inference")
+
+            # Move all networks to CPU
+            for actor in self.actors:
+                actor.to(new_device)
+            for actor_target in self.actors_target:
+                actor_target.to(new_device)
+            self.critic.to(new_device)
+            self.critic_target.to(new_device)
+
+            self.device = new_device
+            self.training = False
+            print(f"Inference mode enabled on {self.device}")
+
     def select_action(self, state, agent_id, epsilon=0.1):
         """
         Select action for a given agent using epsilon-greedy policy
@@ -248,6 +327,7 @@ class MAAC:
             agent_id: Index of the agent
             epsilon: Exploration rate
         """
+        self.to_inference_mode()  # Ensure we're on CPU for inference
         state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
 
         if random.random() < epsilon:
@@ -272,6 +352,8 @@ class MAAC:
         Returns:
             tuple: (critic_loss, actor_losses) - Loss values for logging
         """
+        self.to_training_mode()  # Switch to GPU for training
+
         if len(buffer) < batch_size:
             return 0, [0] * self.n_agents
 
@@ -279,12 +361,16 @@ class MAAC:
         states, actions, rewards, next_states, dones = buffer.sample(
             batch_size)
 
-        # Move to device
-        states = states.to(self.device)
-        actions = actions.to(self.device)
-        rewards = rewards.to(self.device)
+        print("Training - States shape:", states.shape)  # 디버깅용
+        print("Training - Actions shape:", actions.shape)  # 디버깅용
+
+        # Move to current device (GPU if training)
+        states = states.to(self.device)  # [batch_size, n_agents, state_dim]
+        actions = actions.to(self.device)  # [batch_size, n_agents, action_dim]
+        rewards = rewards.to(self.device)  # [batch_size, n_agents, 1]
+        # [batch_size, n_agents, state_dim]
         next_states = next_states.to(self.device)
-        dones = dones.to(self.device)
+        dones = dones.to(self.device)            # [batch_size, 1]
 
         # Update critic
         with torch.no_grad():
