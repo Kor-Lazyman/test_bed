@@ -187,10 +187,6 @@ class ReplayBuffer:
 
     def sample(self, batch_size: int):
         """Sample batch_size number of complete episodes"""
-        # Ensure we have enough episodes
-        if len(self.buffer_episodes) < batch_size:
-            raise ValueError(
-                f"Not enough episodes in buffer. Have {len(self.buffer_episodes)}, need {batch_size}")
 
         # Randomly select batch_size episodes
         selected_episodes = random.sample(self.buffer_episodes, batch_size)
@@ -203,24 +199,19 @@ class ReplayBuffer:
         all_dones = []
 
         for episode in selected_episodes:
-            # Combine all transitions from the episode
-            states, actions, rewards, next_states, dones = zip(*episode)
+            for transition in episode:
+                state, actions, rewards, next_state, done = transition
+                all_states.append(state)
+                all_actions.append(actions)
+                all_rewards.append(rewards)
+                all_next_states.append(next_state)
+                all_dones.append(done)
 
-            # Extend our lists with the episode data
-            all_states.extend(states)
-            all_actions.extend(actions)
-            all_rewards.extend(rewards)
-            all_next_states.extend(next_states)
-            all_dones.extend(dones)
-
-        # Convert to torch tensors
-        states = torch.FloatTensor(np.array(all_states))
-        actions = torch.FloatTensor(np.array(all_actions))
-        rewards = torch.FloatTensor(np.array(all_rewards))
-        next_states = torch.FloatTensor(np.array(all_next_states))
-        dones = torch.FloatTensor(np.array(all_dones)).unsqueeze(-1)
-
-        return states, actions, rewards, next_states, dones
+        return (torch.FloatTensor(all_states),
+                torch.FloatTensor(all_actions),
+                torch.FloatTensor(all_rewards),
+                torch.FloatTensor(all_next_states),
+                torch.FloatTensor(all_dones))
 
     def __len__(self):
         """Return the number of complete episodes in buffer"""

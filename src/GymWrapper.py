@@ -64,7 +64,6 @@ class GymWrapper:
             eval_interval: Interval for evaluation and printing results
         """
         best_reward = float('-inf')
-        episode_batch = []
         for episode in range(episodes):
             states = self.env.reset()
             episode_reward = 0
@@ -86,13 +85,6 @@ class GymWrapper:
                 # Store transition in buffer
                 self.buffer.push(states, np.array(actions),
                                  reward, next_states, done)
-                '''
-
-                # # Update networks
-                # if len(self.buffer) >= self.batch_size:
-                #     critic_loss, actor_losses = self.maac.update(
-                #         self.batch_size, self.buffer)
-                '''
 
                 episode_reward += reward
                 states = next_states
