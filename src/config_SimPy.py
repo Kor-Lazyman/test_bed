@@ -174,7 +174,7 @@ INVEN_LEVEL_MIN = 0
 INVEN_LEVEL_MAX = 20  # Capacity limit of the inventory [units]
 
 # Simulation
-SIM_TIME = 30  # 200 [days] per episode
+SIM_TIME = 100  # 200 [days] per episode
 
 # Count for material inventory
 MAT_COUNT = 0
@@ -184,8 +184,8 @@ for id in I.keys():
 
 # Scenario about Demand and leadtime
 DEMAND_SCENARIO = {"Dist_Type": "UNIFORM",
-                   "min": 10,
-                   "max": 10}
+                   "min": 14,
+                   "max": 14}
 
 LEADTIME_SCENARIO = {"Dist_Type": "UNIFORM",
                      "min": 1,

@@ -14,11 +14,11 @@ Remaining demand: 1 MAA
 STATE_DIM = len(I) + MAT_COUNT + 1
 
 
-BUFFER_SIZE = 100000
+BUFFER_SIZE = 3000
 BATCH_SIZE = 64  # Batch size for training (unit: episodes)
 LEARNING_RATE = 0.01
 GAMMA = 0.95
-
+N_STEPS = 100
 # Find minimum Delta
 PRODUCT_OUTGOING_CORRECTION = 0
 for key in P:
@@ -31,7 +31,7 @@ for key in P:
 N_TRAIN_EPISODES: Number of training episodes (Default=1000)
 EVAL_INTERVAL: Interval for evaluation and printing results (Default=10)
 '''
-N_TRAIN_EPISODES = 1000
+N_TRAIN_EPISODES = 10000
 EVAL_INTERVAL = 10
 
 # Evaluation
@@ -46,3 +46,7 @@ MODEL_DIR = "saved_models"
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
 MODEL_PATH = os.path.join(MODEL_DIR, "maac_best_model.pt")  # 불러올 모델 경로
+
+# Debuging
+UPDATE_COUNT = 1
+UPDATE_COUNT_FORMER = 0

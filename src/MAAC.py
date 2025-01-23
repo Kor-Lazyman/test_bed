@@ -21,7 +21,7 @@ class AttentionCritic(nn.Module):
 
     def __init__(self, state_dim, action_dim, n_agents, hidden_dim=64):
         super(AttentionCritic, self).__init__()
-
+        print(state_dim, action_dim, n_agents, hidden_dim)
         # Encoder network: processes concatenated state and action
         self.encoder = nn.Sequential(
             nn.Linear(state_dim + action_dim, hidden_dim),
@@ -119,7 +119,6 @@ class Actor(nn.Module):
 
     def __init__(self, state_dim, action_dim, hidden_dim=64):
         super(Actor, self).__init__()
-
         self.net = nn.Sequential(
             nn.Linear(state_dim, hidden_dim),
             nn.ReLU(),
@@ -155,8 +154,10 @@ class ReplayBuffer:
 
     def __init__(self, capacity: int,  n_agents: int, action_dim: int):
         self.capacity = capacity
-        self.buffer_episodes = []
-        self.current_episode = []
+        #self.buffer_episodes = []
+        #self.current_episode = []
+        # state기준 재편성
+        self.buffer_state = []
         self.n_agents = n_agents
         self.action_dim = action_dim
 
@@ -172,6 +173,7 @@ class ReplayBuffer:
             next_state: [n_agents, state_dim]
             done: bool
         """
+        '''
         # Store transition in current episode
         self.current_episode.append(
             (state, actions, rewards, next_state, done))
@@ -184,20 +186,35 @@ class ReplayBuffer:
             # Remove oldest episode if capacity is exceeded
             if len(self.buffer_episodes) > self.capacity:
                 self.buffer_episodes.pop(0)
+        '''
+        # state기준으로 변경
+        self.buffer_state.append((state, actions, rewards, next_state, done))
+        if len(self.buffer_state) > self.capacity:
+                self.buffer_state.pop(0)
 
     def sample(self, batch_size: int):
         """Sample batch_size number of complete episodes"""
 
         # Randomly select batch_size episodes
-        selected_episodes = random.sample(self.buffer_episodes, batch_size)
+        #selected_episodes = random.sample(self.buffer_episodes, batch_size)
 
         # Process all transitions from selected episodes
+        selected_states = random.sample(self.buffer_state, batch_size)
         all_states = []
         all_actions = []
         all_rewards = []
         all_next_states = []
         all_dones = []
-
+        for transition in selected_states:
+                temp_action = [0 for i in range(self.action_dim)]
+                state, action, rewards, next_state, done = transition
+                temp_action[action[0]] = 1
+                all_states.append(state)
+                all_actions.append(temp_action)
+                all_rewards.append(-rewards)
+                all_next_states.append(next_state)
+                all_dones.append(done)
+        '''
         for episode in selected_episodes:
             for transition in episode:
                 state, actions, rewards, next_state, done = transition
@@ -206,16 +223,17 @@ class ReplayBuffer:
                 all_rewards.append(rewards)
                 all_next_states.append(next_state)
                 all_dones.append(done)
-
+        '''
         return (torch.FloatTensor(all_states),
                 torch.FloatTensor(all_actions),
                 torch.FloatTensor(all_rewards),
                 torch.FloatTensor(all_next_states),
                 torch.FloatTensor(all_dones))
+       
 
     def __len__(self):
         """Return the number of complete episodes in buffer"""
-        return len(self.buffer_episodes)
+        return len(self.buffer_state)
 
 
 class MAAC:
@@ -243,7 +261,6 @@ class MAAC:
         self.device = torch.device("cpu")
         self.training = False
         print(f"Initialized MAAC on {self.device}")
-
         # Create actor networks (one per agent)
         self.actors = [Actor(state_dim, action_dim).to(self.device)
                        for _ in range(n_agents)]
@@ -277,7 +294,7 @@ class MAAC:
         if not self.training:
             if torch.cuda.is_available():
                 new_device = torch.device("cuda")
-                print(f"Switching to {new_device} for training")
+             #   print(f"Switching to {new_device} for training")
 
                 # Move all networks to GPU
                 for actor in self.actors:
@@ -289,13 +306,13 @@ class MAAC:
 
                 self.device = new_device
             self.training = True
-            print(f"Training mode enabled on {self.device}")
+            #print(f"Training mode enabled on {self.device}")
 
     def to_inference_mode(self):
         """Switch to CPU and set inference mode"""
         if self.training:
             new_device = torch.device("cpu")
-            print(f"Switching to {new_device} for inference")
+            #print(f"Switching to {new_device} for inference")
 
             # Move all networks to CPU
             for actor in self.actors:
@@ -307,7 +324,8 @@ class MAAC:
 
             self.device = new_device
             self.training = False
-            print(f"Inference mode enabled on {self.device}")
+           # print(f"Inference mode enabled on {self.device}")
+
 
     def select_action(self, state, agent_id, epsilon=0.1):
         """
@@ -329,7 +347,6 @@ class MAAC:
                 noise = torch.randn_like(action_probs) * 0.1
                 action_probs = F.softmax(action_probs + noise, dim=-1)
                 action = torch.argmax(action_probs).item()
-
         return action
 
     def update(self, batch_size, buffer):
@@ -349,12 +366,12 @@ class MAAC:
             return 0, [0] * self.n_agents
 
         # Sample batch of transitions
-        states, actions, rewards, next_states, dones = buffer.sample(
+        states, actions, rewards, next_states, dones = buffer.sample( 
             batch_size)
 
-        print("Training - States shape:", states.shape)  # 디버깅용
-        print("Training - Actions shape:", actions.shape)  # 디버깅용
-
+        #print("Training - States shape:", states.shape)  # 디버깅용
+        #print("Training - Actions shape:", actions.shape)  # 디버깅용
+        actions=torch.reshape(actions,[actions.shape[0],1,5]) # 3D TENSOR로 맞추기기
         # Move to current device (GPU if training)
         states = states.to(self.device)  # [batch_size, n_agents, state_dim]
         actions = actions.to(self.device)  # [batch_size, n_agents, action_dim]
@@ -406,7 +423,6 @@ class MAAC:
         """Soft update target networks"""
 
         tau = tau if tau is not None else self.tau
-
         # Update actor targets
         for actor, actor_target in zip(self.actors, self.actors_target):
             for param, target_param in zip(actor.parameters(), actor_target.parameters()):

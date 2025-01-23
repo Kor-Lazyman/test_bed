@@ -70,13 +70,13 @@ class GymWrapper:
             done = False
             critic_loss = 0
             actor_losses = [0] * self.n_agents
-            epsilon = max(0.1, 1.0 - episode/500)
+            epsilon = max(0.1, 1.0 - episode/10000)
 
             while not done:
                 # Select actions for each agent
                 actions = []
                 for i in range(self.n_agents):
-                    action = self.maac.select_action(states[i], i, epsilon)
+                    action = self.maac. (states[i], i, epsilon)
                     actions.append(action)
 
                 # Execute actions in environment
@@ -139,7 +139,7 @@ class GymWrapper:
                 actions = []
                 for i in range(self.n_agents):
                     action = self.maac.select_action(
-                        observations['local_obs'][i], i, epsilon=0)
+                        observations[i], i, epsilon=0)
                     actions.append(action)
 
                 observations, reward, done, info = self.env.step(actions)
