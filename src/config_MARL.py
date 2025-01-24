@@ -14,9 +14,9 @@ Remaining demand: 1 MAA
 STATE_DIM = len(I) + MAT_COUNT + 1
 
 
-BUFFER_SIZE = 3000
+BUFFER_SIZE = 200
 BATCH_SIZE = 64  # Batch size for training (unit: episodes)
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.001
 GAMMA = 0.95
 N_STEPS = 100
 # Find minimum Delta

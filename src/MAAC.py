@@ -211,7 +211,7 @@ class ReplayBuffer:
                 temp_action[action[0]] = 1
                 all_states.append(state)
                 all_actions.append(temp_action)
-                all_rewards.append(-rewards)
+                all_rewards.append(rewards)
                 all_next_states.append(next_state)
                 all_dones.append(done)
         '''
@@ -325,7 +325,6 @@ class MAAC:
             self.device = new_device
             self.training = False
            # print(f"Inference mode enabled on {self.device}")
-
 
     def select_action(self, state, agent_id, epsilon=0.1):
         """
