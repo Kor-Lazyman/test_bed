@@ -70,8 +70,8 @@ class GymWrapper:
             done = False
             critic_loss = 0
             actor_losses = [0] * self.n_agents
-            epsilon = max(0.01, 1.0 - episode/1000)
-
+            epsilon = max(0.01, 1.0 - episode/5000)
+            step = 1
             while not done:
                 # Select actions for each agent
                 actions = []
@@ -88,7 +88,7 @@ class GymWrapper:
 
                 episode_reward += reward
                 states = next_states
-
+                step += 1
                 # Print simulation events
                 if PRINT_SIM_EVENTS:
                     print(info)
@@ -96,7 +96,7 @@ class GymWrapper:
             # If we have enough complete episodes, perform training
             if len(self.buffer) >= self.batch_size:
                 critic_loss, actor_losses = self.maac.update(
-                    self.batch_size, self.buffer)
+                    self.batch_size, self.buffer, step)
 
             # Log training information
             avg_cost = -episode_reward/self.env.current_day

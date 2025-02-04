@@ -5,8 +5,8 @@ import torch.optim as optim
 import numpy as np
 from collections import deque
 import random
-
-
+import time
+import config_MARL
 class AttentionCritic(nn.Module):
     """
     Attention-based critic network that evaluates actions taken by all agents.
@@ -337,7 +337,7 @@ class MAAC:
         """
         self.to_inference_mode()  # Ensure we're on CPU for inference
         state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
-
+        
         if random.random() < epsilon:
             action = np.random.randint(0, self.action_dim)
         else:
@@ -348,7 +348,7 @@ class MAAC:
                 action = torch.argmax(action_probs).item()
         return action
 
-    def update(self, batch_size, buffer):
+    def update(self, batch_size, buffer, step):
         """
         Update actor and critic networks using sampled batch
 
@@ -361,7 +361,7 @@ class MAAC:
         """
         self.to_training_mode()  # Switch to GPU for training
 
-        if len(buffer) < batch_size:
+        if len(buffer) < batch_size and step%config_MARL.N_STEPS:
             return 0, [0] * self.n_agents
 
         # Sample batch of transitions

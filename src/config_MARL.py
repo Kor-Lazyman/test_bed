@@ -14,11 +14,12 @@ Remaining demand: 1 MAA
 STATE_DIM = len(I) + MAT_COUNT + 1
 
 
-BUFFER_SIZE = 200
-BATCH_SIZE = 64  # Batch size for training (unit: episodes)
-LEARNING_RATE = 0.001
+BUFFER_SIZE = 100
+BATCH_SIZE = 32  # Batch size for training (unit: episodes)
+LEARNING_RATE = 0.003
 GAMMA = 0.95
 N_STEPS = 100
+
 # Find minimum Delta
 PRODUCT_OUTGOING_CORRECTION = 0
 for key in P:
