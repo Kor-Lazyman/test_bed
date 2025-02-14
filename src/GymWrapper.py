@@ -129,6 +129,8 @@ class GymWrapper:
         Args:
             episodes: Number of evaluation episodes
         """
+        rewards = []
+
         for episode in range(episodes):
             observations = self.env.reset()
             episode_reward = 0
@@ -145,7 +147,7 @@ class GymWrapper:
                 observations, reward, done, info = self.env.step(actions)
                 episode_reward += reward
 
-                self.env.render()  # Visualize the environment state
+                # self.env.render()  # Visualize the environment state
 
             avg_daily_cost = -episode_reward/self.env.current_day
 
@@ -160,7 +162,20 @@ class GymWrapper:
             print(f"Evaluation Episode {episode}")
             print(f"Total Reward: {episode_reward}")
             print(f"Average Daily Cost: {avg_daily_cost}")
+            print(f"Inventory Levels: {info['inventory_levels']}")
+            print(f"Order quantities: {info['Order quantities']}")
             print("-" * 50)
+
+            rewards.append(episode_reward)
+
+        # Check for device usage warnings
+        self.maac.check_device_usage_warnings()
+
+        avg_reward = sum(rewards) / episodes
+
+        return avg_reward
+
+
 
     def save_model(self, episode, reward):
         """
