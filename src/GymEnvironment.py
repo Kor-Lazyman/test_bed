@@ -158,7 +158,6 @@ class InventoryManagementEnv(gym.Env):
 
         # Calculate reward (a negative value of the daily total cost)
         reward = -Cost.update_cost_log(self.inventory_list)
-
         ''' Reward scaling '''
         reward = reward / 1000
 

@@ -1,9 +1,9 @@
 import time
-from GymWrapper import *
+#from GymWrapper import *
 from GymEnvironment import *
 from config_SimPy import *
 from config_MARL import *
-
+from Gymwrapper_multi_processing import *
 # Start timing the computation
 start_time = time.time()
 
@@ -11,7 +11,7 @@ start_time = time.time()
 env = InventoryManagementEnv()
 
 # Initialize wrapper
-wrapper = GymWrapper(
+wrapper = multi_GymWrapper(
     env=env,
     num_agents=MAT_COUNT,
     joint_action_space_size=JOINT_ACTION_SPACE_SIZE,

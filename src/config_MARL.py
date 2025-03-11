@@ -7,6 +7,7 @@ from gym import spaces
 
 # The number of agents
 NUM_AGENTS = MAT_COUNT
+NUM_PROCESS = 14
 
 ########## The range of action space ##########
 '''
@@ -89,14 +90,14 @@ DECAY_RATE = 0.997  # 감소율 (0.9 ~ 0.999 사이 값 사용)
 N_TRAIN_EPISODES: Number of training episodes (Default=1000)
 EVAL_INTERVAL: Interval for evaluation and printing results (Default=10)
 '''
-N_TRAIN_EPISODES = 10
+N_TRAIN_EPISODES = 100
 EVAL_INTERVAL = 10
 
 # Evaluation
 '''
 N_EVAL_EPISODES: Number of evaluation episodes (Default=100) 
 '''
-N_EVAL_EPISODES = 10
+N_EVAL_EPISODES = 50
 
 
 # Find minimum Delta

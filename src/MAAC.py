@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from collections import deque
-
+import time
 
 class AttentionModule(nn.Module):
     """
@@ -245,6 +245,7 @@ class ReplayBuffer:
         self.max_priority = 1.0
 
     def push(self, transition):
+        
         """
         새로운 transition을 버퍼에 저장
 
@@ -259,7 +260,6 @@ class ReplayBuffer:
 
         # 새 transition의 우선순위를 '현재까지의 max_priority'로 설정
         self.priorities.append(self.max_priority)
-
     def sample(self, batch_size):
         """
         batch_size 개수만큼 우선순위 비례 확률로 샘플링 후, 중요도 가중치(is_weights)와 함께 반환
